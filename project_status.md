@@ -1,0 +1,54 @@
+# Project Status: willyfastsolutions
+
+This document serves as the project memory for the willyfastsolutions B2B SaaS fleet management and preventive maintenance platform.
+
+## Current Project Status
+- **Current Phase**: Phase 0 & Phase 1 (Repository setup & architecture definition)
+- **Status**: Initialization completed. Awaiting user confirmation to begin coding phases.
+
+## Implementation Roadmap
+
+### Phase 0: Environment & Repo Initialization 🟢
+- [x] Initialize Git repository
+- [x] Configure local project settings (`.gitignore`)
+- [x] Create `main` and `develop` branches
+- [x] Install Neon Postgres agent skill (`neon-postgres`)
+- [x] Install SEO Audit agent skill (`seo-audit`)
+- [ ] Install Branding agent skill (Note: `branding` skill was not found in `kostja94/marketing-skills`, simulated/skipped)
+
+### Phase 1: Project Memory & Architecture 🟢
+- [x] Propose directory structure
+- [x] Create `project_status.md` (Project Memory)
+- [x] Create `architecture.md` (Design & Architecture Outline)
+- [x] Create `database_schema.sql` (Relational schema & B2B RLS Security policies)
+
+### Phase 2: Supabase & Cyber Security Configuration 🟡
+- [ ] Connect Supabase/PostgreSQL database
+- [ ] Apply RLS (Row Level Security) policies for B2B tenant isolation (OWASP Security guidelines)
+- [ ] Create mock companies (tenants) and test users (Superadmin, Company Admin)
+
+### Phase 3: Public B2B Landing Page 🟡
+- [ ] Next.js landing page with English copy (Home, Features, Fleet Benefits, Modules, Contact)
+- [ ] Login button connected to Supabase Auth
+- [ ] Mobile-First styling with Tailwind CSS
+- [ ] SEO Auditing (using `seo-audit` rules)
+
+### Phase 4: Multi-tenant SaaS Dashboard 🟡
+- [ ] Setup Next.js App Router for authenticated dashboard
+- [ ] Role-based access control (Superadmin vs Company Admin)
+- [ ] Machinery inventory management (Forklifts, Excavators, Skid steer loaders)
+- [ ] Hour log registration form (Horómetro)
+- [ ] Preventive maintenance form (Routine services + Safety checklist)
+- [ ] Minimalist Design System (Soft tones/Monochrome palette)
+
+### Phase 5: Python Automated Auditing Agent (Daemon) 🟡
+- [ ] Setup Python FastAPI API/Daemon base
+- [ ] Worker process to poll DB for machines exceeding maintenance thresholds
+- [ ] PDF Generation engine (using WeasyPrint / ReportLab) with key KPIs
+- [ ] SMTP / SendGrid email worker to dispatch PDF reports automatically to Company Admins
+
+---
+
+## Known Issues / Blockers
+- **Branding Skill**: The skill named `branding` does not exist in `https://github.com/kostja94/marketing-skills`. Available options include `visual-content`, `copywriting`, `analytics-tracking`. We will default to manual branding best practices or use `copywriting` if needed.
+- **Git Commit Identity**: Local git config needs to be finalized with a generic corporate identity before we can run local Git commits safely without linking to your personal identity.
