@@ -56,3 +56,7 @@ venv.bak/
 *.sln
 *.sw?
 .DS_Store
+
+# Static exports
+wp/
+wp.zip

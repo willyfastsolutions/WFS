@@ -43,7 +43,7 @@ export default function LoginPage() {
       
       {/* Return Home Button */}
       <Link 
-        href="/" 
+        href="../index.html" 
         id="btn-login-back"
         className="absolute top-6 left-6 inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 transition-colors"
       >
@@ -55,7 +55,7 @@ export default function LoginPage() {
         {/* Logo / Header */}
         <div className="flex flex-col items-center gap-2 text-center">
           <div className="bg-zinc-900 border border-zinc-800 p-1 rounded-xl shadow-lg w-12 h-12 overflow-hidden flex items-center justify-center">
-            <img src="/logo/logo.png" alt="WillyFastSolutions Logo" className="w-full h-full object-cover filter brightness-110" />
+            <img src="../logo/logo.png" alt="WillyFastSolutions Logo" className="w-full h-full object-cover filter brightness-110" />
           </div>
           <h2 className="text-xl font-semibold tracking-tight text-zinc-200">
             {isSignUp ? "Create your workspace" : "Welcome back"}

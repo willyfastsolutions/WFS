@@ -69,7 +69,7 @@ export default function Home() {
     forklift: {
       title: "Industrial Forklifts",
       subtitle: "Toyota / Hyster / Caterpillar",
-      image: "/images/forklift.png",
+      image: "images/forklift.png",
       description: "High-frequency warehouse assets requiring strict load-safety compliance. WillyFastSolutions monitors mast hydraulics, lifting speed degradation, and tire wear intervals.",
       criticalCheck: "Hydraulic pressure valves & mast tilt stability",
       routineServices: ["Mast oil & cylinder lubrication", "Engine oil change & oil filter", "Air intake filter clean", "Brake fluid check"],
@@ -79,7 +79,7 @@ export default function Home() {
     excavator: {
       title: "Heavy Excavators",
       subtitle: "Caterpillar / Komatsu / John Deere",
-      image: "/images/excavator.png",
+      image: "images/excavator.png",
       description: "High-stress earthmoving machinery operating in abrasive dust conditions. WillyFastSolutions alerts for track tension wear, swing gear lubrication, and cooling radiator status.",
       criticalCheck: "Hydraulic pump flow & boom swing gear grease",
       routineServices: ["Swing drive fluid change", "Engine oil & hydraulic filters", "Air pre-cleaner cartridge", "Glow plug replacement"],
@@ -89,7 +89,7 @@ export default function Home() {
     skid_steer: {
       title: "Skid Steer Loaders",
       subtitle: "Bobcat / Case / Kubota",
-      image: "/images/skid_steer.png",
+      image: "images/skid_steer.png",
       description: "Compact, agile machines with dynamic attachment changes. WillyFastSolutions handles quick-attach latch inspections, auxiliary hydraulic flow logs, and wheel hub wear logs.",
       criticalCheck: "Quick-attach mechanical latch & auxiliary line integrity",
       routineServices: ["Drive chain tension adjustment", "Engine oil & separator filter", "Engine cooling pack blow-out", "Fuel filter replacement"],
@@ -113,7 +113,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="bg-zinc-900 border border-zinc-800 p-1.5 rounded-lg shadow-sm flex items-center justify-center w-10 h-10 overflow-hidden">
-              <img src="/logo/logo.png" alt="WillyFastSolutions Logo" className="w-full h-full object-cover filter brightness-110" />
+              <img src="logo/logo.png" alt="WillyFastSolutions Logo" className="w-full h-full object-cover filter brightness-110" />
             </div>
             <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-zinc-100 to-zinc-400 bg-clip-text text-transparent">
               WillyFastSolutions
@@ -147,7 +147,7 @@ export default function Home() {
               </a>
             </div>
             <Link 
-              href="/login" 
+              href="login/index.html" 
               id="btn-login" 
               className="inline-flex h-9 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 px-4 text-sm font-medium text-zinc-300 transition-all hover:bg-zinc-900 hover:text-zinc-100 hover:border-zinc-700 shadow-sm"
             >
@@ -545,7 +545,7 @@ export default function Home() {
               className="relative overflow-hidden rounded-2xl border border-zinc-900 bg-zinc-900/10 p-2 shadow-2xl"
             >
               <img 
-                src="/images/audit_agent.png" 
+                src="images/audit_agent.png" 
                 alt="Automated Auditing Daemon" 
                 className="w-full h-auto object-cover rounded-xl filter brightness-90 group-hover:scale-101 transition-transform"
               />
@@ -847,7 +847,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <div className="flex justify-center items-center gap-2">
             <div className="w-6 h-6 rounded-md overflow-hidden flex items-center justify-center bg-zinc-900 border border-zinc-800">
-              <img src="/logo/logo.png" alt="WillyFastSolutions Logo" className="w-full h-full object-cover filter brightness-110" />
+              <img src="logo/logo.png" alt="WillyFastSolutions Logo" className="w-full h-full object-cover filter brightness-110" />
             </div>
             <span className="font-semibold text-sm text-zinc-400">WillyFastSolutions</span>
           </div>
