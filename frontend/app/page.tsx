@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Wrench, 
   ShieldCheck, 
@@ -16,7 +17,9 @@ import {
   BarChart3, 
   ArrowRight,
   TrendingUp,
-  FileText
+  Loader2,
+  FileText,
+  UserCheck
 } from "lucide-react";
 
 type MachineType = "forklift" | "excavator" | "skid_steer";
@@ -34,7 +37,8 @@ interface MachineDetail {
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<MachineType>("forklift");
-  const [quoteMessage, setQuoteMessage] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formSubmitted, setFormSubmitted] = useState(false);
 
   const handleSelectPackage = (packageName: string) => {
     // Smooth scroll to contact section
@@ -49,6 +53,16 @@ export default function Home() {
       textarea.value = `Hello, I would like to request a quotation for the WillyFastSolutions "${packageName}" maintenance service package for my fleet.`;
       textarea.focus();
     }
+  };
+
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setTimeout(() => {
+      setIsSubmitting(false);
+      setFormSubmitted(true);
+      setTimeout(() => setFormSubmitted(false), 5000);
+    }, 1500);
   };
 
   const machineryDetails: Record<MachineType, MachineDetail> = {
@@ -87,10 +101,15 @@ export default function Home() {
   const currentMachine = machineryDetails[activeTab];
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans antialiased selection:bg-zinc-800 selection:text-zinc-200">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans antialiased selection:bg-zinc-800 selection:text-zinc-200 overflow-x-hidden">
       
       {/* Navigation Header */}
-      <header className="sticky top-0 z-50 backdrop-blur-md bg-zinc-950/80 border-b border-zinc-900 transition-all duration-300">
+      <motion.header 
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="sticky top-0 z-50 backdrop-blur-md bg-zinc-950/80 border-b border-zinc-900 transition-all duration-300"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="bg-zinc-900 border border-zinc-800 p-1.5 rounded-lg shadow-sm flex items-center justify-center w-10 h-10 overflow-hidden">
@@ -107,12 +126,26 @@ export default function Home() {
             <a href="#machinery" id="nav-machinery" className="hover:text-zinc-100 transition-colors">Fleet Models</a>
             <a href="#features" id="nav-features" className="hover:text-zinc-100 transition-colors">Features</a>
             <a href="#benefits" id="nav-benefits" className="hover:text-zinc-100 transition-colors">Fleet Benefits</a>
+            <a href="#agent" id="nav-agent" className="hover:text-zinc-100 transition-colors">Audit Agent</a>
+            <a href="#about" id="nav-about" className="hover:text-zinc-100 transition-colors">Who We Are</a>
             <a href="#pricing" id="nav-pricing" className="hover:text-zinc-100 transition-colors">Services</a>
             <a href="#contact" id="nav-contact" className="hover:text-zinc-100 transition-colors">Contact</a>
           </nav>
           
-          {/* Action Button */}
+          {/* Social Icons + Login */}
           <div className="flex items-center gap-4">
+            <div className="hidden sm:flex items-center gap-3 border-r border-zinc-900 pr-4">
+              <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-zinc-300 transition-colors" aria-label="Facebook">
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd" />
+                </svg>
+              </a>
+              <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-zinc-300 transition-colors" aria-label="Instagram">
+                <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                  <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.008 3.752.052 2.73.124 4.093 1.503 4.218 4.218.044.968.052 1.322.052 3.752c0 2.43-.008 2.784-.052 3.752-.124 2.73-1.503 4.093-4.218 4.218-.968.044-1.322.052-3.752.052-2.43 0-2.784-.008-3.752-.052-2.73-.124-4.093-1.503-4.218-4.218-.044-.968-.052-1.322-.052-3.752 0-2.43.008-2.784.052-3.752.124-2.73 1.503-4.093 4.218-4.218.968-.044 1.322-.052 3.752-.052zm.126 1.8c-2.408 0-2.71.01-3.66.054-2.188.1-3.136 1.054-3.238 3.238-.044.95-.054 1.252-.054 3.66s.01 2.71.054 3.66c.1 2.184 1.05 3.134 3.238 3.238.95.044 1.252.054 3.66.054s2.71-.01 3.66-.054c2.184-.1 3.134-1.05 3.238-3.238.044-.95.054-1.252.054-3.66s-.01-2.71-.054-3.66c-.1-2.188-1.054-3.136-3.238-3.238-.95-.044-1.252-.054-3.66-.054h-.13zm-5.44 8.2a5.5 5.5 0 1111 0 5.5 5.5 0 01-11 0zm2 0a3.5 3.5 0 107 0 3.5 3.5 0 00-7 0zm6.3-3.75a1.25 1.25 0 112.5 0 1.25 1.25 0 01-2.5 0z" clipRule="evenodd" />
+                </svg>
+              </a>
+            </div>
             <Link 
               href="/login" 
               id="btn-login" 
@@ -122,32 +155,52 @@ export default function Home() {
             </Link>
           </div>
         </div>
-      </header>
+      </motion.header>
 
       {/* Hero Section */}
-      <section id="home" className="relative py-20 md:py-28 overflow-hidden border-b border-zinc-900">
+      <section id="home" className="relative py-20 md:py-32 overflow-hidden border-b border-zinc-900">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900/40 via-zinc-950 to-zinc-950 -z-10" />
         
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center md:text-left flex flex-col md:flex-row items-center gap-12">
           <div className="flex-1 flex flex-col gap-6">
-            <div className="inline-flex self-center md:self-start items-center gap-1.5 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/50 text-xs text-zinc-400">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5 }}
+              className="inline-flex self-center md:self-start items-center gap-1.5 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/50 text-xs text-zinc-400"
+            >
               <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
               Heavy Machinery Maintenance Provider
-            </div>
+            </motion.div>
             
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight bg-gradient-to-b from-zinc-50 to-zinc-400 bg-clip-text text-transparent">
+            <motion.h1 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+              className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight bg-gradient-to-b from-zinc-50 to-zinc-400 bg-clip-text text-transparent"
+            >
               Automated Maintenance Audits for Heavy Machinery
-            </h1>
+            </motion.h1>
             
-            <p className="text-base sm:text-lg text-zinc-400 max-w-xl">
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="text-base sm:text-lg text-zinc-400 max-w-xl"
+            >
               Monitor operating hours and perform routine checklists for your fleet of heavy machinery. Get automated audit reports sent to your email before thresholds are crossed.
-            </p>
+            </motion.p>
             
-            <div className="flex flex-col sm:flex-row items-center gap-4 mt-2 justify-center md:justify-start">
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="flex flex-col sm:flex-row items-center gap-4 mt-2 justify-center md:justify-start"
+            >
               <a 
                 href="#pricing" 
                 id="btn-hero-start" 
-                className="w-full sm:w-auto inline-flex h-11 items-center justify-center rounded-lg bg-zinc-100 px-6 text-sm font-medium text-zinc-950 transition-all hover:bg-zinc-200 active:scale-95 shadow-[0_0_15px_rgba(255,255,255,0.1)]"
+                className="w-full sm:w-auto inline-flex h-11 items-center justify-center rounded-lg bg-zinc-100 px-6 text-sm font-medium text-zinc-950 transition-all hover:bg-zinc-200 hover:scale-102 active:scale-95 shadow-[0_0_20px_rgba(255,255,255,0.1)]"
               >
                 Request Service
               </a>
@@ -158,12 +211,17 @@ export default function Home() {
               >
                 Inspect Machinery
               </a>
-            </div>
+            </motion.div>
           </div>
 
           {/* Interactive Live Status Widget */}
-          <div className="flex-1 w-full max-w-lg md:max-w-none">
-            <div className="relative border border-zinc-800 bg-zinc-900/30 rounded-xl p-4 sm:p-6 shadow-2xl backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+            className="flex-1 w-full max-w-lg md:max-w-none"
+          >
+            <div className="relative border border-zinc-800 bg-zinc-900/30 rounded-xl p-4 sm:p-6 shadow-2xl backdrop-blur-sm group hover:border-zinc-700/80 transition-all duration-500">
               <div className="absolute top-3 left-4 flex gap-1.5">
                 <span className="w-3 h-3 rounded-full bg-zinc-800" />
                 <span className="w-3 h-3 rounded-full bg-zinc-800" />
@@ -172,7 +230,7 @@ export default function Home() {
               <div className="text-xs text-zinc-500 text-right mb-6">telemetry_dashboard.json</div>
               
               <div className="space-y-4">
-                <div className="flex items-center justify-between p-3 rounded-lg border border-zinc-800/80 bg-zinc-950/60 transition-all hover:border-zinc-700">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-zinc-800/85 bg-zinc-950/70 transition-all hover:-translate-y-0.5 duration-300 hover:border-zinc-700">
                   <div className="flex items-center gap-3">
                     <div className="bg-zinc-900 p-2 rounded border border-zinc-800">
                       <Cpu className="h-4 w-4 text-zinc-400" />
@@ -190,7 +248,7 @@ export default function Home() {
                   </div>
                 </div>
                 
-                <div className="flex items-center justify-between p-3 rounded-lg border border-zinc-800/80 bg-zinc-950/60 transition-all hover:border-zinc-700">
+                <div className="flex items-center justify-between p-3 rounded-lg border border-zinc-800/85 bg-zinc-950/70 transition-all hover:-translate-y-0.5 duration-300 hover:border-zinc-700">
                   <div className="flex items-center gap-3">
                     <div className="bg-zinc-900 p-2 rounded border border-zinc-800">
                       <Activity className="h-4 w-4 text-zinc-400" />
@@ -214,7 +272,7 @@ export default function Home() {
                 </div>
               </div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -233,127 +291,121 @@ export default function Home() {
           {/* Tabs Navigation */}
           <div className="flex justify-center mb-10">
             <div className="inline-flex p-1 rounded-lg border border-zinc-800 bg-zinc-950/60">
-              <button 
-                onClick={() => setActiveTab("forklift")}
-                className={`px-4 py-2 text-xs font-semibold rounded-md transition-all cursor-pointer ${
-                  activeTab === "forklift" 
-                    ? "bg-zinc-800 text-zinc-100 shadow-sm" 
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
-              >
-                Forklifts
-              </button>
-              <button 
-                onClick={() => setActiveTab("excavator")}
-                className={`px-4 py-2 text-xs font-semibold rounded-md transition-all cursor-pointer ${
-                  activeTab === "excavator" 
-                    ? "bg-zinc-800 text-zinc-100 shadow-sm" 
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
-              >
-                Excavators
-              </button>
-              <button 
-                onClick={() => setActiveTab("skid_steer")}
-                className={`px-4 py-2 text-xs font-semibold rounded-md transition-all cursor-pointer ${
-                  activeTab === "skid_steer" 
-                    ? "bg-zinc-800 text-zinc-100 shadow-sm" 
-                    : "text-zinc-500 hover:text-zinc-300"
-                }`}
-              >
-                Skid Steers
-              </button>
+              {(["forklift", "excavator", "skid_steer"] as MachineType[]).map((tab) => (
+                <button 
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-4 py-2 text-xs font-semibold rounded-md transition-all cursor-pointer capitalize ${
+                    activeTab === tab 
+                      ? "bg-zinc-800 text-zinc-100 shadow-sm" 
+                      : "text-zinc-500 hover:text-zinc-300"
+                  }`}
+                >
+                  {tab.replace("_", " ")}s
+                </button>
+              ))}
             </div>
           </div>
 
           {/* Tab Content Box */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center bg-zinc-950 border border-zinc-900 p-6 sm:p-10 rounded-2xl shadow-xl">
-            
-            {/* Left Column: Image with Glass Frame */}
-            <div className="relative group overflow-hidden rounded-xl border border-zinc-800/80 bg-zinc-900/20 p-2">
-              <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent z-10 opacity-60" />
-              <img 
-                src={currentMachine.image} 
-                alt={currentMachine.title}
-                className="w-full h-auto object-cover rounded-lg transform group-hover:scale-102 transition-transform duration-500 filter brightness-90"
-              />
-              
-              <div className="absolute bottom-6 left-6 z-20 space-y-1">
-                <span className="inline-flex px-2 py-0.5 rounded text-[9px] font-semibold tracking-wider bg-zinc-100 text-zinc-950 uppercase">
-                  Class Overview
-                </span>
-                <h3 className="text-xl font-bold text-zinc-100">{currentMachine.title}</h3>
-                <p className="text-xs text-zinc-400">{currentMachine.subtitle}</p>
-              </div>
-            </div>
-
-            {/* Right Column: Specification Details & Checklists */}
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <h3 className="text-xl font-bold text-zinc-100">Maintenance Outline</h3>
-                <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
-                  {currentMachine.description}
-                </p>
-              </div>
-
-              {/* Critical Check Indicator */}
-              <div className="p-3.5 rounded-lg border border-rose-500/10 bg-rose-500/5 text-xs text-rose-400/90">
-                <strong>Critical Wear Check:</strong> {currentMachine.criticalCheck}
-              </div>
-
-              {/* Checklist Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div className="bg-zinc-950 border border-zinc-900 p-4 sm:p-8 rounded-2xl shadow-xl overflow-hidden">
+            <AnimatePresence mode="wait">
+              <motion.div 
+                key={activeTab}
+                initial={{ opacity: 0, y: 15 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -15 }}
+                transition={{ duration: 0.3 }}
+                className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center"
+              >
                 
-                {/* Routine Services */}
-                <div className="space-y-2.5">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-1.5">
-                    <Wrench className="h-3.5 w-3.5 text-zinc-400" /> Routine Services
-                  </h4>
-                  <ul className="space-y-1.5 text-xs text-zinc-400">
-                    {currentMachine.routineServices.map((service, idx) => (
-                      <li key={idx} className="flex items-center gap-2">
-                        <span className="h-1 w-1 rounded-full bg-zinc-600" />
-                        {service}
-                      </li>
-                    ))}
-                  </ul>
+                {/* Left Column: Image with Glass Frame */}
+                <div className="relative group overflow-hidden rounded-xl border border-zinc-800/80 bg-zinc-900/20 p-2">
+                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-transparent to-transparent z-10 opacity-60" />
+                  <img 
+                    src={currentMachine.image} 
+                    alt={currentMachine.title}
+                    className="w-full h-auto object-cover rounded-lg transform group-hover:scale-103 transition-transform duration-500 filter brightness-90"
+                  />
+                  
+                  <div className="absolute bottom-6 left-6 z-20 space-y-1">
+                    <span className="inline-flex px-2 py-0.5 rounded text-[9px] font-semibold tracking-wider bg-zinc-100 text-zinc-950 uppercase">
+                      Class Overview
+                    </span>
+                    <h3 className="text-xl font-bold text-zinc-100">{currentMachine.title}</h3>
+                    <p className="text-xs text-zinc-400">{currentMachine.subtitle}</p>
+                  </div>
                 </div>
 
-                {/* Mandatory Safety checks */}
-                <div className="space-y-2.5">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-1.5">
-                    <ShieldCheck className="h-3.5 w-3.5 text-emerald-400/80" /> Safety Checklist
-                  </h4>
-                  <ul className="space-y-1.5 text-xs text-zinc-400">
-                    {currentMachine.safetyChecks.map((safety, idx) => (
-                      <li key={idx} className="flex items-center gap-2">
-                        <CheckCircle2 className="h-3 w-3 text-emerald-500/80" />
-                        {safety}
-                      </li>
-                    ))}
-                  </ul>
+                {/* Right Column: Specification Details & Checklists */}
+                <div className="space-y-6">
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold text-zinc-100">Maintenance Outline</h3>
+                    <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+                      {currentMachine.description}
+                    </p>
+                  </div>
+
+                  {/* Critical Check Indicator */}
+                  <div className="p-3.5 rounded-lg border border-rose-500/10 bg-rose-500/5 text-xs text-rose-400/95 font-medium shadow-sm">
+                    <strong>Critical Wear Check:</strong> {currentMachine.criticalCheck}
+                  </div>
+
+                  {/* Checklist Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    
+                    {/* Routine Services */}
+                    <div className="space-y-2.5">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-1.5">
+                        <Wrench className="h-3.5 w-3.5 text-zinc-400" /> Routine Services
+                      </h4>
+                      <ul className="space-y-1.5 text-xs text-zinc-400">
+                        {currentMachine.routineServices.map((service, idx) => (
+                          <li key={idx} className="flex items-center gap-2">
+                            <span className="h-1.5 w-1.5 rounded-full bg-zinc-700" />
+                            {service}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                    {/* Mandatory Safety checks */}
+                    <div className="space-y-2.5">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-500 flex items-center gap-1.5">
+                        <ShieldCheck className="h-3.5 w-3.5 text-emerald-400/80" /> Safety Checklist
+                      </h4>
+                      <ul className="space-y-1.5 text-xs text-zinc-400">
+                        {currentMachine.safetyChecks.map((safety, idx) => (
+                          <li key={idx} className="flex items-center gap-2">
+                            <CheckCircle2 className="h-3 w-3 text-emerald-500/80" />
+                            {safety}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+
+                  </div>
+
+                  {/* Actions & telemetry preview */}
+                  <div className="pt-4 border-t border-zinc-900 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div className="flex items-center gap-2 text-xs">
+                      <Clock className="h-4 w-4 text-zinc-500" />
+                      <span className="text-zinc-500">Standard Test Interval:</span>
+                      <span className="font-semibold text-zinc-300">Every 250.0 Hours</span>
+                    </div>
+                    
+                    <button 
+                      onClick={() => handleSelectPackage(currentMachine.title)}
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-1 text-xs font-semibold text-zinc-200 hover:text-zinc-100 transition-colors cursor-pointer group"
+                    >
+                      Request quote for this model <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                    </button>
+                  </div>
+
                 </div>
 
-              </div>
-
-              {/* Actions & telemetry preview */}
-              <div className="pt-4 border-t border-zinc-900 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div className="flex items-center gap-2 text-xs">
-                  <Clock className="h-4 w-4 text-zinc-500" />
-                  <span className="text-zinc-500">Standard Test Interval:</span>
-                  <span className="font-semibold text-zinc-300">Every 250.0 Hours</span>
-                </div>
-                
-                <button 
-                  onClick={() => handleSelectPackage(currentMachine.title)}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-1 text-xs font-semibold text-zinc-200 hover:text-zinc-100 transition-colors cursor-pointer group"
-                >
-                  Request quote for this model <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-                </button>
-              </div>
-
-            </div>
-
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
       </section>
@@ -371,7 +423,10 @@ export default function Home() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="border border-zinc-900 bg-zinc-950 p-6 rounded-xl space-y-4 hover:border-zinc-800 transition-all hover:bg-zinc-900/30">
+            <motion.div 
+              whileHover={{ y: -6, borderColor: "#27272a" }}
+              className="border border-zinc-900 bg-zinc-950 p-6 rounded-xl space-y-4 hover:bg-zinc-900/20 transition-colors duration-300"
+            >
               <div className="inline-flex bg-zinc-900 p-3 rounded-lg border border-zinc-800">
                 <Hourglass className="h-6 w-6 text-zinc-300" />
               </div>
@@ -379,9 +434,12 @@ export default function Home() {
               <p className="text-sm text-zinc-400 leading-relaxed">
                 Log accurate operating hours (horómetro) for each machine. Automatically update fleet diagnostic metrics to trigger maintenance intervals correctly.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="border border-zinc-900 bg-zinc-950 p-6 rounded-xl space-y-4 hover:border-zinc-800 transition-all hover:bg-zinc-900/30">
+            <motion.div 
+              whileHover={{ y: -6, borderColor: "#27272a" }}
+              className="border border-zinc-900 bg-zinc-950 p-6 rounded-xl space-y-4 hover:bg-zinc-900/20 transition-colors duration-300"
+            >
               <div className="inline-flex bg-zinc-900 p-3 rounded-lg border border-zinc-800">
                 <ShieldCheck className="h-6 w-6 text-zinc-300" />
               </div>
@@ -389,9 +447,12 @@ export default function Home() {
               <p className="text-sm text-zinc-400 leading-relaxed">
                 Step-by-step validation of critical components: oil change, oil/air filters, spark plugs, battery checks, working lights, horn, and ignition systems.
               </p>
-            </div>
+            </motion.div>
 
-            <div className="border border-zinc-900 bg-zinc-950 p-6 rounded-xl space-y-4 hover:border-zinc-800 transition-all hover:bg-zinc-900/30">
+            <motion.div 
+              whileHover={{ y: -6, borderColor: "#27272a" }}
+              className="border border-zinc-900 bg-zinc-950 p-6 rounded-xl space-y-4 hover:bg-zinc-900/20 transition-colors duration-300"
+            >
               <div className="inline-flex bg-zinc-900 p-3 rounded-lg border border-zinc-800">
                 <BellRing className="h-6 w-6 text-zinc-300" />
               </div>
@@ -399,13 +460,13 @@ export default function Home() {
               <p className="text-sm text-zinc-400 leading-relaxed">
                 Our background daemon worker continuously scans the database, automatically generating executive reports and emailing them directly to company admins when thresholds are breached.
               </p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
       {/* Fleet Benefits Section */}
-      <section id="benefits" className="py-20 md:py-28 bg-zinc-905 border-b border-zinc-900">
+      <section id="benefits" className="py-20 md:py-28 bg-zinc-900/20 border-b border-zinc-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             
@@ -451,24 +512,128 @@ export default function Home() {
             </div>
 
             <div className="grid grid-cols-2 gap-4">
-              <div className="p-6 rounded-xl border border-zinc-900 bg-zinc-950 text-center space-y-2">
+              <motion.div whileHover={{ scale: 1.03 }} className="p-6 rounded-xl border border-zinc-900 bg-zinc-950 text-center space-y-2">
                 <div className="text-3xl sm:text-4xl font-bold text-zinc-200">-35%</div>
                 <div className="text-[10px] sm:text-xs text-zinc-500 uppercase tracking-wider font-semibold">Unscheduled Downtime</div>
-              </div>
-              <div className="p-6 rounded-xl border border-zinc-900 bg-zinc-950 text-center space-y-2">
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.03 }} className="p-6 rounded-xl border border-zinc-900 bg-zinc-950 text-center space-y-2">
                 <div className="text-3xl sm:text-4xl font-bold text-zinc-200">100%</div>
                 <div className="text-[10px] sm:text-xs text-zinc-500 uppercase tracking-wider font-semibold">OSHA Compliance</div>
-              </div>
-              <div className="p-6 rounded-xl border border-zinc-900 bg-zinc-950 text-center space-y-2">
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.03 }} className="p-6 rounded-xl border border-zinc-900 bg-zinc-950 text-center space-y-2">
                 <div className="text-3xl sm:text-4xl font-bold text-zinc-200">24/7</div>
                 <div className="text-[10px] sm:text-xs text-zinc-500 uppercase tracking-wider font-semibold">Daemon Monitoring</div>
-              </div>
-              <div className="p-6 rounded-xl border border-zinc-900 bg-zinc-950 text-center space-y-2">
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.03 }} className="p-6 rounded-xl border border-zinc-900 bg-zinc-950 text-center space-y-2">
                 <div className="text-3xl sm:text-4xl font-bold text-zinc-200">&lt;5m</div>
                 <div className="text-[10px] sm:text-xs text-zinc-500 uppercase tracking-wider font-semibold">Audit PDF Dispatch</div>
+              </motion.div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* Automated Auditing Agent (Daemon) Showcase */}
+      <section id="agent" className="py-20 md:py-28 border-b border-zinc-900 bg-zinc-950">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            
+            {/* Left: Automated Agent image */}
+            <motion.div 
+              whileHover={{ scale: 1.01 }}
+              className="relative overflow-hidden rounded-2xl border border-zinc-900 bg-zinc-900/10 p-2 shadow-2xl"
+            >
+              <img 
+                src="/images/audit_agent.png" 
+                alt="Automated Auditing Daemon" 
+                className="w-full h-auto object-cover rounded-xl filter brightness-90 group-hover:scale-101 transition-transform"
+              />
+            </motion.div>
+
+            {/* Right: Agent Description details */}
+            <div className="space-y-6">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-zinc-900 bg-zinc-900/30 text-xs text-zinc-500">
+                <Clock className="h-3.5 w-3.5" /> 24/7 Background Audit Worker
+              </div>
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-zinc-100">
+                Automated Auditing Agent (Daemon)
+              </h2>
+              <p className="text-sm sm:text-base text-zinc-400 leading-relaxed">
+                WillyFastSolutions integrates a backend worker process that monitors your machines constantly. No manual logging is left unchecked.
+              </p>
+
+              <div className="space-y-4 text-xs sm:text-sm text-zinc-400">
+                <div className="flex gap-3 items-start">
+                  <div className="p-1 rounded bg-zinc-900 border border-zinc-800 text-zinc-300 mt-0.5">
+                    <Cpu className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-zinc-300">Continuous Database Scanning</h4>
+                    <p className="text-xs text-zinc-500 mt-0.5">The daemon worker queries operating hours and identifies equipment exceeding the 250-hour service threshold.</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 items-start">
+                  <div className="p-1 rounded bg-zinc-900 border border-zinc-800 text-zinc-300 mt-0.5">
+                    <FileText className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-zinc-300">Instant Executive PDF Generation</h4>
+                    <p className="text-xs text-zinc-500 mt-0.5">Generates clean executive PDF audit reports including essential KPIs, safety statuses, and checklists.</p>
+                  </div>
+                </div>
+
+                <div className="flex gap-3 items-start">
+                  <div className="p-1 rounded bg-zinc-900 border border-zinc-800 text-zinc-300 mt-0.5">
+                    <Mail className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h4 className="font-semibold text-zinc-300">Automated Dispatch</h4>
+                    <p className="text-xs text-zinc-500 mt-0.5">Sends reports automatically to company emails, ensuring you remain compliant without clicking a single button.</p>
+                  </div>
+                </div>
               </div>
             </div>
 
+          </div>
+        </div>
+      </section>
+
+      {/* Who We Are (About Us) Section */}
+      <section id="about" className="py-20 md:py-28 border-b border-zinc-900 bg-zinc-900/10">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
+          <div className="inline-flex p-3 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-300 mx-auto">
+            <UserCheck className="h-6 w-6" />
+          </div>
+          <div className="max-w-2xl mx-auto space-y-4">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-zinc-100">
+              Who We Are
+            </h2>
+            <p className="text-base sm:text-lg text-zinc-400 leading-relaxed">
+              WillyFastSolutions is an independent heavy machinery maintenance partner. We combine hands-on mechanical field experience with modern cloud telemetry alerts.
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 text-left">
+            <div className="p-6 rounded-xl border border-zinc-900 bg-zinc-950 space-y-2">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-400">Our Mission</h3>
+              <p className="text-xs text-zinc-500 leading-relaxed">
+                To guarantee zero unexpected machinery failures and maintain total OSHA audit readiness for warehousing, mining, and logistics operators.
+              </p>
+            </div>
+            <div className="p-6 rounded-xl border border-zinc-900 bg-zinc-950 space-y-2">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-400">Field Service</h3>
+              <p className="text-xs text-zinc-500 leading-relaxed">
+                We handle the dirty work. From oil filter changes to full battery and ignition diagnostic scans, our technicians service your equipment on-site.
+              </p>
+            </div>
+            <div className="p-6 rounded-xl border border-zinc-900 bg-zinc-950 space-y-2">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-400">Telemetry First</h3>
+              <p className="text-xs text-zinc-500 leading-relaxed">
+                We don't guess. Our telemetry portal logs machine hours continuously, ensuring that preventative checks occur exactly when required.
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -488,7 +653,10 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
             
             {/* Package 1 */}
-            <div className="border border-zinc-900 bg-zinc-900/10 p-8 rounded-2xl flex flex-col justify-between hover:border-zinc-800 transition-all">
+            <motion.div 
+              whileHover={{ y: -8 }}
+              className="border border-zinc-900 bg-zinc-900/10 p-8 rounded-2xl flex flex-col justify-between hover:border-zinc-800 transition-colors duration-300"
+            >
               <div className="space-y-6">
                 <div>
                   <div className="text-xs text-zinc-500 font-bold uppercase tracking-wider mb-1">Small Fleet</div>
@@ -505,16 +673,19 @@ export default function Home() {
               <div className="mt-8">
                 <button 
                   onClick={() => handleSelectPackage("Small Fleet (Up to 5 Machines)")}
-                  className="w-full inline-flex h-10 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-xs font-semibold text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100 transition-all cursor-pointer"
+                  className="w-full inline-flex h-10 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-xs font-semibold text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100 hover:scale-102 active:scale-95 transition-all cursor-pointer"
                 >
                   Request Quote
                 </button>
               </div>
-            </div>
+            </motion.div>
 
             {/* Package 2 - Recommended */}
-            <div className="relative border-2 border-zinc-800 bg-zinc-900/30 p-8 rounded-2xl flex flex-col justify-between shadow-xl">
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-zinc-100 text-[10px] font-bold text-zinc-950 uppercase shadow-md">
+            <motion.div 
+              whileHover={{ y: -8 }}
+              className="relative border-2 border-zinc-800 bg-zinc-900/30 p-8 rounded-2xl flex flex-col justify-between shadow-xl"
+            >
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-zinc-100 text-[10px] font-bold text-zinc-950 uppercase shadow-md animate-bounce">
                 <TrendingUp className="h-3.5 w-3.5" /> Most Requested
               </div>
               
@@ -536,15 +707,18 @@ export default function Home() {
               <div className="mt-8">
                 <button 
                   onClick={() => handleSelectPackage("Medium Fleet (6 to 25 Machines)")}
-                  className="w-full inline-flex h-10 items-center justify-center rounded-lg bg-zinc-100 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-all shadow-md cursor-pointer"
+                  className="w-full inline-flex h-10 items-center justify-center rounded-lg bg-zinc-100 text-xs font-bold text-zinc-950 hover:bg-zinc-200 hover:scale-102 active:scale-95 transition-all shadow-md cursor-pointer"
                 >
                   Request Quote
                 </button>
               </div>
-            </div>
+            </motion.div>
 
             {/* Package 3 */}
-            <div className="border border-zinc-900 bg-zinc-900/10 p-8 rounded-2xl flex flex-col justify-between hover:border-zinc-800 transition-all">
+            <motion.div 
+              whileHover={{ y: -8 }}
+              className="border border-zinc-900 bg-zinc-900/10 p-8 rounded-2xl flex flex-col justify-between hover:border-zinc-800 transition-colors duration-300"
+            >
               <div className="space-y-6">
                 <div>
                   <div className="text-xs text-zinc-500 font-bold uppercase tracking-wider mb-1">Enterprise Fleet</div>
@@ -561,68 +735,13 @@ export default function Home() {
               <div className="mt-8">
                 <button 
                   onClick={() => handleSelectPackage("Enterprise Fleet (26+ Machines)")}
-                  className="w-full inline-flex h-10 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-xs font-semibold text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100 transition-all cursor-pointer"
+                  className="w-full inline-flex h-10 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-xs font-semibold text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100 hover:scale-102 active:scale-95 transition-all cursor-pointer"
                 >
                   Contact Sales
                 </button>
               </div>
-            </div>
+            </motion.div>
 
-          </div>
-        </div>
-      </section>
-
-      {/* Modules Section */}
-      <section id="modules" className="py-20 md:py-28 border-b border-zinc-900 bg-zinc-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center max-w-2xl mx-auto mb-16">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-zinc-100">
-              Modular Platform Design
-            </h2>
-            <p className="mt-4 text-sm sm:text-base text-zinc-400">
-              A comprehensive architecture built to run seamlessly across web apps, databases, and background tasks.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="border border-zinc-900 bg-zinc-900/10 p-6 rounded-xl flex flex-col justify-between hover:border-zinc-800 transition-all">
-              <div className="space-y-4">
-                <div className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">Module A</div>
-                <h3 className="text-lg font-bold text-zinc-200">Public Front-End</h3>
-                <p className="text-xs sm:text-sm text-zinc-400">
-                  Fully responsive, English-first public landing page with modern SEO meta elements and secure Supabase login routing.
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-zinc-900 flex items-center gap-1 text-xs text-zinc-400">
-                <CheckCircle2 className="h-4.5 w-4.5 text-emerald-400" /> Active & Optimized
-              </div>
-            </div>
-
-            <div className="border border-zinc-900 bg-zinc-900/10 p-6 rounded-xl flex flex-col justify-between hover:border-zinc-800 transition-all">
-              <div className="space-y-4">
-                <div className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">Module B</div>
-                <h3 className="text-lg font-bold text-zinc-200">Multi-tenant SaaS Portal</h3>
-                <p className="text-xs sm:text-sm text-zinc-400">
-                  Secure dashboards for Superadmins and Company Admins. Track hour meters, perform safety validations, and manage forklifts, excavators, and loaders.
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-zinc-900 flex items-center gap-1 text-xs text-zinc-400">
-                <Clock className="h-4.5 w-4.5 text-amber-500/80" /> Development Ready
-              </div>
-            </div>
-
-            <div className="border border-zinc-900 bg-zinc-900/10 p-6 rounded-xl flex flex-col justify-between hover:border-zinc-800 transition-all">
-              <div className="space-y-4">
-                <div className="text-xs font-semibold text-zinc-500 uppercase tracking-wide">Module C</div>
-                <h3 className="text-lg font-bold text-zinc-200">Automated Audit Daemon</h3>
-                <p className="text-xs sm:text-sm text-zinc-400">
-                  A Python worker running 24/7. Scans database hour threshold crossings, generates PDF reports, and notifies company executives automatically via SMTP.
-                </p>
-              </div>
-              <div className="mt-6 pt-4 border-t border-zinc-900 flex items-center gap-1 text-xs text-zinc-400">
-                <BarChart3 className="h-4.5 w-4.5 text-amber-500/80" /> Blueprint Completed
-              </div>
-            </div>
           </div>
         </div>
       </section>
@@ -643,70 +762,88 @@ export default function Home() {
               </p>
             </div>
 
-            <form className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {formSubmitted ? (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="p-6 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-center text-emerald-400 text-sm"
+              >
+                Thank you! Your quote request has been received. Our team will review your fleet details and contact you shortly.
+              </motion.div>
+            ) : (
+              <form onSubmit={handleContactSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1.5">
+                    <label htmlFor="contact-name" className="text-xs font-medium text-zinc-400">Full Name</label>
+                    <input 
+                      type="text" 
+                      id="contact-name" 
+                      name="name" 
+                      placeholder="John Doe"
+                      required
+                      className="w-full h-10 px-3 rounded-lg border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 transition-colors"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label htmlFor="contact-email" className="text-xs font-medium text-zinc-400">Email Address</label>
+                    <input 
+                      type="email" 
+                      id="contact-email" 
+                      name="email" 
+                      placeholder="john@company.com"
+                      required
+                      className="w-full h-10 px-3 rounded-lg border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 transition-colors"
+                    />
+                  </div>
+                </div>
+
                 <div className="space-y-1.5">
-                  <label htmlFor="contact-name" className="text-xs font-medium text-zinc-400">Full Name</label>
+                  <label htmlFor="contact-company" className="text-xs font-medium text-zinc-400">Company Name</label>
                   <input 
                     type="text" 
-                    id="contact-name" 
-                    name="name" 
-                    placeholder="John Doe"
+                    id="contact-company" 
+                    name="company" 
+                    placeholder="Apex Logistics Ltd"
                     required
                     className="w-full h-10 px-3 rounded-lg border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 transition-colors"
                   />
                 </div>
+
                 <div className="space-y-1.5">
-                  <label htmlFor="contact-email" className="text-xs font-medium text-zinc-400">Email Address</label>
-                  <input 
-                    type="email" 
-                    id="contact-email" 
-                    name="email" 
-                    placeholder="john@company.com"
+                  <label htmlFor="contact-message" className="text-xs font-medium text-zinc-400">Message / Fleet Details</label>
+                  <textarea 
+                    id="contact-message" 
+                    name="message" 
+                    rows={4}
+                    placeholder="Tell us about the number of forklifts, excavators, and loaders in your fleet..."
                     required
-                    className="w-full h-10 px-3 rounded-lg border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 transition-colors"
+                    className="w-full p-3 rounded-lg border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 transition-colors resize-none"
                   />
                 </div>
-              </div>
 
-              <div className="space-y-1.5">
-                <label htmlFor="contact-company" className="text-xs font-medium text-zinc-400">Company Name</label>
-                <input 
-                  type="text" 
-                  id="contact-company" 
-                  name="company" 
-                  placeholder="Apex Logistics Ltd"
-                  required
-                  className="w-full h-10 px-3 rounded-lg border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 transition-colors"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <label htmlFor="contact-message" className="text-xs font-medium text-zinc-400">Message / Fleet Details</label>
-                <textarea 
-                  id="contact-message" 
-                  name="message" 
-                  rows={4}
-                  placeholder="Tell us about the number of forklifts, excavators, and loaders in your fleet..."
-                  required
-                  className="w-full p-3 rounded-lg border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 transition-colors resize-none"
-                />
-              </div>
-
-              <button 
-                type="submit" 
-                id="btn-contact-submit"
-                className="w-full inline-flex h-11 items-center justify-center rounded-lg bg-zinc-100 text-sm font-medium text-zinc-950 hover:bg-zinc-200 transition-all shadow-md active:scale-95"
-              >
-                Send Request
-              </button>
-            </form>
+                <button 
+                  type="submit" 
+                  id="btn-contact-submit"
+                  disabled={isSubmitting}
+                  className="w-full inline-flex h-11 items-center justify-center rounded-lg bg-zinc-100 text-sm font-medium text-zinc-950 hover:bg-zinc-200 disabled:opacity-50 disabled:hover:bg-zinc-100 transition-all shadow-md active:scale-95 cursor-pointer"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      Sending...
+                    </>
+                  ) : (
+                    "Send Request"
+                  )}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-zinc-950 text-zinc-500 py-12 border-t border-zinc-950 text-center">
+      <footer className="bg-zinc-950 text-zinc-500 py-12 border-t border-zinc-900 text-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <div className="flex justify-center items-center gap-2">
             <div className="w-6 h-6 rounded-md overflow-hidden flex items-center justify-center bg-zinc-900 border border-zinc-800">
@@ -714,10 +851,26 @@ export default function Home() {
             </div>
             <span className="font-semibold text-sm text-zinc-400">WillyFastSolutions</span>
           </div>
+          
           <p className="text-xs leading-relaxed max-w-md mx-auto">
             Providing enterprise-grade telemetry integration and preventive maintenance worker daemons for heavy equipment fleets globally.
           </p>
-          <div className="text-[10px] text-zinc-600">
+
+          {/* Social media connections */}
+          <div className="flex justify-center items-center gap-6 pt-2">
+            <a href="https://facebook.com/willyfastsolutions" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-zinc-300 transition-colors" aria-label="Facebook">
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd" />
+              </svg>
+            </a>
+            <a href="https://instagram.com/willyfastsolutions" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-zinc-300 transition-colors" aria-label="Instagram">
+              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.008 3.752.052 2.73.124 4.093 1.503 4.218 4.218.044.968.052 1.322.052 3.752c0 2.43-.008 2.784-.052 3.752-.124 2.73-1.503 4.093-4.218 4.218-.968.044-1.322.052-3.752.052-2.43 0-2.784-.008-3.752-.052-2.73-.124-4.093-1.503-4.218-4.218-.044-.968-.052-1.322-.052-3.752 0-2.43.008-2.784.052-3.752.124-2.73 1.503-4.093 4.218-4.218.968-.044 1.322-.052 3.752-.052zm.126 1.8c-2.408 0-2.71.01-3.66.054-2.188.1-3.136 1.054-3.238 3.238-.044.95-.054 1.252-.054 3.66s.01 2.71.054 3.66c.1 2.184 1.05 3.134 3.238 3.238.95.044 1.252.054 3.66.054s2.71-.01 3.66-.054c2.184-.1 3.134-1.05 3.238-3.238.044-.95.054-1.252.054-3.66s-.01-2.71-.054-3.66c-.1-2.188-1.054-3.136-3.238-3.238-.95-.044-1.252-.054-3.66-.054h-.13zm-5.44 8.2a5.5 5.5 0 1111 0 5.5 5.5 0 01-11 0zm2 0a3.5 3.5 0 107 0 3.5 3.5 0 00-7 0zm6.3-3.75a1.25 1.25 0 112.5 0 1.25 1.25 0 01-2.5 0z" clipRule="evenodd" />
+              </svg>
+            </a>
+          </div>
+
+          <div className="text-[10px] text-zinc-600 pt-4 border-t border-zinc-900/60 max-w-xs mx-auto">
             &copy; {new Date().getFullYear()} WillyFastSolutions. All rights reserved.
           </div>
         </div>
