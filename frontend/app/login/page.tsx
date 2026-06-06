@@ -1,0 +1,166 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import { Wrench, Mail, Lock, ArrowLeft, Loader2 } from "lucide-react";
+
+export default function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSignUp, setIsSignUp] = useState(false);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    setMessage(null);
+
+    // Mock Authentication Logic to simulate Supabase connection
+    setTimeout(() => {
+      setIsLoading(false);
+      if (email && password.length >= 6) {
+        setMessage({
+          type: "success",
+          text: isSignUp 
+            ? "Registration request received! An administrator will approve your tenant."
+            : "Successfully signed in! Redirecting..."
+        });
+      } else {
+        setMessage({
+          type: "error",
+          text: password.length < 6 
+            ? "Password must be at least 6 characters long." 
+            : "Please fill in all fields correctly."
+        });
+      }
+    }, 1500);
+  };
+
+  return (
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col justify-center items-center px-4 relative">
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-900/30 via-zinc-950 to-zinc-950 -z-10" />
+      
+      {/* Return Home Button */}
+      <Link 
+        href="/" 
+        id="btn-login-back"
+        className="absolute top-6 left-6 inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 transition-colors"
+      >
+        <ArrowLeft className="h-3.5 w-3.5" /> Back to Home
+      </Link>
+
+      <div className="w-full max-w-md space-y-6">
+        
+        {/* Logo / Header */}
+        <div className="flex flex-col items-center gap-2 text-center">
+          <div className="bg-zinc-900 border border-zinc-800 p-3 rounded-xl shadow-lg">
+            <Wrench className="h-6 w-6 text-zinc-300" />
+          </div>
+          <h2 className="text-xl font-semibold tracking-tight text-zinc-200">
+            {isSignUp ? "Create your workspace" : "Welcome back"}
+          </h2>
+          <p className="text-xs text-zinc-500">
+            {isSignUp 
+              ? "Register your company fleet on Willyfast"
+              : "Sign in to manage your heavy equipment preventive maintenance"}
+          </p>
+        </div>
+
+        {/* Card Container */}
+        <div className="border border-zinc-900 bg-zinc-900/20 backdrop-blur-sm p-6 sm:p-8 rounded-2xl shadow-xl space-y-6">
+          
+          {message && (
+            <div className={`p-3 rounded-lg text-xs border ${
+              message.type === "success" 
+                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
+                : "bg-rose-500/10 border-rose-500/20 text-rose-400"
+            }`}>
+              {message.text}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-4">
+            
+            {/* Email Field */}
+            <div className="space-y-1.5">
+              <label htmlFor="login-email" className="text-[10px] uppercase tracking-wider font-semibold text-zinc-500">
+                Email Address
+              </label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-3 h-4 w-4 text-zinc-600" />
+                <input 
+                  type="email" 
+                  id="login-email" 
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="name@company.com"
+                  required
+                  className="w-full h-10 pl-9 pr-3 rounded-lg border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-700 focus:outline-none focus:border-zinc-700 transition-colors"
+                />
+              </div>
+            </div>
+
+            {/* Password Field */}
+            <div className="space-y-1.5">
+              <label htmlFor="login-password" className="text-[10px] uppercase tracking-wider font-semibold text-zinc-500">
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-600" />
+                <input 
+                  type="password" 
+                  id="login-password" 
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  className="w-full h-10 pl-9 pr-3 rounded-lg border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-700 focus:outline-none focus:border-zinc-700 transition-colors"
+                />
+              </div>
+            </div>
+
+            {/* Submit Button */}
+            <button 
+              type="submit" 
+              id="btn-login-submit"
+              disabled={isLoading}
+              className="w-full inline-flex h-10 items-center justify-center rounded-lg bg-zinc-100 text-sm font-semibold text-zinc-950 hover:bg-zinc-200 disabled:opacity-50 disabled:hover:bg-zinc-100 transition-all shadow-md active:scale-95 cursor-pointer"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Please wait...
+                </>
+              ) : (
+                isSignUp ? "Register" : "Sign In"
+              )}
+            </button>
+
+          </form>
+
+          {/* Toggle Link */}
+          <div className="text-center text-xs text-zinc-500 pt-2 border-t border-zinc-900/60">
+            {isSignUp ? "Already have an account?" : "Need a workspace for your company?"}{" "}
+            <button 
+              type="button" 
+              onClick={() => {
+                setIsSignUp(!isSignUp);
+                setMessage(null);
+              }}
+              className="font-medium text-zinc-300 hover:text-zinc-100 underline decoration-zinc-700 hover:decoration-zinc-400 transition-colors"
+            >
+              {isSignUp ? "Sign In" : "Register Company"}
+            </button>
+          </div>
+
+        </div>
+
+        {/* Footer info */}
+        <div className="text-[10px] text-center text-zinc-600">
+          Secure identity verification managed by Supabase Auth RLS policies.
+        </div>
+      </div>
+    </div>
+  );
+}
