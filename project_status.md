@@ -1,6 +1,6 @@
-# Project Status: willyfastsolutions
+# Project Status: WillyFastSolutions
 
-This document serves as the project memory for the willyfastsolutions B2B SaaS fleet management and preventive maintenance platform.
+This document serves as the project memory for the WillyFastSolutions B2B SaaS fleet management and preventive maintenance platform.
 
 ## Current Project Status
 - **Current Phase**: Phase 4 (Multi-tenant SaaS Dashboard)
