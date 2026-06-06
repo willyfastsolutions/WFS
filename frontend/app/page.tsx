@@ -15,7 +15,8 @@ import {
   Cpu, 
   BarChart3, 
   ArrowRight,
-  TrendingUp
+  TrendingUp,
+  FileText
 } from "lucide-react";
 
 type MachineType = "forklift" | "excavator" | "skid_steer";
@@ -33,14 +34,29 @@ interface MachineDetail {
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<MachineType>("forklift");
-  const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
+  const [quoteMessage, setQuoteMessage] = useState("");
+
+  const handleSelectPackage = (packageName: string) => {
+    // Smooth scroll to contact section
+    const contactSection = document.getElementById("contact");
+    if (contactSection) {
+      contactSection.scrollIntoView({ behavior: "smooth" });
+    }
+    
+    // Auto-fill the message textarea with the package name
+    const textarea = document.getElementById("contact-message") as HTMLTextAreaElement;
+    if (textarea) {
+      textarea.value = `Hello, I would like to request a quotation for the WillyFastSolutions "${packageName}" maintenance service package for my fleet.`;
+      textarea.focus();
+    }
+  };
 
   const machineryDetails: Record<MachineType, MachineDetail> = {
     forklift: {
       title: "Industrial Forklifts",
       subtitle: "Toyota / Hyster / Caterpillar",
       image: "/images/forklift.png",
-      description: "High-frequency warehouse assets requiring strict load-safety compliance. Willyfast monitors mast hydraulics, lifting speed degradation, and tire wear intervals.",
+      description: "High-frequency warehouse assets requiring strict load-safety compliance. WillyFastSolutions monitors mast hydraulics, lifting speed degradation, and tire wear intervals.",
       criticalCheck: "Hydraulic pressure valves & mast tilt stability",
       routineServices: ["Mast oil & cylinder lubrication", "Engine oil change & oil filter", "Air intake filter clean", "Brake fluid check"],
       safetyChecks: ["Fork wear & thickness caliper measurement", "Working alarms & horn", "Lights (strobe & headlights)", "Battery acid level & terminal clean"],
@@ -50,7 +66,7 @@ export default function Home() {
       title: "Heavy Excavators",
       subtitle: "Caterpillar / Komatsu / John Deere",
       image: "/images/excavator.png",
-      description: "High-stress earthmoving machinery operating in abrasive dust conditions. Willyfast alerts for track tension wear, swing gear lubrication, and cooling radiator status.",
+      description: "High-stress earthmoving machinery operating in abrasive dust conditions. WillyFastSolutions alerts for track tension wear, swing gear lubrication, and cooling radiator status.",
       criticalCheck: "Hydraulic pump flow & boom swing gear grease",
       routineServices: ["Swing drive fluid change", "Engine oil & hydraulic filters", "Air pre-cleaner cartridge", "Glow plug replacement"],
       safetyChecks: ["Track tension alignment & links check", "Cabin rollover protection system (ROPS)", "Audible travel warning alarms", "Engine start ignition voltage"],
@@ -60,7 +76,7 @@ export default function Home() {
       title: "Skid Steer Loaders",
       subtitle: "Bobcat / Case / Kubota",
       image: "/images/skid_steer.png",
-      description: "Compact, agile machines with dynamic attachment changes. Willyfast handles quick-attach latch inspections, auxiliary hydraulic flow logs, and wheel hub wear logs.",
+      description: "Compact, agile machines with dynamic attachment changes. WillyFastSolutions handles quick-attach latch inspections, auxiliary hydraulic flow logs, and wheel hub wear logs.",
       criticalCheck: "Quick-attach mechanical latch & auxiliary line integrity",
       routineServices: ["Drive chain tension adjustment", "Engine oil & separator filter", "Engine cooling pack blow-out", "Fuel filter replacement"],
       safetyChecks: ["Seat bar safety interlock switch", "All-around operating worklights", "Backup reverse horn alarm", "Alternator belt tension check"],
@@ -77,11 +93,11 @@ export default function Home() {
       <header className="sticky top-0 z-50 backdrop-blur-md bg-zinc-950/80 border-b border-zinc-900 transition-all duration-300">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="bg-zinc-900 border border-zinc-800 p-2 rounded-lg shadow-sm">
-              <Wrench className="h-6 w-6 text-zinc-300" />
+            <div className="bg-zinc-900 border border-zinc-800 p-1.5 rounded-lg shadow-sm flex items-center justify-center w-10 h-10 overflow-hidden">
+              <img src="/logo/logo.png" alt="WillyFastSolutions Logo" className="w-full h-full object-cover filter brightness-110" />
             </div>
-            <span className="font-semibold text-lg tracking-tight bg-gradient-to-r from-zinc-100 to-zinc-400 bg-clip-text text-transparent">
-              Willyfast Solutions
+            <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-zinc-100 to-zinc-400 bg-clip-text text-transparent">
+              WillyFastSolutions
             </span>
           </div>
           
@@ -91,7 +107,7 @@ export default function Home() {
             <a href="#machinery" id="nav-machinery" className="hover:text-zinc-100 transition-colors">Fleet Models</a>
             <a href="#features" id="nav-features" className="hover:text-zinc-100 transition-colors">Features</a>
             <a href="#benefits" id="nav-benefits" className="hover:text-zinc-100 transition-colors">Fleet Benefits</a>
-            <a href="#pricing" id="nav-pricing" className="hover:text-zinc-100 transition-colors">Plans</a>
+            <a href="#pricing" id="nav-pricing" className="hover:text-zinc-100 transition-colors">Services</a>
             <a href="#contact" id="nav-contact" className="hover:text-zinc-100 transition-colors">Contact</a>
           </nav>
           
@@ -116,7 +132,7 @@ export default function Home() {
           <div className="flex-1 flex flex-col gap-6">
             <div className="inline-flex self-center md:self-start items-center gap-1.5 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-900/50 text-xs text-zinc-400">
               <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              B2B Preventive Fleet Management
+              Heavy Machinery Maintenance Provider
             </div>
             
             <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight bg-gradient-to-b from-zinc-50 to-zinc-400 bg-clip-text text-transparent">
@@ -133,7 +149,7 @@ export default function Home() {
                 id="btn-hero-start" 
                 className="w-full sm:w-auto inline-flex h-11 items-center justify-center rounded-lg bg-zinc-100 px-6 text-sm font-medium text-zinc-950 transition-all hover:bg-zinc-200 active:scale-95 shadow-[0_0_15px_rgba(255,255,255,0.1)]"
               >
-                View Plans
+                Request Service
               </a>
               <a 
                 href="#machinery" 
@@ -328,12 +344,12 @@ export default function Home() {
                   <span className="font-semibold text-zinc-300">Every 250.0 Hours</span>
                 </div>
                 
-                <a 
-                  href="#pricing"
+                <button 
+                  onClick={() => handleSelectPackage(currentMachine.title)}
                   className="w-full sm:w-auto inline-flex items-center justify-center gap-1 text-xs font-semibold text-zinc-200 hover:text-zinc-100 transition-colors cursor-pointer group"
                 >
-                  Configure Alerts for this model <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
-                </a>
+                  Request quote for this model <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                </button>
               </div>
 
             </div>
@@ -350,7 +366,7 @@ export default function Home() {
               Built for Heavy Duty Operations
             </h2>
             <p className="mt-4 text-sm sm:text-base text-zinc-400">
-              Stop relying on spreadsheets and manual checks. Willyfast provides automated, bulletproof tracking for heavy machinery operators.
+              Stop relying on spreadsheets and manual checks. WillyFastSolutions provides automated, bulletproof tracking for heavy machinery operators.
             </p>
           </div>
 
@@ -457,138 +473,102 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Pricing / Fast Checkout Section */}
+      {/* Service Tiers / Request Quotation Section */}
       <section id="pricing" className="py-20 md:py-28 border-b border-zinc-900 bg-zinc-950">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center max-w-2xl mx-auto mb-16 space-y-3">
             <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-zinc-100">
-              Transparent, Machine-Based Pricing
+              Fleet Maintenance Service Packages
             </h2>
             <p className="text-sm sm:text-base text-zinc-400">
-              Choose the plan that matches your fleet size. Instant setup, zero installation required on heavy equipment.
+              WillyFastSolutions is your independent preventive maintenance provider. Select your fleet tier below and request a direct service quotation.
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-stretch">
             
-            {/* Plan 1 */}
+            {/* Package 1 */}
             <div className="border border-zinc-900 bg-zinc-900/10 p-8 rounded-2xl flex flex-col justify-between hover:border-zinc-800 transition-all">
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-bold text-zinc-200">Starter Fleet</h3>
-                  <p className="text-xs text-zinc-500 mt-1">For local sub-contractors</p>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold text-zinc-100">$49</span>
-                  <span className="text-xs text-zinc-500">/ month</span>
+                  <div className="text-xs text-zinc-500 font-bold uppercase tracking-wider mb-1">Small Fleet</div>
+                  <h3 className="text-lg font-bold text-zinc-200">Up to 5 Machines</h3>
+                  <p className="text-xs text-zinc-500 mt-1">Ideal for local sub-contractors</p>
                 </div>
                 <ul className="space-y-3 text-xs text-zinc-400 pt-4 border-t border-zinc-900">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-zinc-500" /> Up to 5 Machinery logs</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-zinc-500" /> Manual hour meter logs</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-zinc-500" /> Bi-weekly hour meter audit</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-zinc-500" /> Manual inspections</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-zinc-500" /> Basic component grease & filters</li>
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-zinc-500" /> Standard PDF Reports</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-zinc-500" /> Email support</li>
                 </ul>
               </div>
               <div className="mt-8">
                 <button 
-                  onClick={() => setSelectedPlan("starter")}
+                  onClick={() => handleSelectPackage("Small Fleet (Up to 5 Machines)")}
                   className="w-full inline-flex h-10 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-xs font-semibold text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100 transition-all cursor-pointer"
                 >
-                  {selectedPlan === "starter" ? "Selected (Redirecting...)" : "Get Started"}
+                  Request Quote
                 </button>
               </div>
             </div>
 
-            {/* Plan 2 - Recommended */}
+            {/* Package 2 - Recommended */}
             <div className="relative border-2 border-zinc-800 bg-zinc-900/30 p-8 rounded-2xl flex flex-col justify-between shadow-xl">
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 inline-flex items-center gap-1 px-3 py-1 rounded-full bg-zinc-100 text-[10px] font-bold text-zinc-950 uppercase shadow-md">
-                <TrendingUp className="h-3.5 w-3.5" /> Most Popular
+                <TrendingUp className="h-3.5 w-3.5" /> Most Requested
               </div>
               
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-bold text-zinc-100">Professional Fleet</h3>
-                  <p className="text-xs text-zinc-400 mt-1">For medium construction & logistics firms</p>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold text-zinc-100">$149</span>
-                  <span className="text-xs text-zinc-400">/ month</span>
+                  <div className="text-xs text-emerald-400 font-bold uppercase tracking-wider mb-1">Medium Fleet</div>
+                  <h3 className="text-lg font-bold text-zinc-100">6 to 25 Machines</h3>
+                  <p className="text-xs text-zinc-400 mt-1">For active logistics & civil companies</p>
                 </div>
                 <ul className="space-y-3 text-xs text-zinc-300 pt-4 border-t border-zinc-800">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-400" /> Up to 25 Machinery logs</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-400" /> 24/7 Daemon Auditing Worker</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-400" /> Weekly automated telemetry updates</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-400" /> Complete engine, lube, & spark audits</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-400" /> 24/7 background audit worker daemon</li>
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-400" /> Executive PDF reports with KPIs</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-400" /> Automated Email alerts for Admins</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-400" /> Priority 12h support</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-emerald-400" /> Direct email alerts for supervisors</li>
                 </ul>
               </div>
               
               <div className="mt-8">
                 <button 
-                  onClick={() => setSelectedPlan("pro")}
+                  onClick={() => handleSelectPackage("Medium Fleet (6 to 25 Machines)")}
                   className="w-full inline-flex h-10 items-center justify-center rounded-lg bg-zinc-100 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-all shadow-md cursor-pointer"
                 >
-                  {selectedPlan === "pro" ? "Selected (Redirecting...)" : "Buy Professional"}
+                  Request Quote
                 </button>
               </div>
             </div>
 
-            {/* Plan 3 */}
+            {/* Package 3 */}
             <div className="border border-zinc-900 bg-zinc-900/10 p-8 rounded-2xl flex flex-col justify-between hover:border-zinc-800 transition-all">
               <div className="space-y-6">
                 <div>
-                  <h3 className="text-lg font-bold text-zinc-200">Enterprise</h3>
-                  <p className="text-xs text-zinc-500 mt-1">For large multinational operations</p>
-                </div>
-                <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold text-zinc-100">Custom</span>
+                  <div className="text-xs text-zinc-500 font-bold uppercase tracking-wider mb-1">Enterprise Fleet</div>
+                  <h3 className="text-lg font-bold text-zinc-200">26+ Machines</h3>
+                  <p className="text-xs text-zinc-500 mt-1">For multinational operations</p>
                 </div>
                 <ul className="space-y-3 text-xs text-zinc-400 pt-4 border-t border-zinc-900">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-zinc-500" /> Unlimited Machinery</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-zinc-500" /> Dedicated Daemon auditor instances</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-zinc-500" /> API Access for hardware telemetry</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-zinc-500" /> 24/7 dedicated support representative</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-zinc-500" /> Custom real-time hardware telemetry integration</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-zinc-500" /> Dedicated daemon auditor instances</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-zinc-500" /> Custom compliance reporting (OSHA / ISO)</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-zinc-500" /> Dedicated response technician</li>
                 </ul>
               </div>
               <div className="mt-8">
-                <a 
-                  href="#contact"
-                  className="w-full inline-flex h-10 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-xs font-semibold text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100 transition-all text-center"
+                <button 
+                  onClick={() => handleSelectPackage("Enterprise Fleet (26+ Machines)")}
+                  className="w-full inline-flex h-10 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-xs font-semibold text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100 transition-all cursor-pointer"
                 >
                   Contact Sales
-                </a>
+                </button>
               </div>
             </div>
 
           </div>
-
-          {/* Quick Mock Modal for checkout redirection */}
-          {selectedPlan && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm">
-              <div className="border border-zinc-800 bg-zinc-900 p-6 rounded-2xl max-w-sm w-full space-y-4 text-center">
-                <Wrench className="h-8 w-8 text-zinc-300 mx-auto" />
-                <h3 className="text-lg font-bold text-zinc-100">Redirecting to Payment Gateway</h3>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  You selected the <strong className="text-zinc-200 uppercase">{selectedPlan}</strong> plan. We are setting up your workspace and secure billing portal.
-                </p>
-                <div className="flex gap-2">
-                  <button 
-                    onClick={() => setSelectedPlan(null)}
-                    className="flex-1 inline-flex h-9 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 text-xs text-zinc-400 hover:text-zinc-200 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <Link 
-                    href="/login"
-                    className="flex-1 inline-flex h-9 items-center justify-center rounded-lg bg-zinc-100 text-xs font-semibold text-zinc-950 hover:bg-zinc-200 transition-colors text-center"
-                  >
-                    Proceed to Login
-                  </Link>
-                </div>
-              </div>
-            </div>
-          )}
-
         </div>
       </section>
 
@@ -656,10 +636,10 @@ export default function Home() {
                 <Mail className="h-5 w-5" />
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-100">
-                Get in Touch
+                Request a Service Quotation
               </h2>
               <p className="text-xs sm:text-sm text-zinc-400">
-                Interested in testing Willyfast for your fleet? Complete the form below and our engineering team will set up your tenant workspace.
+                Interested in fleet maintenance services by WillyFastSolutions? Complete the form below and we will prepare a custom quotation for your company.
               </p>
             </div>
 
@@ -702,7 +682,7 @@ export default function Home() {
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="contact-message" className="text-xs font-medium text-zinc-400">Message / Fleet Size</label>
+                <label htmlFor="contact-message" className="text-xs font-medium text-zinc-400">Message / Fleet Details</label>
                 <textarea 
                   id="contact-message" 
                   name="message" 
@@ -729,14 +709,16 @@ export default function Home() {
       <footer className="bg-zinc-950 text-zinc-500 py-12 border-t border-zinc-950 text-center">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
           <div className="flex justify-center items-center gap-2">
-            <Wrench className="h-5 w-5 text-zinc-500" />
-            <span className="font-semibold text-sm text-zinc-400">Willyfast Solutions</span>
+            <div className="w-6 h-6 rounded-md overflow-hidden flex items-center justify-center bg-zinc-900 border border-zinc-800">
+              <img src="/logo/logo.png" alt="WillyFastSolutions Logo" className="w-full h-full object-cover filter brightness-110" />
+            </div>
+            <span className="font-semibold text-sm text-zinc-400">WillyFastSolutions</span>
           </div>
           <p className="text-xs leading-relaxed max-w-md mx-auto">
             Providing enterprise-grade telemetry integration and preventive maintenance worker daemons for heavy equipment fleets globally.
           </p>
           <div className="text-[10px] text-zinc-600">
-            &copy; {new Date().getFullYear()} Willyfast Solutions LLC. All rights reserved.
+            &copy; {new Date().getFullYear()} WillyFastSolutions. All rights reserved.
           </div>
         </div>
       </footer>

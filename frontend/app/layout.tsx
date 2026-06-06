@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Preventive Maintenance & Fleet Management | Willyfast Solutions",
-  description: "Maximize heavy machinery uptime. Willyfast Solutions automates hour logging, safety checklists, and preventive maintenance audits for B2B fleets.",
+  title: "Preventive Maintenance & Fleet Management | WillyFastSolutions",
+  description: "Maximize heavy machinery uptime. WillyFastSolutions automates hour logging, safety checklists, and preventive maintenance audits for B2B fleets.",
 };
 
 export default function RootLayout({

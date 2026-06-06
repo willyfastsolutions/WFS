@@ -18,7 +18,7 @@ INSERT INTO companies (id, name) VALUES
 -- Let's define:
 -- - User 1: admin@apex.com (Company Admin for Apex Logistics)
 -- - User 2: admin@titan.com (Company Admin for Titan Mining)
--- - User 3: super@willyfast.com (Global Superadmin)
+-- - User 3: super@willyfastsolutions.com (Global Superadmin)
 
 -- Note: We wrap in a block that safely inserts if auth.users exists, otherwise seeds profiles directly.
 DO $$
@@ -33,7 +33,7 @@ BEGIN
         INSERT INTO auth.users (id, email, raw_user_meta_data) VALUES
         (apex_user_id, 'admin@apex.com', '{"full_name": "Apex Admin"}'),
         (titan_user_id, 'admin@titan.com', '{"full_name": "Titan Admin"}'),
-        (super_user_id, 'super@willyfast.com', '{"full_name": "Willyfast Superadmin"}')
+        (super_user_id, 'super@willyfastsolutions.com', '{"full_name": "WillyFastSolutions Superadmin"}')
         ON CONFLICT (id) DO NOTHING;
     END IF;
 
@@ -41,7 +41,7 @@ BEGIN
     INSERT INTO profiles (id, company_id, role, full_name, email) VALUES
     (apex_user_id, 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', 'company_admin', 'Apex Admin', 'admin@apex.com'),
     (titan_user_id, 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b22', 'company_admin', 'Titan Admin', 'admin@titan.com'),
-    (super_user_id, NULL, 'superadmin', 'Willyfast Superadmin', 'super@willyfast.com')
+    (super_user_id, NULL, 'superadmin', 'WillyFastSolutions Superadmin', 'super@willyfastsolutions.com')
     ON CONFLICT (id) DO NOTHING;
 END $$;
 
