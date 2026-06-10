@@ -58,6 +58,7 @@ class MachineBase(BaseModel):
     current_hours: float = 0.0
     maintenance_threshold_hours: float = 250.0
     last_maintenance_hours: float = 0.0
+    photo: Optional[str] = None
 
 class MachineCreate(BaseModel):
     name: str
@@ -67,6 +68,7 @@ class MachineCreate(BaseModel):
     serial_number: Optional[str] = None
     current_hours: float = 0.0
     company_id: str  # Target B2B company
+    photo: Optional[str] = None
 
 class MachineHourUpdate(BaseModel):
     hours: float

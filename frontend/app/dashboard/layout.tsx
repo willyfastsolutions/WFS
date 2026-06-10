@@ -11,7 +11,8 @@ import {
   Menu, 
   X, 
   User,
-  ShieldAlert
+  ShieldAlert,
+  Building
 } from "lucide-react";
 import { Profile, mockDb } from "./mockDb";
 
@@ -73,6 +74,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   const navItems = [
     { name: "Fleet Overview", href: "/dashboard", icon: LayoutDashboard },
+    ...(user?.role === "superadmin" ? [{ name: "B2B Companies", href: "/dashboard/companies", icon: Building }] : []),
     { name: "Register Machinery", href: "/dashboard/machinery", icon: PlusCircle },
     { name: "Maintenance Portal", href: "/dashboard/maintenance", icon: Wrench },
   ];

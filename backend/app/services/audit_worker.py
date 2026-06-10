@@ -48,7 +48,8 @@ def run_audit_cycle():
                         last_hours=machine.last_maintenance_hours,
                         limit_hours=machine.maintenance_threshold_hours,
                         company_name=comp_name,
-                        output_path=report_path
+                        output_path=report_path,
+                        photo_base64=machine.photo
                     )
                     
                     # Build Email Contents

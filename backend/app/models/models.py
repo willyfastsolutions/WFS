@@ -40,6 +40,7 @@ class Machine(Base):
     current_hours = Column(Float, default=0.0, nullable=False)
     maintenance_threshold_hours = Column(Float, default=250.0, nullable=False)
     last_maintenance_hours = Column(Float, default=0.0, nullable=False)
+    photo = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     
     company = relationship("Company", back_populates="machinery")

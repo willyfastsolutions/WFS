@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import engine, Base, SessionLocal
 from app.models.models import Company, Profile, Machine
 from app.services.auth import get_password_hash
-from app.routers import auth, machinery, maintenance
+from app.routers import auth, machinery, maintenance, companies
 from app.services.audit_worker import start_audit_daemon
 
 # Create SQLite Database Tables
@@ -20,10 +20,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register routers
 app.include_router(auth.router, prefix="/api")
 app.include_router(machinery.router, prefix="/api")
 app.include_router(maintenance.router, prefix="/api")
+app.include_router(companies.router, prefix="/api")
 
 # Database Seeding function
 def seed_database():

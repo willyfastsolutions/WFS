@@ -5,7 +5,7 @@ from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 
-def generate_machinery_pdf(machine_name: str, brand: str, model: str, serial: str, current_hours: float, last_hours: float, limit_hours: float, company_name: str, output_path: str):
+def generate_machinery_pdf(machine_name: str, brand: str, model: str, serial: str, current_hours: float, last_hours: float, limit_hours: float, company_name: str, output_path: str, photo_base64: str = None):
     # Ensure output folder exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
@@ -74,24 +74,61 @@ def generate_machinery_pdf(machine_name: str, brand: str, model: str, serial: st
     warning_text = f"<b>CRITICAL MAINTENANCE WARNING:</b> This B2B asset has operated for <b>{overdue_hours:.1f} hours</b> since its last recorded maintenance. This exceeds the safety threshold of <b>{limit_hours:.1f} hours</b> by <b>{excess_hours:.1f} hours</b>. Immediate maintenance field inspection is required to avoid physical equipment degradation."
     story.append(Paragraph(warning_text, warning_style))
     
-    # Metadata Table
+    # Metadata Table side-by-side with Photo
     story.append(Paragraph("Asset & Client Specifications", section_title))
-    data = [
-        [Paragraph("<b>Client Company:</b>", body_style), Paragraph(company_name, body_style), Paragraph("<b>Date Generated:</b>", body_style), Paragraph(datetime.now().strftime('%Y-%m-%d %H:%M:%S'), body_style)],
-        [Paragraph("<b>Asset Name:</b>", body_style), Paragraph(machine_name, body_style), Paragraph("<b>Brand / Model:</b>", body_style), Paragraph(f"{brand} {model}", body_style)],
-        [Paragraph("<b>Serial Number:</b>", body_style), Paragraph(serial, body_style), Paragraph("<b>Operating Hours:</b>", body_style), Paragraph(f"{current_hours:.1f} hrs", body_style)],
-        [Paragraph("<b>Last Service Hours:</b>", body_style), Paragraph(f"{last_hours:.1f} hrs", body_style), Paragraph("<b>Safety Interval:</b>", body_style), Paragraph(f"{limit_hours:.1f} hrs", body_style)]
-    ]
     
-    t = Table(data, colWidths=[110, 160, 110, 160])
-    t.setStyle(TableStyle([
+    metadata_data = [
+        [Paragraph("<b>Client Company:</b>", body_style), Paragraph(company_name, body_style)],
+        [Paragraph("<b>Asset Name:</b>", body_style), Paragraph(machine_name, body_style)],
+        [Paragraph("<b>Brand / Model:</b>", body_style), Paragraph(f"{brand} {model}", body_style)],
+        [Paragraph("<b>Serial Number:</b>", body_style), Paragraph(serial, body_style)],
+        [Paragraph("<b>Operating Hours:</b>", body_style), Paragraph(f"{current_hours:.1f} hrs", body_style)],
+        [Paragraph("<b>Last Service Hours:</b>", body_style), Paragraph(f"{last_hours:.1f} hrs", body_style)],
+        [Paragraph("<b>Safety Interval:</b>", body_style), Paragraph(f"{limit_hours:.1f} hrs", body_style)]
+    ]
+    meta_table = Table(metadata_data, colWidths=[100, 180])
+    meta_table.setStyle(TableStyle([
         ('ALIGN', (0,0), (-1,-1), 'LEFT'),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
         ('LINEBELOW', (0,0), (-1,-1), 0.5, colors.HexColor('#f4f4f5')),
-        ('TOPPADDING', (0,0), (-1,-1), 5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+        ('TOPPADDING', (0,0), (-1,-1), 4),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
     ]))
-    story.append(t)
+
+    # Handle Photo Base64 decoding
+    temp_image_path = None
+    if photo_base64:
+        try:
+            import base64
+            # Strip prefix (e.g. "data:image/png;base64,") if present
+            if "," in photo_base64:
+                photo_base64 = photo_base64.split(",")[1]
+            image_data = base64.b64decode(photo_base64)
+            temp_image_path = os.path.abspath(os.path.join(os.path.dirname(output_path), f"temp_{serial}.png"))
+            with open(temp_image_path, "wb") as fh:
+                fh.write(image_data)
+            
+            from reportlab.platypus import Image as RLImage
+            img_flowable = RLImage(temp_image_path, width=220, height=130)
+        except Exception as ex:
+            print(f"[PDF GENERATOR] Error decoding image: {str(ex)}")
+            temp_image_path = None
+            img_flowable = Paragraph("<i>Image decoding error</i>", body_style)
+    else:
+        img_flowable = Paragraph("<font color='#a1a1aa'><i>No image uploaded for this asset</i></font>", body_style)
+
+    # Combine metadata and image in a side-by-side layout table
+    layout_data = [[meta_table, img_flowable]]
+    layout_table = Table(layout_data, colWidths=[290, 250])
+    layout_table.setStyle(TableStyle([
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('ALIGN', (1,0), (1,0), 'CENTER'),
+        ('BACKGROUND', (1,0), (1,0), colors.HexColor('#fafafa')),
+        ('GRID', (1,0), (1,0), 0.5, colors.HexColor('#e4e4e7')),
+        ('TOPPADDING', (0,0), (-1,-1), 0),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 0),
+    ]))
+    story.append(layout_table)
     
     story.append(Spacer(1, 10))
     
@@ -123,3 +160,10 @@ def generate_machinery_pdf(machine_name: str, brand: str, model: str, serial: st
     story.append(Paragraph("Authorized digital report generated automatically by WillyFastSolutions Telemetry Worker Daemon. No physical signature required.", subtitle_style))
     
     doc.build(story)
+
+    # Clean up temporary image file after build completes
+    if temp_image_path and os.path.exists(temp_image_path):
+        try:
+            os.remove(temp_image_path)
+        except Exception as e:
+            print(f"[PDF GENERATOR] Error cleaning up temporary file: {str(e)}")

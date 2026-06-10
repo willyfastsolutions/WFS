@@ -23,6 +23,7 @@ export interface Machine {
   current_hours: number;
   maintenance_threshold_hours: number;
   last_maintenance_hours: number;
+  photo?: string;
   created_at: string;
 }
 
@@ -215,6 +216,18 @@ export const mockDb = {
     mockDb.initialize();
     const companies = getStorageItem<Company[]>('wfs_companies', initialCompanies);
     return companies.find(c => c.id === id) || null;
+  },
+
+  addCompany: (name: string): Company => {
+    mockDb.initialize();
+    const companies = getStorageItem<Company[]>('wfs_companies', initialCompanies);
+    const newCompany: Company = {
+      id: 'comp_' + Math.random().toString(36).substr(2, 9),
+      name: name
+    };
+    companies.push(newCompany);
+    setStorageItem('wfs_companies', companies);
+    return newCompany;
   },
 
   // Machinery queries

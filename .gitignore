@@ -63,3 +63,13 @@ wp.zip
 
 # Backend Reports
 backend/reports/
+
+# Database files
+*.db
+*.sqlite
+backend/*.db
+
+# Agents
+.agents/
+
+

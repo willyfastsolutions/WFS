@@ -27,7 +27,8 @@ def add_machine(db: Session, schema: MachineCreate):
         serial_number=schema.serial_number,
         current_hours=schema.current_hours,
         maintenance_threshold_hours=250.0,
-        last_maintenance_hours=0.0
+        last_maintenance_hours=0.0,
+        photo=schema.photo
     )
     db.add(db_machine)
     db.commit()

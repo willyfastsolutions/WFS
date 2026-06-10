@@ -263,12 +263,19 @@ export default function FleetOverview() {
             return (
               <div 
                 key={mac.id}
-                className="border border-zinc-900 bg-zinc-900/10 hover:border-zinc-800/80 transition-all rounded-xl p-5 flex flex-col justify-between gap-6 relative group"
+                className="border border-zinc-900 bg-zinc-900/10 hover:border-zinc-800/80 transition-all rounded-xl overflow-hidden flex flex-col justify-between gap-6 relative group"
               >
-                {/* Header Information */}
-                <div>
-                  <div className="flex justify-between items-start">
-                    <div className="flex items-center gap-2">
+                {mac.photo && (
+                  <div className="h-36 w-full border-b border-zinc-900 overflow-hidden bg-zinc-950">
+                    <img src={mac.photo} alt={mac.name} className="w-full h-full object-cover filter brightness-90 group-hover:scale-105 transition-transform duration-300" />
+                  </div>
+                )}
+                
+                <div className="p-5 flex flex-col justify-between gap-6 flex-1">
+                  {/* Header Information */}
+                  <div>
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-2">
                       <div className="bg-zinc-950 border border-zinc-900 p-2 rounded-lg text-zinc-400">
                         {getMachineTypeIcon(mac.type)}
                       </div>
@@ -345,7 +352,8 @@ export default function FleetOverview() {
                 </div>
 
               </div>
-            );
+            </div>
+          );
           })}
         </div>
       )}

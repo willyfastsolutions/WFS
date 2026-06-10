@@ -10,7 +10,8 @@ import {
   Building,
   Check,
   ChevronDown,
-  Info
+  Info,
+  Camera
 } from "lucide-react";
 import { Profile, Company, Machine, mockDb } from "../mockDb";
 
@@ -27,6 +28,9 @@ export default function RegisterMachinery() {
   const [initialHours, setInitialHours] = useState<string>("0");
   const [targetCompanyId, setTargetCompanyId] = useState("");
   const [machineType, setMachineType] = useState<Machine["type"]>("forklift");
+  const [photo, setPhoto] = useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+  const cameraInputRef = React.useRef<HTMLInputElement>(null);
 
   // Custom Dropdown Open States (NO native select)
   const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
@@ -88,7 +92,8 @@ export default function RegisterMachinery() {
           serial_number: serial,
           current_hours: hours,
           maintenance_threshold_hours: 250.0,
-          last_maintenance_hours: 0.0
+          last_maintenance_hours: 0.0,
+          photo: photo || undefined
         });
 
         setStatus({ type: "success", text: "Machine registered successfully! Redirecting to fleet inventory..." });
@@ -99,6 +104,7 @@ export default function RegisterMachinery() {
         setModel("");
         setSerial("");
         setInitialHours("0");
+        setPhoto(null);
         
         setTimeout(() => {
           if (typeof window !== "undefined" && window.location.protocol === "file:") {
@@ -313,6 +319,103 @@ export default function RegisterMachinery() {
                 </div>
               )}
             </div>
+
+          </div>
+
+          {/* Machinery Photo Upload & Camera Capture */}
+          <div className="space-y-1.5">
+            <label className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Asset Photo / Camera Capture</label>
+            
+            <div className="flex flex-col sm:flex-row gap-4 items-center">
+              
+              {/* Photo Upload Zone */}
+              <div 
+                onClick={() => fileInputRef.current?.click()}
+                className="flex-1 w-full h-32 border border-dashed border-zinc-800 bg-zinc-950/20 hover:bg-zinc-900/10 hover:border-zinc-700 transition-all rounded-xl flex flex-col items-center justify-center gap-2 cursor-pointer p-4 relative group overflow-hidden"
+              >
+                {photo ? (
+                  <>
+                    <img src={photo} alt="Preview" className="w-full h-full object-cover rounded-lg" />
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-xs font-semibold text-zinc-200">
+                      Change Photo
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="bg-zinc-900 border border-zinc-800 p-2.5 rounded-lg text-zinc-400">
+                      <PlusCircle className="h-5 w-5" />
+                    </div>
+                    <div className="text-[11px] text-zinc-400 font-medium text-center">
+                      Drag & drop or <span className="text-zinc-200 underline font-semibold">Browse file</span>
+                    </div>
+                    <div className="text-[9px] text-zinc-600">Supports JPG, PNG up to 2MB</div>
+                  </>
+                )}
+              </div>
+
+              {/* Camera Trigger Option */}
+              <div className="flex flex-col items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => cameraInputRef.current?.click()}
+                  className="flex h-16 w-16 items-center justify-center rounded-full border border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200 hover:bg-zinc-900/30 transition-all shadow-md active:scale-95 cursor-pointer"
+                  title="Take Photo with Camera"
+                >
+                  <Camera className="h-6 w-6" />
+                </button>
+                <span className="text-[9px] uppercase font-bold text-zinc-500 tracking-wider">Use Camera</span>
+              </div>
+
+            </div>
+
+            {/* Hidden Native File Inputs */}
+            <input 
+              type="file"
+              ref={fileInputRef}
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = (event) => {
+                    setPhoto(event.target?.result as string);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
+            
+            {/* Mobile Camera Specific Input */}
+            <input 
+              type="file"
+              ref={cameraInputRef}
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  const reader = new FileReader();
+                  reader.onload = (event) => {
+                    setPhoto(event.target?.result as string);
+                  };
+                  reader.readAsDataURL(file);
+                }
+              }}
+            />
+
+            {photo && (
+              <div className="flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setPhoto(null)}
+                  className="text-[10px] text-rose-400 hover:underline cursor-pointer"
+                >
+                  Remove Photo
+                </button>
+              </div>
+            )}
 
           </div>
 
