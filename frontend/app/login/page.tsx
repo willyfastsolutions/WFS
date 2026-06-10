@@ -65,13 +65,19 @@ export default function LoginPage() {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-900/30 via-zinc-950 to-zinc-950 -z-10" />
       
       {/* Return Home Button */}
-      <Link 
-        href="../index.html" 
+      <a 
+        href="../" 
+        onClick={(e) => {
+          if (typeof window !== "undefined" && window.location.protocol === "file:") {
+            e.preventDefault();
+            window.location.href = "../index.html";
+          }
+        }}
         id="btn-login-back"
-        className="absolute top-6 left-6 inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 transition-colors"
+        className="absolute top-6 left-6 inline-flex items-center gap-1.5 text-xs text-zinc-400 hover:text-zinc-100 transition-colors cursor-pointer"
       >
         <ArrowLeft className="h-3.5 w-3.5" /> Back to Home
-      </Link>
+      </a>
 
       <div className="w-full max-w-md space-y-6">
         

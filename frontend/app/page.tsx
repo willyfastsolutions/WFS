@@ -152,13 +152,19 @@ export default function Home() {
                 </svg>
               </a>
             </div>
-            <Link 
-              href="login/index.html" 
+            <a 
+              href="login/"
+              onClick={(e) => {
+                if (typeof window !== "undefined" && window.location.protocol === "file:") {
+                  e.preventDefault();
+                  window.location.href = "login/index.html";
+                }
+              }}
               id="btn-login" 
-              className="inline-flex h-9 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 px-4 text-sm font-medium text-zinc-300 transition-all hover:bg-zinc-900 hover:text-zinc-100 hover:border-zinc-700 shadow-sm"
+              className="inline-flex h-9 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 px-4 text-sm font-medium text-zinc-300 transition-all hover:bg-zinc-900 hover:text-zinc-100 hover:border-zinc-700 shadow-sm cursor-pointer"
             >
               Sign In
-            </Link>
+            </a>
           </div>
         </div>
       </motion.header>
