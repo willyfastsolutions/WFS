@@ -19,7 +19,9 @@ import {
   TrendingUp,
   Loader2,
   FileText,
-  UserCheck
+  UserCheck,
+  AlertTriangle,
+  Download
 } from "lucide-react";
 
 type MachineType = "forklift" | "excavator" | "skid_steer";
@@ -39,6 +41,9 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<MachineType>("forklift");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [simHours, setSimHours] = useState(180);
+  const [fleetSize, setFleetSize] = useState(15);
+  const [downtimeCost, setDowntimeCost] = useState(150);
 
   const handleSelectPackage = (packageName: string) => {
     // Smooth scroll to contact section
@@ -511,7 +516,84 @@ export default function Home() {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            {/* Fleet ROI Calculator */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="border border-zinc-900 bg-zinc-900/30 backdrop-blur-sm p-6 sm:p-8 rounded-2xl shadow-xl space-y-6"
+            >
+              <div>
+                <h3 className="text-xl font-bold text-zinc-100 font-sans">Fleet Savings Calculator</h3>
+                <p className="text-xs text-zinc-400 mt-1">Estimate your annual downtime recovery and financial reclaim.</p>
+              </div>
+
+              {/* Slider 1: Fleet Size */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span className="text-zinc-400 font-medium">Fleet Size</span>
+                  <span className="text-zinc-200 font-semibold font-mono">{fleetSize} Machines</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="1" 
+                  max="100" 
+                  value={fleetSize} 
+                  onChange={(e) => setFleetSize(Number(e.target.value))}
+                  className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-200"
+                />
+              </div>
+
+              {/* Slider 2: Downtime Cost per Hour */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span className="text-zinc-400 font-medium">Hourly Downtime Cost</span>
+                  <span className="text-zinc-200 font-semibold font-mono">${downtimeCost}/hr</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="50" 
+                  max="500" 
+                  step="10"
+                  value={downtimeCost} 
+                  onChange={(e) => setDowntimeCost(Number(e.target.value))}
+                  className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-200"
+                />
+              </div>
+
+              {/* Calculations results */}
+              <div className="grid grid-cols-2 gap-4 pt-4 border-t border-zinc-900">
+                <div className="p-4 rounded-xl bg-zinc-950/60 border border-zinc-900/85">
+                  <div className="text-[10px] uppercase font-bold text-zinc-500">Downtime Saved</div>
+                  <div className="text-2xl font-bold text-zinc-200 font-mono mt-1">
+                    {fleetSize * 14} <span className="text-xs text-zinc-500 font-normal">hrs/yr</span>
+                  </div>
+                  <p className="text-[9px] text-zinc-500 mt-1">Based on a 35% downtime reduction.</p>
+                </div>
+                
+                <div className="p-4 rounded-xl bg-zinc-950/60 border border-zinc-900/85 relative overflow-hidden">
+                  <div className="absolute inset-0 bg-emerald-500/5 blur-xl opacity-30" />
+                  <div className="text-[10px] uppercase font-bold text-emerald-500">Annual Recovered</div>
+                  <div className="text-2xl font-extrabold text-emerald-400 font-mono mt-1">
+                    ${(fleetSize * 14 * downtimeCost).toLocaleString()}
+                  </div>
+                  <p className="text-[9px] text-zinc-500 mt-1">Annual savings reclaimed.</p>
+                </div>
+              </div>
+
+              <button 
+                onClick={() => handleSelectPackage(`Medium Fleet (Calculated for ${fleetSize} machines)`)}
+                className="w-full inline-flex h-10 items-center justify-center rounded-lg bg-zinc-100 text-xs font-semibold text-zinc-950 hover:bg-zinc-200 transition-colors shadow-md cursor-pointer"
+              >
+                Request Custom Quote for {fleetSize} Machines
+              </button>
+            </motion.div>
+
+          </div>
+
+          {/* Stats bar under columns */}
+          <div className="mt-16 pt-12 border-t border-zinc-900">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
               <motion.div whileHover={{ scale: 1.03 }} className="p-6 rounded-xl border border-zinc-900 bg-zinc-950 text-center space-y-2">
                 <div className="text-3xl sm:text-4xl font-bold text-zinc-200">-35%</div>
                 <div className="text-[10px] sm:text-xs text-zinc-500 uppercase tracking-wider font-semibold">Unscheduled Downtime</div>
@@ -529,8 +611,8 @@ export default function Home() {
                 <div className="text-[10px] sm:text-xs text-zinc-500 uppercase tracking-wider font-semibold">Audit PDF Dispatch</div>
               </motion.div>
             </div>
-
           </div>
+
         </div>
       </section>
 
@@ -539,16 +621,110 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             
-            {/* Left: Automated Agent image */}
+            {/* Left: Interactive Alert Simulator */}
             <motion.div 
-              whileHover={{ scale: 1.01 }}
-              className="relative overflow-hidden rounded-2xl border border-zinc-900 bg-zinc-900/10 p-2 shadow-2xl"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              className="w-full relative overflow-hidden rounded-2xl border border-zinc-900 bg-zinc-900/40 p-6 shadow-2xl backdrop-blur-sm"
             >
-              <img 
-                src="images/audit_agent.png" 
-                alt="Automated Auditing Daemon" 
-                className="w-full h-auto object-cover rounded-xl filter brightness-90 group-hover:scale-101 transition-transform"
-              />
+              {/* Telemetry Header */}
+              <div className="flex justify-between items-start border-b border-zinc-900 pb-4 mb-6">
+                <div>
+                  <div className="text-[10px] uppercase tracking-wider font-bold text-zinc-500">Live Telemetry Console</div>
+                  <h3 className="text-lg font-bold text-zinc-200 mt-0.5">Toyota 8FGU25 Forklift</h3>
+                  <div className="text-[10px] font-mono text-zinc-600 mt-0.5">SN-CAT-554321 • Depot A</div>
+                </div>
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-zinc-855 bg-zinc-900 text-[9px] font-mono text-zinc-400">
+                  <Activity className="h-3 w-3 text-emerald-500 animate-pulse" /> Telemetry Active
+                </div>
+              </div>
+
+              {/* Dynamic Status Display */}
+              <div className="flex flex-col items-center justify-center py-6 bg-zinc-950/60 rounded-xl border border-zinc-900 mb-6 relative overflow-hidden">
+                {/* Background glow depending on status */}
+                <div className={`absolute inset-0 opacity-5 blur-2xl transition-colors duration-500 ${
+                  simHours < 200 ? 'bg-emerald-500' : simHours < 250 ? 'bg-amber-500' : 'bg-rose-500'
+                }`} />
+
+                <div className="text-[10px] uppercase tracking-widest font-bold text-zinc-500 mb-1">Current Hour Meter</div>
+                <div className="text-4xl font-extrabold tracking-tight text-zinc-100 font-mono mb-2">
+                  {simHours.toFixed(1)} <span className="text-zinc-500 text-lg font-normal font-sans">hrs</span>
+                </div>
+
+                {/* Status Badge */}
+                <div className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border transition-all duration-300 ${
+                  simHours < 200 
+                    ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' 
+                    : simHours < 250 
+                      ? 'bg-amber-500/10 border-amber-500/20 text-amber-400' 
+                      : 'bg-rose-500/10 border-rose-500/30 text-rose-400 animate-pulse'
+                }`}>
+                  <span className={`h-1.5 w-1.5 rounded-full ${
+                    simHours < 200 ? 'bg-emerald-500' : simHours < 250 ? 'bg-amber-500' : 'bg-rose-500'
+                  }`} />
+                  {simHours < 200 ? 'HEALTHY' : simHours < 250 ? 'WARNING (Upcoming PM)' : 'OVERDUE (Audit Warning)'}
+                </div>
+              </div>
+
+              {/* Slider Control */}
+              <div className="space-y-2">
+                <div className="flex justify-between text-xs">
+                  <span className="text-zinc-400 font-medium">Simulate Hours</span>
+                  <span className="text-zinc-200 font-semibold font-mono">{simHours.toFixed(1)}h</span>
+                </div>
+                <input 
+                  type="range" 
+                  min="0" 
+                  max="350" 
+                  value={simHours} 
+                  onChange={(e) => setSimHours(Number(e.target.value))}
+                  className="w-full h-1 bg-zinc-800 rounded-lg appearance-none cursor-pointer accent-zinc-200"
+                />
+                <div className="flex justify-between text-[9px] text-zinc-600 font-mono">
+                  <span>0h (New)</span>
+                  <span>200h (Warning)</span>
+                  <span>250h (Limit)</span>
+                  <span>350h (Max)</span>
+                </div>
+              </div>
+
+              {/* Sliding Email Notification */}
+              <AnimatePresence>
+                {simHours >= 250 && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                    animate={{ opacity: 1, height: 'auto', marginTop: 20 }}
+                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                    transition={{ duration: 0.3 }}
+                    className="overflow-hidden"
+                  >
+                    <div className="border border-rose-500/20 bg-rose-950/10 rounded-xl p-4 shadow-xl space-y-3">
+                      <div className="flex justify-between items-start border-b border-zinc-900/80 pb-2">
+                        <div>
+                          <div className="text-[10px] text-rose-400 font-semibold uppercase tracking-wider flex items-center gap-1">
+                            <span className="flex h-1.5 w-1.5 rounded-full bg-rose-500"></span> Daemon Audit Alert Dispatched
+                          </div>
+                          <h4 className="text-xs font-bold text-zinc-300 mt-1">To: manager@apexlogistics.com</h4>
+                        </div>
+                        <span className="text-[9px] text-zinc-500 font-mono">Just Now</span>
+                      </div>
+                      <div className="text-xs text-zinc-400 leading-relaxed font-sans">
+                        <strong>Subject:</strong> ⚠️ WillyFastSolutions Urgent Audit - Forklift SN-554321 Overdue<br />
+                        Asset has crossed the <strong>250h</strong> maintenance limit (current: <strong>{simHours.toFixed(1)}h</strong>). Safety PDF report is attached below.
+                      </div>
+                      <div className="flex gap-2">
+                        <button 
+                          onClick={() => alert('Simulated PDF Download: wfs_audit_report_SN554321.pdf')}
+                          className="inline-flex h-8 items-center justify-center gap-1.5 px-3 rounded bg-zinc-100 text-[10px] font-bold text-zinc-950 hover:bg-zinc-200 transition-colors w-full cursor-pointer"
+                        >
+                          <FileText className="h-3 w-3" /> Download Audit Report (PDF)
+                        </button>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </motion.div>
 
             {/* Right: Agent Description details */}
