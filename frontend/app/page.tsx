@@ -1066,7 +1066,7 @@ export default function Home() {
               initial={{ scale: 0.95, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.95, y: 20 }}
-              className="bg-zinc-900 border border-zinc-800 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+              className="print-modal bg-zinc-900 border border-zinc-800 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
             >
               {/* Modal Header */}
               <div className="flex justify-between items-center px-6 py-4 border-b border-zinc-800 bg-zinc-950/40">
@@ -1078,7 +1078,7 @@ export default function Home() {
                 </div>
                 <button 
                   onClick={() => setShowReportModal(false)}
-                  className="text-zinc-500 hover:text-zinc-300 text-sm font-semibold transition-colors cursor-pointer"
+                  className="no-print text-zinc-500 hover:text-zinc-300 text-sm font-semibold transition-colors cursor-pointer"
                 >
                   Close
                 </button>
@@ -1175,7 +1175,7 @@ export default function Home() {
               </div>
 
               {/* Modal Footer Actions */}
-              <div className="px-6 py-4 border-t border-zinc-800 bg-zinc-950/40 flex justify-end gap-3">
+              <div className="no-print px-6 py-4 border-t border-zinc-800 bg-zinc-950/40 flex justify-end gap-3">
                 <button 
                   onClick={() => setShowReportModal(false)}
                   className="inline-flex h-9 items-center justify-center px-4 rounded-lg border border-zinc-800 bg-zinc-950 text-xs font-semibold text-zinc-400 hover:text-zinc-200 hover:border-zinc-700 transition-colors cursor-pointer"
