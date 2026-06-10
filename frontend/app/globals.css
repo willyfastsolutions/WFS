@@ -27,46 +27,53 @@ body {
 
 /* Print styles for simulated PDF report */
 @media print {
-  /* Hide everything on the body */
-  body * {
-    visibility: hidden;
+  /* Hide all landing page layout sections, header and footer */
+  header, section, footer {
+    display: none !important;
   }
   
-  /* Make only the print-modal container and its content visible */
-  .print-modal, .print-modal * {
-    visibility: visible;
+  /* Make the body and parent wrappers transparent and default background */
+  body, html, div {
+    background: transparent !important;
+    color: black !important;
   }
-  
-  /* Reset modal positioning to fill the printed page and remove custom scrollbars/borders */
+
+  /* Make sure the modal wrapper (fixed backdrop) is transparent and doesn't center absolute */
+  .fixed.inset-0.z-50 {
+    position: relative !important;
+    background: transparent !important;
+    padding: 0 !important;
+  }
+
+  /* Style the report modal card to fit the paper */
   .print-modal {
-    position: absolute !important;
-    left: 0 !important;
-    top: 0 !important;
+    position: relative !important;
     width: 100% !important;
     max-width: 100% !important;
     height: auto !important;
     max-height: none !important;
-    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
     border: none !important;
     background: white !important;
     color: black !important;
     box-shadow: none !important;
   }
 
-  /* Force background colors/glows to print nicely */
+  /* Make text black and borders clean */
   .print-modal * {
+    color: black !important;
     background: transparent !important;
-    color: #000000 !important;
-    border-color: #e4e4e7 !important; /* light gray borders */
-    text-shadow: none !important;
+    border-color: #d4d4d8 !important; /* zinc-300 border color */
     box-shadow: none !important;
+    text-shadow: none !important;
   }
-  
+
   .print-modal h1, .print-modal h2, .print-modal h3, .print-modal font-bold, .print-modal .font-bold {
-    color: #000000 !important;
+    color: black !important;
   }
-  
-  /* Hide elements that shouldn't appear on paper */
+
+  /* Hide print buttons and close buttons */
   .no-print {
     display: none !important;
   }
