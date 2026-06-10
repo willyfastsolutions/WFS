@@ -60,3 +60,6 @@ venv.bak/
 # Static exports
 wp/
 wp.zip
+
+# Backend Reports
+backend/reports/
