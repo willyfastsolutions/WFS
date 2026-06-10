@@ -47,6 +47,14 @@ This document serves as the project memory for the WillyFastSolutions B2B SaaS f
 - [x] PDF Generation engine (using WeasyPrint / ReportLab) with key KPIs
 - [x] SMTP / SendGrid email worker to dispatch PDF reports automatically to Company Admins
 
+### Phase 5.5: B2B Company Registration & Live Webcam Photo Capture 🟢
+- [x] Create B2B Company management page for Superadmin (form + table + custom searchable dropdowns)
+- [x] Implement Live Webcam Capture modal (HTML5 video/canvas capture stream) + drag & drop file uploads
+- [x] Add machinery editing action button and specs/photo modification modal
+- [x] Update Python database model schema with `photo` column and execute table migrations in SQLite
+- [x] Update ReportLab generator to render company logo (top left) and decoded machine photo (body specification grid)
+- [x] Create automated integration script `generate_real_overdue_pdf.py` to seed and test PDF generation
+
 ---
 
 ## Known Issues / Blockers
