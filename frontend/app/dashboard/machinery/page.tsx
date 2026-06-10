@@ -30,7 +30,61 @@ export default function RegisterMachinery() {
   const [machineType, setMachineType] = useState<Machine["type"]>("forklift");
   const [photo, setPhoto] = useState<string | null>(null);
   const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const cameraInputRef = React.useRef<HTMLInputElement>(null);
+  
+  const [isCameraModalOpen, setIsCameraModalOpen] = useState(false);
+  const [cameraStream, setCameraStream] = useState<MediaStream | null>(null);
+  const videoRef = React.useRef<HTMLVideoElement>(null);
+
+  const startCamera = async () => {
+    setIsCameraModalOpen(true);
+    setStatus(null);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: "environment", width: 640, height: 480 } 
+      });
+      setCameraStream(stream);
+      setTimeout(() => {
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      }, 100);
+    } catch (err) {
+      console.error("Failed to access camera:", err);
+      setStatus({ type: "error", text: "Could not access camera. Please check permissions." });
+      setIsCameraModalOpen(false);
+    }
+  };
+
+  const stopCamera = () => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      setCameraStream(null);
+    }
+    setIsCameraModalOpen(false);
+  };
+
+  const capturePhoto = () => {
+    if (videoRef.current) {
+      const video = videoRef.current;
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        setPhoto(canvas.toDataURL("image/png"));
+      }
+      stopCamera();
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [cameraStream]);
 
   // Custom Dropdown Open States (NO native select)
   const [isTypeDropdownOpen, setIsTypeDropdownOpen] = useState(false);
@@ -357,7 +411,7 @@ export default function RegisterMachinery() {
               <div className="flex flex-col items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => cameraInputRef.current?.click()}
+                  onClick={startCamera}
                   className="flex h-16 w-16 items-center justify-center rounded-full border border-zinc-800 bg-zinc-950 text-zinc-400 hover:border-zinc-700 hover:text-zinc-200 hover:bg-zinc-900/30 transition-all shadow-md active:scale-95 cursor-pointer"
                   title="Take Photo with Camera"
                 >
@@ -368,30 +422,11 @@ export default function RegisterMachinery() {
 
             </div>
 
-            {/* Hidden Native File Inputs */}
+            {/* Hidden Native File Input */}
             <input 
               type="file"
               ref={fileInputRef}
               accept="image/*"
-              className="hidden"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  const reader = new FileReader();
-                  reader.onload = (event) => {
-                    setPhoto(event.target?.result as string);
-                  };
-                  reader.readAsDataURL(file);
-                }
-              }}
-            />
-            
-            {/* Mobile Camera Specific Input */}
-            <input 
-              type="file"
-              ref={cameraInputRef}
-              accept="image/*"
-              capture="environment"
               className="hidden"
               onChange={(e) => {
                 const file = e.target.files?.[0];
@@ -438,6 +473,54 @@ export default function RegisterMachinery() {
 
         </form>
       </div>
+
+      {/* Live Camera Modal */}
+      {isCameraModalOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-zinc-950/90 backdrop-blur-sm">
+          <div className="bg-zinc-950 border border-zinc-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            <div className="p-4 border-b border-zinc-900 flex justify-between items-center">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-200">Live Camera Capture</h3>
+              <button 
+                type="button" 
+                onClick={stopCamera} 
+                className="text-zinc-550 hover:text-zinc-300 text-xs"
+              >
+                Close
+              </button>
+            </div>
+            
+            {/* Video Feed */}
+            <div className="bg-black aspect-video relative flex items-center justify-center overflow-hidden">
+              <video 
+                ref={videoRef} 
+                autoPlay 
+                playsInline 
+                muted 
+                className="w-full h-full object-cover"
+              />
+            </div>
+            
+            {/* Control Bar */}
+            <div className="p-4 bg-zinc-950 border-t border-zinc-900 flex justify-between gap-4">
+              <button
+                type="button"
+                onClick={stopCamera}
+                className="flex-1 h-10 rounded-lg border border-zinc-900 bg-zinc-950 text-xs font-semibold text-zinc-400 hover:text-zinc-200 transition-colors"
+              >
+                Cancel
+              </button>
+              
+              <button
+                type="button"
+                onClick={capturePhoto}
+                className="flex-1 h-10 rounded-lg bg-zinc-100 text-xs font-semibold text-zinc-950 hover:bg-zinc-200 transition-colors flex items-center justify-center gap-1.5"
+              >
+                <Camera className="h-4 w-4" /> Capture Photo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

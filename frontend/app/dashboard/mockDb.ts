@@ -264,6 +264,18 @@ export const mockDb = {
     return false;
   },
 
+  updateMachine: (id: string, fields: Partial<Machine>): boolean => {
+    mockDb.initialize();
+    const machinery = getStorageItem<Machine[]>('wfs_machinery', initialMachinery);
+    const index = machinery.findIndex(m => m.id === id);
+    if (index !== -1) {
+      machinery[index] = { ...machinery[index], ...fields };
+      setStorageItem('wfs_machinery', machinery);
+      return true;
+    }
+    return false;
+  },
+
   logHours: (machineId: string, hours: number, userId: string): boolean => {
     mockDb.initialize();
     const machinery = getStorageItem<Machine[]>('wfs_machinery', initialMachinery);

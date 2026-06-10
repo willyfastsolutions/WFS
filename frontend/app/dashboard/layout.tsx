@@ -23,6 +23,28 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [companyName, setCompanyName] = useState<string | null>(null);
+  const [logoPath, setLogoPath] = useState("/logo/logo.png");
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      if (window.location.protocol === "file:") {
+        const pathNormal = window.location.pathname.replace(/\\/g, "/").toLowerCase();
+        if (
+          pathNormal.includes("/dashboard/companies") || 
+          pathNormal.includes("/dashboard/machinery") || 
+          pathNormal.includes("/dashboard/maintenance")
+        ) {
+          setLogoPath("../../logo/logo.png");
+        } else if (pathNormal.includes("/dashboard") || pathNormal.includes("/login")) {
+          setLogoPath("../logo/logo.png");
+        } else {
+          setLogoPath("logo/logo.png");
+        }
+      } else {
+        setLogoPath("/logo/logo.png");
+      }
+    }
+  }, [pathname]);
 
   const redirectToLogin = () => {
     if (typeof window !== "undefined") {
@@ -86,7 +108,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <header className="md:hidden flex h-16 items-center justify-between border-b border-zinc-900 bg-zinc-950/80 px-4 backdrop-blur-md sticky top-0 z-40">
         <div className="flex items-center gap-2">
           <div className="bg-zinc-900 border border-zinc-800 p-1 rounded-md w-7 h-7 overflow-hidden flex items-center justify-center">
-            <img src="../logo/logo.png" alt="WFS Logo" className="w-full h-full object-cover filter brightness-110" />
+            <img src={logoPath} alt="WFS Logo" className="w-full h-full object-cover filter brightness-110" />
           </div>
           <span className="font-bold text-sm tracking-tight bg-gradient-to-r from-zinc-100 to-zinc-400 bg-clip-text text-transparent">WFS Fleet</span>
         </div>
@@ -109,7 +131,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Logo / Header */}
           <div className="hidden md:flex items-center gap-2.5">
             <div className="bg-zinc-900 border border-zinc-800 p-1.5 rounded-lg w-9 h-9 overflow-hidden flex items-center justify-center">
-              <img src="../logo/logo.png" alt="WFS Logo" className="w-full h-full object-cover filter brightness-110" />
+              <img src={logoPath} alt="WFS Logo" className="w-full h-full object-cover filter brightness-110" />
             </div>
             <div>
               <span className="font-bold text-base tracking-tight bg-gradient-to-r from-zinc-100 to-zinc-400 bg-clip-text text-transparent">WillyFastSolutions</span>

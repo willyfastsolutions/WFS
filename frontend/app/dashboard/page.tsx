@@ -13,7 +13,10 @@ import {
   FileText,
   Search,
   Wrench,
-  ChevronDown
+  ChevronDown,
+  Edit2,
+  Camera,
+  X
 } from "lucide-react";
 import { Profile, Company, Machine, mockDb } from "./mockDb";
 
@@ -32,6 +35,94 @@ export default function FleetOverview() {
   const [hoursModalError, setHoursModalError] = useState<string | null>(null);
 
   const [revokeModalMachine, setRevokeModalMachine] = useState<Machine | null>(null);
+
+  // Edit Modal States
+  const [editModalMachine, setEditModalMachine] = useState<Machine | null>(null);
+  const [editName, setEditName] = useState("");
+  const [editBrand, setEditBrand] = useState("");
+  const [editModel, setEditModel] = useState("");
+  const [editSerial, setEditSerial] = useState("");
+  const [editPhoto, setEditPhoto] = useState<string | null>(null);
+  
+  // Edit Modal Webcam States
+  const [isWebcamOpen, setIsWebcamOpen] = useState(false);
+  const [webcamStream, setWebcamStream] = useState<MediaStream | null>(null);
+  const editVideoRef = React.useRef<HTMLVideoElement>(null);
+  const editFileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const startWebcam = async () => {
+    setIsWebcamOpen(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: "environment", width: 640, height: 480 }
+      });
+      setWebcamStream(stream);
+      setTimeout(() => {
+        if (editVideoRef.current) {
+          editVideoRef.current.srcObject = stream;
+        }
+      }, 100);
+    } catch (err) {
+      console.error("Failed to access webcam:", err);
+      setIsWebcamOpen(false);
+    }
+  };
+
+  const stopWebcam = () => {
+    if (webcamStream) {
+      webcamStream.getTracks().forEach(track => track.stop());
+      setWebcamStream(null);
+    }
+    setIsWebcamOpen(false);
+  };
+
+  const captureWebcamPhoto = () => {
+    if (editVideoRef.current) {
+      const video = editVideoRef.current;
+      const canvas = document.createElement("canvas");
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
+      const ctx = canvas.getContext("2d");
+      if (ctx) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        setEditPhoto(canvas.toDataURL("image/png"));
+      }
+      stopWebcam();
+    }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (webcamStream) {
+        webcamStream.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, [webcamStream]);
+
+  const openEditModal = (machine: Machine) => {
+    setEditModalMachine(machine);
+    setEditName(machine.name);
+    setEditBrand(machine.brand);
+    setEditModel(machine.model);
+    setEditSerial(machine.serial_number);
+    setEditPhoto(machine.photo || null);
+  };
+
+  const handleEditSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editModalMachine) return;
+    const success = mockDb.updateMachine(editModalMachine.id, {
+      name: editName,
+      brand: editBrand,
+      model: editModel,
+      serial_number: editSerial,
+      photo: editPhoto || undefined
+    });
+    if (success) {
+      setEditModalMachine(null);
+      refreshData();
+    }
+  };
 
   // Fetch Session & Data
   const refreshData = () => {
@@ -360,6 +451,14 @@ export default function FleetOverview() {
                   >
                     <Clock className="h-3.5 w-3.5" /> Log Hours
                   </button>
+
+                  <button
+                    onClick={() => openEditModal(mac)}
+                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-900 bg-zinc-950 text-xs font-semibold text-zinc-500 hover:bg-zinc-900 hover:border-zinc-800 hover:text-zinc-350 transition-all cursor-pointer"
+                    title="Edit Machine Details"
+                  >
+                    <Edit2 className="h-4 w-4" />
+                  </button>
                   
                   <button
                     onClick={() => setRevokeModalMachine(mac)}
@@ -462,6 +561,215 @@ export default function FleetOverview() {
                 className="inline-flex h-9 items-center justify-center px-4 rounded-lg bg-rose-500 text-xs font-semibold text-zinc-100 hover:bg-rose-600 transition-all cursor-pointer"
               >
                 Delete Asset
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Machine Modal Overlay */}
+      {editModalMachine && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-zinc-950 border border-zinc-900 w-full max-w-md rounded-xl shadow-2xl p-6 space-y-4 my-8">
+            <div className="flex justify-between items-center border-b border-zinc-900 pb-3">
+              <h3 className="text-sm font-bold text-zinc-100 flex items-center gap-1.5">
+                <Edit2 className="h-4 w-4 text-zinc-400" /> Edit Machinery Details
+              </h3>
+              <button
+                type="button"
+                onClick={() => setEditModalMachine(null)}
+                className="text-zinc-500 hover:text-zinc-300 transition-colors"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleEditSubmit} className="space-y-4">
+              
+              {/* Asset Name */}
+              <div className="space-y-1.5">
+                <label htmlFor="edit-name" className="text-[10px] uppercase font-bold text-zinc-500">Asset Name / Tag</label>
+                <input
+                  type="text"
+                  id="edit-name"
+                  required
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full h-10 px-3 rounded-lg border border-zinc-900 bg-zinc-900/30 text-sm text-zinc-200 focus:outline-none focus:border-zinc-800 transition-colors"
+                />
+              </div>
+
+              {/* Brand & Model */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label htmlFor="edit-brand" className="text-[10px] uppercase font-bold text-zinc-500">Brand</label>
+                  <input
+                    type="text"
+                    id="edit-brand"
+                    required
+                    value={editBrand}
+                    onChange={(e) => setEditBrand(e.target.value)}
+                    className="w-full h-10 px-3 rounded-lg border border-zinc-900 bg-zinc-900/30 text-sm text-zinc-200 focus:outline-none focus:border-zinc-800 transition-colors"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label htmlFor="edit-model" className="text-[10px] uppercase font-bold text-zinc-500">Model</label>
+                  <input
+                    type="text"
+                    id="edit-model"
+                    required
+                    value={editModel}
+                    onChange={(e) => setEditModel(e.target.value)}
+                    className="w-full h-10 px-3 rounded-lg border border-zinc-900 bg-zinc-900/30 text-sm text-zinc-200 focus:outline-none focus:border-zinc-800 transition-colors"
+                  />
+                </div>
+              </div>
+
+              {/* Serial Number */}
+              <div className="space-y-1.5">
+                <label htmlFor="edit-serial" className="text-[10px] uppercase font-bold text-zinc-500">Serial Number</label>
+                <input
+                  type="text"
+                  id="edit-serial"
+                  required
+                  value={editSerial}
+                  onChange={(e) => setEditSerial(e.target.value)}
+                  className="w-full h-10 px-3 rounded-lg border border-zinc-900 bg-zinc-900/30 text-sm text-zinc-200 focus:outline-none focus:border-zinc-800 transition-colors font-mono"
+                />
+              </div>
+
+              {/* Photo Upload / Webcam */}
+              <div className="space-y-1.5">
+                <label className="text-[10px] uppercase font-bold text-zinc-500">Asset Photo</label>
+                
+                <div className="flex gap-4 items-center">
+                  <div 
+                    onClick={() => editFileInputRef.current?.click()}
+                    className="flex-1 h-24 border border-dashed border-zinc-850 bg-zinc-900/10 hover:bg-zinc-900/20 hover:border-zinc-800 transition-all rounded-lg flex flex-col items-center justify-center gap-1 cursor-pointer p-2 relative group overflow-hidden"
+                  >
+                    {editPhoto ? (
+                      <>
+                        <img src={editPhoto} alt="Edit Preview" className="w-full h-full object-cover rounded-md" />
+                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] font-semibold text-zinc-200">
+                          Change Photo
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-[10px] text-zinc-400 font-medium">Browse file</div>
+                        <div className="text-[8px] text-zinc-650">JPG, PNG up to 2MB</div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Camera Button */}
+                  <div className="flex flex-col items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={startWebcam}
+                      className="flex h-12 w-12 items-center justify-center rounded-full border border-zinc-855 bg-zinc-950 text-zinc-400 hover:border-zinc-850 hover:text-zinc-200 transition-all active:scale-95 cursor-pointer"
+                      title="Take Photo with Camera"
+                    >
+                      <Camera className="h-5 w-5" />
+                    </button>
+                    <span className="text-[8px] uppercase font-bold text-zinc-500 font-semibold tracking-wider">Webcam</span>
+                  </div>
+                </div>
+
+                {/* Hidden File Input for Edit */}
+                <input 
+                  type="file"
+                  ref={editFileInputRef}
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        setEditPhoto(event.target?.result as string);
+                      };
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+
+                {editPhoto && (
+                  <div className="flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => setEditPhoto(null)}
+                      className="text-[9px] text-rose-400 hover:underline cursor-pointer"
+                    >
+                      Remove Photo
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              {/* Action Buttons */}
+              <div className="flex gap-2 justify-end pt-3 border-t border-zinc-900">
+                <button
+                  type="button"
+                  onClick={() => setEditModalMachine(null)}
+                  className="inline-flex h-9 items-center justify-center px-4 rounded-lg border border-zinc-900 bg-zinc-950 text-xs font-semibold text-zinc-500 hover:text-zinc-300 transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="inline-flex h-9 items-center justify-center px-4 rounded-lg bg-zinc-100 text-xs font-semibold text-zinc-950 hover:bg-zinc-200 transition-all cursor-pointer"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Webcam Capture Overlay Modal */}
+      {isWebcamOpen && (
+        <div className="fixed inset-0 z-50 flex flex-col items-center justify-center p-4 bg-zinc-950/95 backdrop-blur-sm">
+          <div className="bg-zinc-950 border border-zinc-900 w-full max-w-md rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            <div className="p-4 border-b border-zinc-900 flex justify-between items-center">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-200 font-mono">Live Webcam</h3>
+              <button 
+                type="button" 
+                onClick={stopWebcam} 
+                className="text-zinc-550 hover:text-zinc-300 text-xs"
+              >
+                Close
+              </button>
+            </div>
+            
+            {/* Video Feed */}
+            <div className="bg-black aspect-video relative flex items-center justify-center overflow-hidden">
+              <video 
+                ref={editVideoRef} 
+                autoPlay 
+                playsInline 
+                muted 
+                className="w-full h-full object-cover"
+              />
+            </div>
+            
+            {/* Control Bar */}
+            <div className="p-4 bg-zinc-950 border-t border-zinc-900 flex justify-between gap-4">
+              <button
+                type="button"
+                onClick={stopWebcam}
+                className="flex-1 h-10 rounded-lg border border-zinc-900 bg-zinc-950 text-xs font-semibold text-zinc-400 hover:text-zinc-200 transition-colors"
+              >
+                Cancel
+              </button>
+              
+              <button
+                type="button"
+                onClick={captureWebcamPhoto}
+                className="flex-1 h-10 rounded-lg bg-zinc-100 text-xs font-semibold text-zinc-950 hover:bg-zinc-200 transition-colors flex items-center justify-center gap-1.5"
+              >
+                <Camera className="h-4 w-4" /> Capture Photo
               </button>
             </div>
           </div>
