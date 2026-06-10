@@ -24,6 +24,7 @@ export default function FleetOverview() {
   const [machinery, setMachinery] = useState<Machine[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isCompanyDropdownOpen, setIsCompanyDropdownOpen] = useState(false);
+  const [companySearchQuery, setCompanySearchQuery] = useState("");
 
   // Modal States
   const [hoursModalMachine, setHoursModalMachine] = useState<Machine | null>(null);
@@ -145,7 +146,10 @@ export default function FleetOverview() {
             </div>
             
             <button
-              onClick={() => setIsCompanyDropdownOpen(!isCompanyDropdownOpen)}
+              onClick={() => {
+                setIsCompanyDropdownOpen(!isCompanyDropdownOpen);
+                setCompanySearchQuery("");
+              }}
               className="flex w-56 h-10 items-center justify-between rounded-lg border border-zinc-900 bg-zinc-950 px-3 text-xs font-semibold text-zinc-300 hover:border-zinc-800 hover:text-zinc-100 transition-all cursor-pointer"
             >
               <span>{selectedCompanyName}</span>
@@ -153,7 +157,20 @@ export default function FleetOverview() {
             </button>
 
             {isCompanyDropdownOpen && (
-              <div className="absolute right-0 mt-1 w-56 rounded-lg border border-zinc-900 bg-zinc-950 p-1 shadow-2xl">
+              <div className="absolute right-0 mt-1 w-56 rounded-lg border border-zinc-900 bg-zinc-950 p-1 shadow-2xl z-30 max-h-72 overflow-y-auto space-y-1">
+                {/* Search Box */}
+                <div className="p-1.5 border-b border-zinc-900 flex items-center gap-1.5">
+                  <Search className="h-3.5 w-3.5 text-zinc-650 flex-shrink-0" />
+                  <input
+                    type="text"
+                    placeholder="Search company..."
+                    value={companySearchQuery}
+                    onChange={(e) => setCompanySearchQuery(e.target.value)}
+                    onClick={(e) => e.stopPropagation()} // Prevent closing dropdown
+                    className="w-full h-8 px-2 rounded border border-zinc-900 bg-zinc-900 text-[11px] text-zinc-200 placeholder-zinc-700 focus:outline-none focus:border-zinc-800"
+                  />
+                </div>
+
                 <button
                   onClick={() => {
                     setSelectedCompanyId("all");
@@ -165,20 +182,22 @@ export default function FleetOverview() {
                 >
                   All Companies
                 </button>
-                {companies.map((comp) => (
-                  <button
-                    key={comp.id}
-                    onClick={() => {
-                      setSelectedCompanyId(comp.id);
-                      setIsCompanyDropdownOpen(false);
-                    }}
-                    className={`flex w-full items-center px-3 py-2 text-left text-xs font-medium rounded-md hover:bg-zinc-900 transition-colors cursor-pointer ${
-                      selectedCompanyId === comp.id ? "text-zinc-100 bg-zinc-900/40" : "text-zinc-400"
-                    }`}
-                  >
-                    {comp.name}
-                  </button>
-                ))}
+                {companies
+                  .filter(comp => comp.name.toLowerCase().includes(companySearchQuery.toLowerCase()))
+                  .map((comp) => (
+                    <button
+                      key={comp.id}
+                      onClick={() => {
+                        setSelectedCompanyId(comp.id);
+                        setIsCompanyDropdownOpen(false);
+                      }}
+                      className={`flex w-full items-center px-3 py-2 text-left text-xs font-medium rounded-md hover:bg-zinc-900 transition-colors cursor-pointer ${
+                        selectedCompanyId === comp.id ? "text-zinc-100 bg-zinc-900/40" : "text-zinc-400"
+                      }`}
+                    >
+                      {comp.name}
+                    </button>
+                  ))}
               </div>
             )}
           </div>

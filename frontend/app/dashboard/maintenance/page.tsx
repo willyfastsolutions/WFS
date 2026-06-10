@@ -11,12 +11,18 @@ import {
   History,
   Check,
   ChevronDown,
-  Info
+  Info,
+  Filter,
+  Search
 } from "lucide-react";
-import { Profile, Machine, MaintenanceLog, mockDb } from "../mockDb";
+import { Profile, Company, Machine, MaintenanceLog, mockDb } from "../mockDb";
 
 export default function MaintenancePortal() {
   const [user, setUser] = useState<Profile | null>(null);
+  const [companies, setCompanies] = useState<Company[]>([]);
+  const [selectedCompanyId, setSelectedCompanyId] = useState<string>("all");
+  const [isCompanyDropdownOpen, setIsCompanyDropdownOpen] = useState(false);
+  const [companySearchQuery, setCompanySearchQuery] = useState("");
   const [machinery, setMachinery] = useState<Machine[]>([]);
   const [historyLogs, setHistoryLogs] = useState<(MaintenanceLog & { machineName: string; machineSerial: string })[]>([]);
 
@@ -52,14 +58,27 @@ export default function MaintenancePortal() {
         const profile = JSON.parse(sessionStr) as Profile;
         setUser(profile);
 
-        // Fetch company specific machinery and logs
-        const macs = mockDb.getMachinery(profile.company_id);
-        setMachinery(macs);
+        if (profile.role === "superadmin") {
+          const comps = mockDb.getCompanies();
+          setCompanies(comps);
 
-        const logs = mockDb.getMaintenanceLogs(profile.company_id);
-        // Sort history by date descending
-        logs.sort((a, b) => new Date(b.performed_at).getTime() - new Date(a.performed_at).getTime());
-        setHistoryLogs(logs);
+          const targetComp = selectedCompanyId === "all" ? null : selectedCompanyId;
+          const macs = mockDb.getMachinery(targetComp);
+          setMachinery(macs);
+
+          const logs = mockDb.getMaintenanceLogs(targetComp);
+          logs.sort((a, b) => new Date(b.performed_at).getTime() - new Date(a.performed_at).getTime());
+          setHistoryLogs(logs);
+        } else {
+          // Fetch company specific machinery and logs
+          const macs = mockDb.getMachinery(profile.company_id);
+          setMachinery(macs);
+
+          const logs = mockDb.getMaintenanceLogs(profile.company_id);
+          // Sort history by date descending
+          logs.sort((a, b) => new Date(b.performed_at).getTime() - new Date(a.performed_at).getTime());
+          setHistoryLogs(logs);
+        }
       }
     }
   };
@@ -67,7 +86,12 @@ export default function MaintenancePortal() {
   useEffect(() => {
     mockDb.initialize();
     refreshData();
-  }, []);
+  }, [selectedCompanyId]);
+
+  useEffect(() => {
+    setSelectedMachineId("");
+    setHoursAtMaintenance(0);
+  }, [selectedCompanyId]);
 
   const handleSelectMachine = (machine: Machine) => {
     setSelectedMachineId(machine.id);
@@ -150,17 +174,88 @@ export default function MaintenancePortal() {
     ? `${selectedMachine.name} (${selectedMachine.brand} ${selectedMachine.model})` 
     : "Select Fleet Asset";
 
+  const selectedCompanyName = selectedCompanyId === "all" 
+    ? "All Companies" 
+    : companies.find(c => c.id === selectedCompanyId)?.name || "All Companies";
+
   return (
     <div className="space-y-8">
       
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2">
-          <Wrench className="h-6 w-6 text-zinc-400" /> Maintenance Portal
-        </h1>
-        <p className="text-xs text-zinc-500 mt-1">
-          Complete mandatory safety checklists, record services, and review historical logs.
-        </p>
+      {/* Header and Filter */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold tracking-tight text-zinc-100 flex items-center gap-2">
+            <Wrench className="h-6 w-6 text-zinc-400" /> Maintenance Portal
+          </h1>
+          <p className="text-xs text-zinc-500 mt-1">
+            Complete mandatory safety checklists, record services, and review historical logs.
+          </p>
+        </div>
+
+        {/* Superadmin Company Filter - Custom Selector (NO native select) */}
+        {user?.role === "superadmin" && (
+          <div className="relative z-20">
+            <div className="text-[10px] text-zinc-600 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
+              <Filter className="h-3 w-3" /> Filter Company
+            </div>
+            
+            <button
+              onClick={() => {
+                setIsCompanyDropdownOpen(!isCompanyDropdownOpen);
+                setCompanySearchQuery("");
+              }}
+              className="flex w-56 h-10 items-center justify-between rounded-lg border border-zinc-900 bg-zinc-950 px-3 text-xs font-semibold text-zinc-300 hover:border-zinc-800 hover:text-zinc-100 transition-all cursor-pointer"
+            >
+              <span>{selectedCompanyName}</span>
+              <ChevronDown className="h-4 w-4 text-zinc-500" />
+            </button>
+
+            {isCompanyDropdownOpen && (
+              <div className="absolute right-0 mt-1 w-56 rounded-lg border border-zinc-900 bg-zinc-950 p-1 shadow-2xl z-30 max-h-72 overflow-y-auto space-y-1">
+                {/* Search Box */}
+                <div className="p-1.5 border-b border-zinc-900 flex items-center gap-1.5">
+                  <Search className="h-3.5 w-3.5 text-zinc-650 flex-shrink-0" />
+                  <input
+                    type="text"
+                    placeholder="Search company..."
+                    value={companySearchQuery}
+                    onChange={(e) => setCompanySearchQuery(e.target.value)}
+                    onClick={(e) => e.stopPropagation()} // Prevent closing dropdown
+                    className="w-full h-8 px-2 rounded border border-zinc-900 bg-zinc-900 text-[11px] text-zinc-200 placeholder-zinc-700 focus:outline-none focus:border-zinc-800"
+                  />
+                </div>
+
+                <button
+                  onClick={() => {
+                    setSelectedCompanyId("all");
+                    setIsCompanyDropdownOpen(false);
+                  }}
+                  className={`flex w-full items-center px-3 py-2 text-left text-xs font-medium rounded-md hover:bg-zinc-900 transition-colors cursor-pointer ${
+                    selectedCompanyId === "all" ? "text-zinc-100 bg-zinc-900/40" : "text-zinc-400"
+                  }`}
+                >
+                  All Companies
+                </button>
+                {companies
+                  .filter(comp => comp.name.toLowerCase().includes(companySearchQuery.toLowerCase()))
+                  .map((comp) => (
+                    <button
+                      key={comp.id}
+                      onClick={() => {
+                        setSelectedCompanyId(comp.id);
+                        setIsCompanyDropdownOpen(false);
+                      }}
+                      className={`flex w-full items-center px-3 py-2 text-left text-xs font-medium rounded-md hover:bg-zinc-900 transition-colors cursor-pointer ${
+                        selectedCompanyId === comp.id ? "text-zinc-100 bg-zinc-900/40" : "text-zinc-400"
+                      }`}
+                    >
+                      {comp.name}
+                    </button>
+                  ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Grid of Alerts and Checklist Form */}
