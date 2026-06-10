@@ -64,9 +64,39 @@ def generate_machinery_pdf(machine_name: str, brand: str, model: str, serial: st
         leading=13
     )
 
-    # Document Title Header
-    story.append(Paragraph("WillyFastSolutions Telemetry Audit", title_style))
-    story.append(Paragraph("AUTOMATED FLEET PREVENTIVE MAINTENANCE WARNING REPORT", subtitle_style))
+    # Dynamic path to WillyFastSolutions logo (logo/logo.png in the project root)
+    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+    logo_path = os.path.join(project_root, "logo", "logo.png")
+
+    # Header Layout with Logo (top left) and Document Title
+    logo_flowable = None
+    if os.path.exists(logo_path):
+        try:
+            from reportlab.platypus import Image as RLImage
+            logo_flowable = RLImage(logo_path, width=42, height=42)
+        except Exception as ex:
+            print(f"[PDF GENERATOR] Error loading logo: {str(ex)}")
+
+    title_block = [
+        Paragraph("WillyFastSolutions Telemetry Audit", title_style),
+        Paragraph("AUTOMATED FLEET PREVENTIVE MAINTENANCE WARNING REPORT", subtitle_style)
+    ]
+
+    if logo_flowable:
+        header_table = Table([[logo_flowable, title_block]], colWidths=[52, 488])
+        header_table.setStyle(TableStyle([
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+            ('LEFTPADDING', (1,0), (1,0), 0),
+            ('RIGHTPADDING', (0,0), (-1,-1), 0),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 0),
+            ('TOPPADDING', (0,0), (-1,-1), 0),
+        ]))
+        story.append(header_table)
+        story.append(Spacer(1, 10))
+    else:
+        story.append(Paragraph("WillyFastSolutions Telemetry Audit", title_style))
+        story.append(Paragraph("AUTOMATED FLEET PREVENTIVE MAINTENANCE WARNING REPORT", subtitle_style))
     
     # Alert Banner Block
     overdue_hours = current_hours - last_hours
