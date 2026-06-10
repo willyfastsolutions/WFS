@@ -23,12 +23,22 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [companyName, setCompanyName] = useState<string | null>(null);
 
+  const redirectToLogin = () => {
+    if (typeof window !== "undefined") {
+      if (window.location.protocol === "file:") {
+        window.location.href = window.location.href.replace(/\/dashboard\/.*/, "/login/index.html");
+      } else {
+        router.push("/login");
+      }
+    }
+  };
+
   useEffect(() => {
     mockDb.initialize();
     if (typeof window !== "undefined") {
       const sessionStr = sessionStorage.getItem("wfs_session");
       if (!sessionStr) {
-        router.push("/login");
+        redirectToLogin();
       } else {
         const profile = JSON.parse(sessionStr) as Profile;
         setUser(profile);
@@ -46,7 +56,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const handleLogout = () => {
     if (typeof window !== "undefined") {
       sessionStorage.removeItem("wfs_session");
-      router.push("/login");
+      redirectToLogin();
     }
   };
 

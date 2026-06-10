@@ -45,7 +45,11 @@ export default function LoginPage() {
           text: "Successfully signed in! Redirecting..."
         });
         setTimeout(() => {
-          router.push("/dashboard");
+          if (typeof window !== "undefined" && window.location.protocol === "file:") {
+            window.location.href = "../dashboard/index.html";
+          } else {
+            router.push("/dashboard");
+          }
         }, 1000);
       } else {
         setMessage({

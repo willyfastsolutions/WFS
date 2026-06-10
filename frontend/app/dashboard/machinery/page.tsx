@@ -101,7 +101,11 @@ export default function RegisterMachinery() {
         setInitialHours("0");
         
         setTimeout(() => {
-          router.push("/dashboard");
+          if (typeof window !== "undefined" && window.location.protocol === "file:") {
+            window.location.href = "../index.html";
+          } else {
+            router.push("/dashboard");
+          }
         }, 1500);
       } catch (err) {
         setStatus({ type: "error", text: "Failed to save machine. Please verify data formats." });
