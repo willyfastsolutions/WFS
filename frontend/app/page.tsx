@@ -44,6 +44,7 @@ export default function Home() {
   const [simHours, setSimHours] = useState(180);
   const [fleetSize, setFleetSize] = useState(15);
   const [downtimeCost, setDowntimeCost] = useState(150);
+  const [showReportModal, setShowReportModal] = useState(false);
 
   const handleSelectPackage = (packageName: string) => {
     // Smooth scroll to contact section
@@ -715,7 +716,7 @@ export default function Home() {
                       </div>
                       <div className="flex gap-2">
                         <button 
-                          onClick={() => alert('Simulated PDF Download: wfs_audit_report_SN554321.pdf')}
+                          onClick={() => setShowReportModal(true)}
                           className="inline-flex h-8 items-center justify-center gap-1.5 px-3 rounded bg-zinc-100 text-[10px] font-bold text-zinc-950 hover:bg-zinc-200 transition-colors w-full cursor-pointer"
                         >
                           <FileText className="h-3 w-3" /> Download Audit Report (PDF)
@@ -1051,6 +1052,149 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {/* Report Modal Popup */}
+      <AnimatePresence>
+        {showReportModal && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-md"
+          >
+            <motion.div 
+              initial={{ scale: 0.95, y: 20 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.95, y: 20 }}
+              className="bg-zinc-900 border border-zinc-800 w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+            >
+              {/* Modal Header */}
+              <div className="flex justify-between items-center px-6 py-4 border-b border-zinc-800 bg-zinc-950/40">
+                <div className="flex items-center gap-2">
+                  <div className="bg-zinc-900 border border-zinc-800 p-1 rounded w-6 h-6 overflow-hidden flex items-center justify-center">
+                    <img src="logo/logo.png" alt="WFS Logo" className="w-full h-full object-cover filter brightness-110" />
+                  </div>
+                  <span className="font-bold text-xs tracking-wider text-zinc-400">WillyFastSolutions Report Engine</span>
+                </div>
+                <button 
+                  onClick={() => setShowReportModal(false)}
+                  className="text-zinc-500 hover:text-zinc-300 text-sm font-semibold transition-colors cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+
+              {/* Modal Body (Simulated PDF Report) */}
+              <div className="p-6 overflow-y-auto space-y-6 bg-zinc-950/20 text-zinc-300 font-sans">
+                
+                {/* PDF Letterhead */}
+                <div className="flex justify-between items-start border-b border-zinc-800/80 pb-4">
+                  <div>
+                    <h1 className="text-xl font-extrabold text-zinc-100 tracking-tight">
+                      WillyFastSolutions
+                    </h1>
+                    <p className="text-[10px] text-zinc-500 mt-0.5">Heavy Machinery Maintenance Services</p>
+                    <p className="text-[9px] text-zinc-600">US Fleet Operations Division</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="inline-flex px-2 py-0.5 rounded text-[8px] font-bold bg-rose-500/10 border border-rose-500/20 text-rose-400 uppercase tracking-wider">
+                      Urgent PM Required
+                    </div>
+                    <p className="text-[10px] text-zinc-500 mt-2 font-mono">Report ID: WFS-2026-00329</p>
+                    <p className="text-[9px] text-zinc-600 font-mono">Date Generated: 06/10/2026</p>
+                  </div>
+                </div>
+
+                {/* Client and Asset Metadata */}
+                <div className="grid grid-cols-2 gap-4 text-xs">
+                  <div className="space-y-1">
+                    <div className="text-[9px] uppercase font-bold text-zinc-500">Prepared For</div>
+                    <div className="font-bold text-zinc-200">Apex Logistics Ltd.</div>
+                    <div className="text-zinc-500">Contact: manager@apexlogistics.com</div>
+                    <div className="text-zinc-500">Location: Depot A, Houston TX</div>
+                  </div>
+                  <div className="space-y-1">
+                    <div className="text-[9px] uppercase font-bold text-zinc-500">Asset Specifications</div>
+                    <div className="font-bold text-zinc-200">Toyota 8FGU25 Forklift</div>
+                    <div className="text-zinc-500 font-mono">Serial: SN-CAT-554321</div>
+                    <div className="text-zinc-500 font-mono">Limit: 250.0h • Current: {simHours.toFixed(1)}h</div>
+                  </div>
+                </div>
+
+                {/* Telemetry Chart & Trigger Info */}
+                <div className="p-4 rounded-xl border border-rose-500/20 bg-rose-950/5 space-y-2">
+                  <h3 className="text-xs font-bold text-rose-400 flex items-center gap-1">
+                    <AlertTriangle className="h-3.5 w-3.5" /> Maintenance Threshold Breach Detected
+                  </h3>
+                  <p className="text-xs text-zinc-400 leading-relaxed">
+                    Our background telemetry daemon identified that this asset has operated for <strong>{(simHours - 250).toFixed(1)} hours past its limit</strong> without the required 250-hour service checklist being logged. Immediate field maintenance is recommended to prevent mast hydraulic degradation.
+                  </p>
+                </div>
+
+                {/* Checklist Item Results */}
+                <div className="space-y-2">
+                  <div className="text-[9px] uppercase font-bold text-zinc-500 mb-1">Preventive Audit Checklist (Auto-Generated)</div>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex items-center justify-between p-2 rounded bg-zinc-900/40 border border-zinc-800/60">
+                      <div className="flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+                        <span>Mast Oil & Cylinder Lubrication</span>
+                      </div>
+                      <span className="text-[10px] font-mono text-emerald-400 uppercase font-semibold">Ready (Verified)</span>
+                    </div>
+                    <div className="flex items-center justify-between p-2 rounded bg-zinc-900/40 border border-zinc-800/60">
+                      <div className="flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse"></span>
+                        <span className="font-medium text-zinc-200">Engine Oil & Filter replacement</span>
+                      </div>
+                      <span className="text-[10px] font-mono text-rose-400 uppercase font-bold">Overdue (Wear Risk)</span>
+                    </div>
+                    <div className="flex items-center justify-between p-2 rounded bg-zinc-900/40 border border-zinc-800/60">
+                      <div className="flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse"></span>
+                        <span className="font-medium text-zinc-200">Load Mast tilt stability checklist</span>
+                      </div>
+                      <span className="text-[10px] font-mono text-rose-400 uppercase font-bold">Needs Inspection</span>
+                    </div>
+                    <div className="flex items-center justify-between p-2 rounded bg-zinc-900/40 border border-zinc-800/60">
+                      <div className="flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
+                        <span>Safety Alarms, Horn, Strobes</span>
+                      </div>
+                      <span className="text-[10px] font-mono text-emerald-400 uppercase font-semibold">Passed</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Footer Signoff */}
+                <div className="flex justify-between items-center pt-4 border-t border-zinc-900 text-[9px] text-zinc-600">
+                  <div>WillyFastSolutions Telemetry Audit daemon v2.0.1 (Secure Sign-off)</div>
+                  <div>Authorized Copy • Non-transferable</div>
+                </div>
+
+              </div>
+
+              {/* Modal Footer Actions */}
+              <div className="px-6 py-4 border-t border-zinc-800 bg-zinc-950/40 flex justify-end gap-3">
+                <button 
+                  onClick={() => setShowReportModal(false)}
+                  className="inline-flex h-9 items-center justify-center px-4 rounded-lg border border-zinc-800 bg-zinc-950 text-xs font-semibold text-zinc-400 hover:text-zinc-200 hover:border-zinc-700 transition-colors cursor-pointer"
+                >
+                  Close Preview
+                </button>
+                <button 
+                  onClick={() => {
+                    window.print();
+                  }}
+                  className="inline-flex h-9 items-center justify-center gap-1.5 px-4 rounded-lg bg-zinc-100 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-colors cursor-pointer"
+                >
+                  <Download className="h-3.5 w-3.5" /> Print Report
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );
