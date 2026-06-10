@@ -33,13 +33,13 @@ This document serves as the project memory for the WillyFastSolutions B2B SaaS f
 - [x] Mobile-First styling with Tailwind CSS
 - [x] SEO Auditing (metadata title, tags, heading structure)
 
-### Phase 4: Multi-tenant SaaS Dashboard 🟡
-- [ ] Setup Next.js App Router for authenticated dashboard
-- [ ] Role-based access control (Superadmin vs Company Admin)
-- [ ] Machinery inventory management (Forklifts, Excavators, Skid steer loaders)
-- [ ] Hour log registration form (Horómetro)
-- [ ] Preventive maintenance form (Routine services + Safety checklist)
-- [ ] Minimalist Design System (Soft tones/Monochrome palette)
+### Phase 4: Multi-tenant SaaS Dashboard 🟢
+- [x] Setup Next.js App Router for authenticated dashboard
+- [x] Role-based access control (Superadmin vs Company Admin)
+- [x] Machinery inventory management (Forklifts, Excavators, Skid steer loaders)
+- [x] Hour log registration form (Horómetro)
+- [x] Preventive maintenance form (Routine services + Safety checklist)
+- [x] Minimalist Design System (Soft tones/Monochrome palette)
 
 ### Phase 5: Python Automated Auditing Agent (Daemon) 🟡
 - [ ] Setup Python FastAPI API/Daemon base

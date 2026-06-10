@@ -1,40 +1,59 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Wrench, Mail, Lock, ArrowLeft, Loader2 } from "lucide-react";
+import { mockDb } from "../dashboard/mockDb";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
+  useEffect(() => {
+    mockDb.initialize();
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setMessage(null);
 
-    // Mock Authentication Logic to simulate Supabase connection
+    // Mock Authentication Logic checking against mockDb profiles
     setTimeout(() => {
       setIsLoading(false);
-      if (email && password.length >= 6) {
+      
+      if (isSignUp) {
         setMessage({
           type: "success",
-          text: isSignUp 
-            ? "Registration request received! An administrator will approve your tenant."
-            : "Successfully signed in! Redirecting..."
+          text: "Registration request received! An administrator will approve your tenant."
         });
+        return;
+      }
+
+      const profile = mockDb.getProfileByEmail(email);
+      if (profile && password === "admin1234") {
+        if (typeof window !== "undefined") {
+          sessionStorage.setItem("wfs_session", JSON.stringify(profile));
+        }
+        setMessage({
+          type: "success",
+          text: "Successfully signed in! Redirecting..."
+        });
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1000);
       } else {
         setMessage({
           type: "error",
-          text: password.length < 6 
-            ? "Password must be at least 6 characters long." 
-            : "Please fill in all fields correctly."
+          text: "Invalid email or password. Hint: Use support@willyfastsolutions.com with admin1234"
         });
       }
-    }, 1500);
+    }, 1200);
   };
 
   return (
