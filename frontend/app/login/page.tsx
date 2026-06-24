@@ -12,6 +12,7 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
@@ -22,6 +23,53 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
     setMessage(null);
+
+    if (isForgotPassword) {
+      try {
+        const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
+        const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+          ? `${window.location.protocol}//${window.location.hostname}:8000`
+          : "";
+
+        if (isOffline) {
+          setTimeout(() => {
+            setIsLoading(false);
+            setMessage({
+              type: "success",
+              text: "SUCCESS (Offline Demo): Password reset URL generated. In production, an email is dispatched. Copy/paste this link to proceed: " + (typeof window !== "undefined" && window.location.pathname.replace("login/index.html", "") || "") + "login/reset/index.html?token=mock-offline-token"
+            });
+          }, 1000);
+          return;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/auth/forgot-password`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          setMessage({
+            type: "success",
+            text: "Recovery link dispatched! Check your email inbox (and SPAM folder) / ¡Enlace de recuperación enviado! Revisa tu bandeja de correo (y carpeta de SPAM)."
+          });
+        } else {
+          setMessage({
+            type: "error",
+            text: data.detail || "Error dispatching password recovery link."
+          });
+        }
+      } catch (err) {
+        console.error(err);
+        setMessage({ type: "error", text: "Connection error: Could not contact auth server." });
+      } finally {
+        setIsLoading(false);
+      }
+      return;
+    }
 
     if (isSignUp) {
       setTimeout(() => {
@@ -125,12 +173,16 @@ export default function LoginPage() {
             <img src="../logo/logo.png" alt="WillyFastSolutions Logo" className="w-full h-full object-cover filter brightness-110" />
           </div>
           <h2 className="text-xl font-semibold tracking-tight text-zinc-200">
-            {isSignUp ? "Create your workspace" : "Welcome back"}
+            {isForgotPassword 
+              ? "Recover password" 
+              : (isSignUp ? "Create your workspace" : "Welcome back")}
           </h2>
           <p className="text-xs text-zinc-500">
-            {isSignUp 
-              ? "Register your company fleet on WillyFastSolutions"
-              : "Sign in to manage your heavy equipment preventive maintenance"}
+            {isForgotPassword 
+              ? "Enter your email to receive a password reset link" 
+              : (isSignUp 
+                ? "Register your company fleet on WillyFastSolutions"
+                : "Sign in to manage your heavy equipment preventive maintenance")}
           </p>
         </div>
 
@@ -169,23 +221,39 @@ export default function LoginPage() {
             </div>
 
             {/* Password Field */}
-            <div className="space-y-1.5">
-              <label htmlFor="login-password" className="text-[10px] uppercase tracking-wider font-semibold text-zinc-500">
-                Password
-              </label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-600" />
-                <input 
-                  type="password" 
-                  id="login-password" 
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                  className="w-full h-10 pl-9 pr-3 rounded-lg border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-700 focus:outline-none focus:border-zinc-700 transition-colors"
-                />
+            {!isForgotPassword && (
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center">
+                  <label htmlFor="login-password" className="text-[10px] uppercase tracking-wider font-semibold text-zinc-500">
+                    Password
+                  </label>
+                  {!isSignUp && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsForgotPassword(true);
+                        setMessage(null);
+                      }}
+                      className="text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer hover:underline"
+                    >
+                      Forgot password?
+                    </button>
+                  )}
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-600" />
+                  <input 
+                    type="password" 
+                    id="login-password" 
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required={!isForgotPassword}
+                    className="w-full h-10 pl-9 pr-3 rounded-lg border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-700 focus:outline-none focus:border-zinc-700 transition-colors"
+                  />
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Submit Button */}
             <button 
@@ -200,7 +268,9 @@ export default function LoginPage() {
                   Please wait...
                 </>
               ) : (
-                isSignUp ? "Register" : "Sign In"
+                isForgotPassword 
+                  ? "Send Recovery Link" 
+                  : (isSignUp ? "Register" : "Sign In")
               )}
             </button>
 
@@ -208,17 +278,32 @@ export default function LoginPage() {
 
           {/* Toggle Link */}
           <div className="text-center text-xs text-zinc-500 pt-2 border-t border-zinc-900/60">
-            {isSignUp ? "Already have an account?" : "Need a workspace for your company?"}{" "}
-            <button 
-              type="button" 
-              onClick={() => {
-                setIsSignUp(!isSignUp);
-                setMessage(null);
-              }}
-              className="font-medium text-zinc-300 hover:text-zinc-100 underline decoration-zinc-700 hover:decoration-zinc-400 transition-colors"
-            >
-              {isSignUp ? "Sign In" : "Register Company"}
-            </button>
+            {isForgotPassword ? (
+              <button 
+                type="button" 
+                onClick={() => {
+                  setIsForgotPassword(false);
+                  setMessage(null);
+                }}
+                className="font-medium text-zinc-300 hover:text-zinc-100 underline decoration-zinc-700 hover:decoration-zinc-400 transition-colors cursor-pointer"
+              >
+                Back to Sign In
+              </button>
+            ) : (
+              <>
+                {isSignUp ? "Already have an account?" : "Need a workspace for your company?"}{" "}
+                <button 
+                  type="button" 
+                  onClick={() => {
+                    setIsSignUp(!isSignUp);
+                    setMessage(null);
+                  }}
+                  className="font-medium text-zinc-300 hover:text-zinc-100 underline decoration-zinc-700 hover:decoration-zinc-400 transition-colors cursor-pointer"
+                >
+                  {isSignUp ? "Sign In" : "Register Company"}
+                </button>
+              </>
+            )}
           </div>
 
         </div>

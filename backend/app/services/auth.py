@@ -31,3 +31,15 @@ def decode_access_token(token: str) -> Optional[dict]:
         return payload
     except JWTError:
         return None
+
+def create_password_reset_token(email: str) -> str:
+    return create_access_token(
+        data={"sub": email, "action": "password_reset"},
+        expires_delta=timedelta(minutes=15)
+    )
+
+def verify_password_reset_token(token: str) -> Optional[str]:
+    payload = decode_access_token(token)
+    if payload and payload.get("action") == "password_reset":
+        return payload.get("sub")
+    return None
