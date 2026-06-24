@@ -76,6 +76,7 @@ class MachineHourUpdate(BaseModel):
 class MachineResponse(MachineBase):
     id: str
     company_id: str
+    revoked: bool
     created_at: datetime
     
     class Config:
@@ -96,6 +97,19 @@ class HourLogResponse(BaseModel):
         from_attributes = True
 
 # MaintenanceLog Schemas
+class ChecklistResultCreate(BaseModel):
+    checklist_item_id: str
+    passed: bool
+
+class ChecklistResultResponse(BaseModel):
+    id: str
+    maintenance_log_id: str
+    checklist_item_id: str
+    passed: bool
+    
+    class Config:
+        from_attributes = True
+
 class MaintenanceLogCreate(BaseModel):
     machinery_id: str
     hours_at_maintenance: float
@@ -110,11 +124,71 @@ class MaintenanceLogCreate(BaseModel):
     safety_fuel: bool = False
     safety_tires: bool = False
     notes: Optional[str] = None
+    reset_physical_horometer: bool = False
+    checklist_results: Optional[List[ChecklistResultCreate]] = None
 
-class MaintenanceLogResponse(MaintenanceLogCreate):
+class MaintenanceLogResponse(BaseModel):
     id: str
-    performed_by: Optional[str]
+    machinery_id: str
+    hours_at_maintenance: float
+    oil_change: bool = False
+    oil_filter_change: bool = False
+    air_filter_change: bool = False
+    spark_glow_plugs_change: bool = False
+    safety_battery: bool = False
+    safety_lights: bool = False
+    safety_horn: bool = False
+    safety_ignition: bool = False
+    safety_fuel: bool = False
+    safety_tires: bool = False
+    notes: Optional[str] = None
+    reset_physical_horometer: bool = False
+    performed_by: Optional[str] = None
     performed_at: datetime
+    checklist_results: List[ChecklistResultResponse] = []
     
     class Config:
         from_attributes = True
+
+# Checklist Schemas
+class ChecklistItemBase(BaseModel):
+    label: str
+    category: str = "routine"
+
+class ChecklistItemCreate(ChecklistItemBase):
+    template_id: str
+
+class ChecklistItemResponse(ChecklistItemBase):
+    id: str
+    template_id: str
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+class ChecklistTemplateBase(BaseModel):
+    name: str
+    description: Optional[str] = None
+
+class ChecklistTemplateCreate(ChecklistTemplateBase):
+    company_id: Optional[str] = None
+    items: Optional[List[ChecklistItemBase]] = None
+
+class ChecklistTemplateResponse(ChecklistTemplateBase):
+    id: str
+    company_id: Optional[str] = None
+    items: List[ChecklistItemResponse] = []
+    created_at: datetime
+    
+    class Config:
+        from_attributes = True
+
+# SystemSettings Schemas
+class SystemSettingsUpdate(BaseModel):
+    scan_interval_seconds: int
+    default_maintenance_threshold: float
+
+class SystemSettingsResponse(BaseModel):
+    scan_interval_seconds: int
+    default_maintenance_threshold: float
+

@@ -23,22 +23,55 @@ export default function LoginPage() {
     setIsLoading(true);
     setMessage(null);
 
-    // Mock Authentication Logic checking against mockDb profiles
-    setTimeout(() => {
-      setIsLoading(false);
-      
-      if (isSignUp) {
+    if (isSignUp) {
+      setTimeout(() => {
+        setIsLoading(false);
         setMessage({
           type: "success",
           text: "Registration request received! An administrator will approve your tenant."
         });
-        return;
+      }, 1200);
+      return;
+    }
+
+    try {
+      const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
+      const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+        ? `${window.location.protocol}//${window.location.hostname}:8000`
+        : "";
+
+      let token = "";
+
+      if (!isOffline) {
+        // Try to authenticate with the real backend API
+        try {
+          const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email, password }),
+          });
+          if (response.ok) {
+            const data = await response.json();
+            token = data.access_token;
+          }
+        } catch (apiErr) {
+          console.warn("Could not authenticate with real API, using mock fallback:", apiErr);
+        }
       }
 
+      // Check against mock database for local navigation
       const profile = mockDb.getProfileByEmail(email);
       if (profile && password === "admin1234") {
         if (typeof window !== "undefined") {
           sessionStorage.setItem("wfs_session", JSON.stringify(profile));
+          if (token) {
+            sessionStorage.setItem("wfs_token", token);
+          } else {
+            // Seed a mock token if offline to prevent UI crashes, though it won't be validated
+            sessionStorage.setItem("wfs_token", "mock-offline-token-xyz");
+          }
         }
         setMessage({
           type: "success",
@@ -54,10 +87,15 @@ export default function LoginPage() {
       } else {
         setMessage({
           type: "error",
-          text: "Invalid email or password. Hint: Use support@willyfastsolutions.com with admin1234"
+          text: "Invalid email or password. Hint: Use admin@willyfastsolutions.com with admin1234"
         });
       }
-    }, 1200);
+    } catch (err) {
+      console.error(err);
+      setMessage({ type: "error", text: "An error occurred during sign in." });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

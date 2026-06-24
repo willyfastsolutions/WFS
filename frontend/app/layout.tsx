@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Preventive Maintenance & Fleet Management | WillyFastSolutions",
   description: "Maximize heavy machinery uptime. WillyFastSolutions automates hour logging, safety checklists, and preventive maintenance audits for B2B fleets.",
+  alternates: {
+    canonical: "https://willyfastsolutions.com/",
+  },
 };
 
 export default function RootLayout({

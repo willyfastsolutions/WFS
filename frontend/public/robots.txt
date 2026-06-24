@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /$
+Allow: /login/$
+Disallow: /dashboard/
+Disallow: /_next/
+Disallow: /api/
+
+Sitemap: https://willyfastsolutions.com/sitemap.xml

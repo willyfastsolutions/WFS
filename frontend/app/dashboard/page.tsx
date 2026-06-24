@@ -6,6 +6,7 @@ import {
   AlertTriangle, 
   ShieldCheck, 
   Plus, 
+  PlusCircle,
   Trash2, 
   Clock, 
   Filter,
@@ -35,6 +36,8 @@ export default function FleetOverview() {
   const [hoursModalError, setHoursModalError] = useState<string | null>(null);
 
   const [revokeModalMachine, setRevokeModalMachine] = useState<Machine | null>(null);
+  const [revokePassword, setRevokePassword] = useState("");
+  const [revokeError, setRevokeError] = useState<string | null>(null);
 
   // Edit Modal States
   const [editModalMachine, setEditModalMachine] = useState<Machine | null>(null);
@@ -136,12 +139,12 @@ export default function FleetOverview() {
         if (profile.role === "superadmin") {
           const comps = mockDb.getCompanies();
           setCompanies(comps);
-          // Fetch all machinery
-          const macs = mockDb.getMachinery(selectedCompanyId === "all" ? null : selectedCompanyId);
+          // Fetch all machinery (including revoked ones)
+          const macs = mockDb.getMachinery(selectedCompanyId === "all" ? null : selectedCompanyId, true);
           setMachinery(macs);
         } else {
-          // Fetch machinery for current company
-          const macs = mockDb.getMachinery(profile.company_id);
+          // Fetch machinery for current company (active only)
+          const macs = mockDb.getMachinery(profile.company_id, false);
           setMachinery(macs);
         }
       }
@@ -172,24 +175,66 @@ export default function FleetOverview() {
     }
   };
 
-  const handleRevokeSubmit = () => {
+  const handleRevokeSubmit = async () => {
     if (!revokeModalMachine) return;
+    if (revokePassword !== "admin1234") {
+      setRevokeError("Incorrect password. Re-authentication failed.");
+      return;
+    }
+
     const success = mockDb.deleteMachine(revokeModalMachine.id);
     if (success) {
+      // If online (server mode), try to delete in backend database too
+      if (typeof window !== "undefined" && window.location.protocol !== "file:") {
+        const API_BASE_URL = (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+          ? `${window.location.protocol}//${window.location.hostname}:8000`
+          : "";
+        
+        await fetch(`${API_BASE_URL}/api/machinery/${revokeModalMachine.id}`, {
+          method: "DELETE",
+          headers: {
+            "Authorization": `Bearer ${sessionStorage.getItem("wfs_token") || ""}`
+          }
+        }).catch(err => console.warn("Failed to delete machine in real API:", err));
+      }
+
       setRevokeModalMachine(null);
+      setRevokePassword("");
+      setRevokeError(null);
       refreshData();
     }
   };
 
-  // Calculations for KPIs
-  const totalFleetSize = machinery.length;
-  const overdueMaintenanceCount = machinery.filter(m => {
+  const handleReactivateMachine = async (machineId: string) => {
+    const success = mockDb.reactivateMachine(machineId);
+    if (success) {
+      // If online (server mode), try to reactivate in backend database too
+      if (typeof window !== "undefined" && window.location.protocol !== "file:") {
+        const API_BASE_URL = (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+          ? `${window.location.protocol}//${window.location.hostname}:8000`
+          : "";
+        
+        await fetch(`${API_BASE_URL}/api/machinery/${machineId}/reactivate`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${sessionStorage.getItem("wfs_token") || ""}`
+          }
+        }).catch(err => console.warn("Failed to reactivate machine in real API:", err));
+      }
+      refreshData();
+    }
+  };
+
+  // Calculations for KPIs (Active machines only)
+  const activeMachinery = machinery.filter(m => !m.revoked);
+  const totalFleetSize = activeMachinery.length;
+  const overdueMaintenanceCount = activeMachinery.filter(m => {
     const hoursSinceLast = m.current_hours - m.last_maintenance_hours;
     return hoursSinceLast >= m.maintenance_threshold_hours;
   }).length;
 
   const averageHours = totalFleetSize > 0 
-    ? Math.round(machinery.reduce((acc, m) => acc + m.current_hours, 0) / totalFleetSize)
+    ? Math.round(activeMachinery.reduce((acc, m) => acc + m.current_hours, 0) / totalFleetSize)
     : 0;
 
   // Filtered machinery list (Search + Role checks)
@@ -373,11 +418,20 @@ export default function FleetOverview() {
             return (
               <div 
                 key={mac.id}
-                className="border border-zinc-900 bg-zinc-900/10 hover:border-zinc-800/80 transition-all rounded-xl overflow-hidden flex flex-col justify-between gap-6 relative group"
+                className={`border bg-zinc-900/10 transition-all rounded-xl overflow-hidden flex flex-col justify-between gap-6 relative group ${
+                  mac.revoked 
+                    ? "border-rose-950/40 opacity-70 bg-rose-950/5" 
+                    : "border-zinc-900 hover:border-zinc-800/80"
+                }`}
               >
                 {mac.photo && (
-                  <div className="h-36 w-full border-b border-zinc-900 overflow-hidden bg-zinc-950">
-                    <img src={mac.photo} alt={mac.name} className="w-full h-full object-cover filter brightness-90 group-hover:scale-105 transition-transform duration-300" />
+                  <div className="h-36 w-full border-b border-zinc-900 overflow-hidden bg-zinc-950 relative">
+                    <img src={mac.photo} alt={mac.name} className={`w-full h-full object-cover filter brightness-90 group-hover:scale-105 transition-transform duration-300 ${mac.revoked ? "grayscale" : ""}`} />
+                    {mac.revoked && (
+                      <div className="absolute inset-0 bg-rose-950/20 backdrop-blur-[1px] flex items-center justify-center">
+                        <span className="bg-rose-500/20 border border-rose-500/40 text-rose-300 text-[10px] font-bold tracking-wider px-2 py-0.5 rounded uppercase font-mono">Revoked / Inactive</span>
+                      </div>
+                    )}
                   </div>
                 )}
                 
@@ -390,20 +444,26 @@ export default function FleetOverview() {
                         {getMachineTypeIcon(mac.type)}
                       </div>
                       <div>
-                        <h4 className="text-sm font-bold text-zinc-200">{mac.name}</h4>
+                        <h4 className={`text-sm font-bold ${mac.revoked ? "text-zinc-500 line-through" : "text-zinc-200"}`}>{mac.name}</h4>
                         <div className="text-[10px] text-zinc-500 mt-0.5 capitalize">{mac.brand} {mac.model}</div>
                       </div>
                     </div>
                     
                     {/* Status Badge */}
-                    <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold border ${
-                      isOverdue 
-                        ? "bg-rose-500/10 border-rose-500/20 text-rose-400 animate-pulse" 
-                        : "bg-zinc-800 border-zinc-800 text-zinc-400"
-                    }`}>
-                      <span className={`h-1.5 w-1.5 rounded-full ${isOverdue ? "bg-rose-500" : "bg-zinc-500"}`} />
-                      {isOverdue ? "OVERDUE" : "OK"}
-                    </div>
+                    {mac.revoked ? (
+                      <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold border bg-rose-500/15 border-rose-500/30 text-rose-400 uppercase font-mono">
+                        Revoked
+                      </div>
+                    ) : (
+                      <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[9px] font-bold border ${
+                        isOverdue 
+                          ? "bg-rose-500/10 border-rose-500/20 text-rose-400 animate-pulse" 
+                          : "bg-zinc-800 border-zinc-800 text-zinc-400"
+                      }`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${isOverdue ? "bg-rose-500" : "bg-zinc-500"}`} />
+                        {isOverdue ? "OVERDUE" : "OK"}
+                      </div>
+                    )}
                   </div>
 
                   {/* Serial Number & Company Info */}
@@ -415,7 +475,7 @@ export default function FleetOverview() {
                     {user?.role === "superadmin" && (
                       <div>
                         <span className="text-zinc-600 block uppercase font-bold text-[8px]">Owner Company</span>
-                        <span className="truncate block">
+                        <span className="truncate block font-semibold text-zinc-400">
                           {companies.find(c => c.id === mac.company_id)?.name || "Unknown"}
                         </span>
                       </div>
@@ -434,41 +494,53 @@ export default function FleetOverview() {
                   <div className="h-1.5 w-full bg-zinc-950 rounded-full overflow-hidden">
                     {/* Inner Bar */}
                     <div 
-                      className={`h-full rounded-full transition-all duration-500 ${isOverdue ? "bg-rose-500" : "bg-zinc-400"}`}
+                      className={`h-full rounded-full transition-all duration-500 ${mac.revoked ? "bg-rose-950" : (isOverdue ? "bg-rose-500" : "bg-zinc-400")}`}
                       style={{ width: `${percentage}%` }}
                     />
                   </div>
                 </div>
 
                 {/* Action Buttons Row */}
-                <div className="flex items-center gap-2 border-t border-zinc-900 pt-3.5">
-                  <button
-                    onClick={() => {
-                      setHoursModalMachine(mac);
-                      setNewHoursValue(mac.current_hours);
-                    }}
-                    className="flex-1 inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-zinc-900 bg-zinc-950 text-xs font-semibold text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100 hover:border-zinc-800 transition-all cursor-pointer"
-                  >
-                    <Clock className="h-3.5 w-3.5" /> Log Hours
-                  </button>
+                {mac.revoked ? (
+                  <div className="flex items-center gap-2 border-t border-zinc-900 pt-3.5 w-full">
+                    {user?.role === "superadmin" && (
+                      <button
+                        onClick={() => handleReactivateMachine(mac.id)}
+                        className="flex-1 inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-emerald-950 bg-emerald-950/20 text-xs font-semibold text-emerald-400 hover:bg-emerald-900/10 hover:border-emerald-850 transition-all cursor-pointer"
+                      >
+                        <PlusCircle className="h-3.5 w-3.5" /> Reactivate Asset
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 border-t border-zinc-900 pt-3.5">
+                    <button
+                      onClick={() => {
+                        setHoursModalMachine(mac);
+                        setNewHoursValue(mac.current_hours);
+                      }}
+                      className="flex-1 inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-zinc-900 bg-zinc-950 text-xs font-semibold text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100 hover:border-zinc-800 transition-all cursor-pointer"
+                    >
+                      <Clock className="h-3.5 w-3.5" /> Log Hours
+                    </button>
 
-                  <button
-                    onClick={() => openEditModal(mac)}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-900 bg-zinc-950 text-xs font-semibold text-zinc-500 hover:bg-zinc-900 hover:border-zinc-800 hover:text-zinc-350 transition-all cursor-pointer"
-                    title="Edit Machine Details"
-                  >
-                    <Edit2 className="h-4 w-4" />
-                  </button>
-                  
-                  <button
-                    onClick={() => setRevokeModalMachine(mac)}
-                    className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-900 bg-zinc-950 text-xs font-semibold text-zinc-500 hover:bg-rose-500/5 hover:border-rose-500/20 hover:text-rose-400 transition-all cursor-pointer"
-                    aria-label="Revoke Machine"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-
+                    <button
+                      onClick={() => openEditModal(mac)}
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-900 bg-zinc-950 text-xs font-semibold text-zinc-500 hover:bg-zinc-900 hover:border-zinc-800 hover:text-zinc-350 transition-all cursor-pointer"
+                      title="Edit Machine Details"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </button>
+                    
+                    <button
+                      onClick={() => setRevokeModalMachine(mac)}
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-zinc-900 bg-zinc-950 text-xs font-semibold text-zinc-500 hover:bg-rose-500/5 hover:border-rose-500/20 hover:text-rose-400 transition-all cursor-pointer"
+                      aria-label="Revoke Machine"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           );
@@ -545,13 +617,39 @@ export default function FleetOverview() {
             <div>
               <h3 className="text-sm font-bold text-zinc-100">Revoke Machinery?</h3>
               <p className="text-xs text-zinc-500 mt-1">
-                Are you sure you want to revoke/delete <span className="text-zinc-300 font-semibold">{revokeModalMachine.name}</span>? This action will permanentely remove this machine from the company fleet registry.
+                Are you sure you want to revoke/delete <span className="text-zinc-300 font-semibold">{revokeModalMachine.name}</span>? This action will temporarily remove this machine from the active company fleet registry.
               </p>
+            </div>
+
+            {revokeError && (
+              <div className="p-2.5 rounded bg-rose-500/10 border border-rose-500/20 text-[11px] text-rose-400">
+                {revokeError}
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <label htmlFor="revoke-password-input" className="text-[10px] uppercase font-bold text-zinc-500">Re-enter Admin Password (admin1234)</label>
+              <input
+                type="password"
+                id="revoke-password-input"
+                required
+                value={revokePassword}
+                onChange={(e) => {
+                  setRevokePassword(e.target.value);
+                  setRevokeError(null);
+                }}
+                placeholder="••••••••"
+                className="w-full h-10 px-3 rounded-lg border border-zinc-900 bg-zinc-900/40 text-sm text-zinc-200 placeholder-zinc-700 focus:outline-none focus:border-zinc-800 transition-colors font-mono"
+              />
             </div>
 
             <div className="flex gap-2 justify-end pt-2">
               <button
-                onClick={() => setRevokeModalMachine(null)}
+                onClick={() => {
+                  setRevokeModalMachine(null);
+                  setRevokePassword("");
+                  setRevokeError(null);
+                }}
                 className="inline-flex h-9 items-center justify-center px-4 rounded-lg border border-zinc-900 bg-zinc-950 text-xs font-semibold text-zinc-500 hover:text-zinc-300 transition-all cursor-pointer"
               >
                 Cancel

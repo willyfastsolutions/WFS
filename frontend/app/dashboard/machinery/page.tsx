@@ -93,10 +93,14 @@ export default function RegisterMachinery() {
   // Status message
   const [status, setStatus] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [maxHours, setMaxHours] = useState(250);
 
   useEffect(() => {
     mockDb.initialize();
     if (typeof window !== "undefined") {
+      const settings = mockDb.getSystemSettings();
+      setMaxHours(settings.default_maintenance_threshold);
+      
       const sessionStr = sessionStorage.getItem("wfs_session");
       if (sessionStr) {
         const profile = JSON.parse(sessionStr) as Profile;
@@ -128,8 +132,8 @@ export default function RegisterMachinery() {
       return;
     }
 
-    if (hours > 250) {
-      setStatus({ type: "error", text: "Initial hours cannot exceed 250 hours (Maximum safety threshold limit)." });
+    if (hours > maxHours) {
+      setStatus({ type: "error", text: `Initial hours cannot exceed ${maxHours} hours (Maximum safety threshold limit).` });
       return;
     }
 
@@ -145,7 +149,7 @@ export default function RegisterMachinery() {
           model: model,
           serial_number: serial,
           current_hours: hours,
-          maintenance_threshold_hours: 250.0,
+          maintenance_threshold_hours: maxHours,
           last_maintenance_hours: 0.0,
           photo: photo || undefined
         });

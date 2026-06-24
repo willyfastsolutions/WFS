@@ -8,20 +8,19 @@ from app.services.pdf_generator import generate_machinery_pdf
 from app.services.email_worker import send_alert_email
 
 # In-memory registry to prevent duplicate warning spam
-already_warned = set()
 worker_running = False
 
 def run_audit_cycle():
     db: Session = SessionLocal()
     try:
-        # Query all machinery
-        machines = db.query(Machine).all()
+        # Query only active (non-revoked) machinery
+        machines = db.query(Machine).filter(Machine.revoked == False).all()
         for machine in machines:
             hours_since_pm = machine.current_hours - machine.last_maintenance_hours
             is_overdue = hours_since_pm >= machine.maintenance_threshold_hours
             
             if is_overdue:
-                if machine.id not in already_warned:
+                if not machine.warning_sent:
                     # Get company details
                     company = db.query(Company).filter(Company.id == machine.company_id).first()
                     comp_name = company.name if company else "Unknown B2B Tenant"
@@ -77,25 +76,41 @@ def run_audit_cycle():
                     )
                     
                     if sent:
-                        already_warned.add(machine.id)
+                        machine.warning_sent = True
+                        db.commit()
                         print(f"[WORKER DAEMON] Warning dispatched successfully to {admin_email}.\n")
             else:
                 # If hours have been reset below threshold, remove warning flag
-                if machine.id in already_warned:
-                    already_warned.remove(machine.id)
+                if machine.warning_sent:
+                    machine.warning_sent = False
+                    db.commit()
                     print(f"[WORKER DAEMON] Machine {machine.name} hours reset. Warning state cleared.")
     except Exception as e:
         print(f"[WORKER DAEMON] Error in audit cycle: {str(e)}")
     finally:
         db.close()
 
-def audit_daemon_loop(interval_seconds: int = 15):
+def audit_daemon_loop():
     global worker_running
-    print(f"[WORKER DAEMON] Starting telemetry polling loop every {interval_seconds} seconds...")
+    print(f"[WORKER DAEMON] Starting telemetry polling loop...")
     worker_running = True
     while worker_running:
         run_audit_cycle()
-        time.sleep(interval_seconds)
+        
+        # Fetch dynamic interval from database
+        interval = 86400 # Default to 24 hours
+        db = SessionLocal()
+        try:
+            from app.models.models import SystemSetting
+            setting = db.query(SystemSetting).filter(SystemSetting.key == "scan_interval_seconds").first()
+            if setting:
+                interval = int(setting.value)
+        except Exception as ex:
+            print(f"[WORKER DAEMON] Error reading loop interval: {str(ex)}")
+        finally:
+            db.close()
+            
+        time.sleep(interval)
 
 def start_audit_daemon():
     thread = threading.Thread(target=audit_daemon_loop, daemon=True)

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
@@ -46,6 +46,19 @@ export default function Home() {
   const [downtimeCost, setDowntimeCost] = useState(150);
   const [showReportModal, setShowReportModal] = useState(false);
 
+  useEffect(() => {
+    // Preload WebP images for instant tab transitions
+    const imagesToPreload = [
+      "images/forklift.webp",
+      "images/excavator.webp",
+      "images/skid_steer.webp"
+    ];
+    imagesToPreload.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+    });
+  }, []);
+
   const handleSelectPackage = (packageName: string) => {
     // Smooth scroll to contact section
     const contactSection = document.getElementById("contact");
@@ -75,7 +88,7 @@ export default function Home() {
     forklift: {
       title: "Industrial Forklifts",
       subtitle: "Toyota / Hyster / Caterpillar",
-      image: "images/forklift.png",
+      image: "images/forklift.webp",
       description: "High-frequency warehouse assets requiring strict load-safety compliance. WillyFastSolutions monitors mast hydraulics, lifting speed degradation, and tire wear intervals.",
       criticalCheck: "Hydraulic pressure valves & mast tilt stability",
       routineServices: ["Mast oil & cylinder lubrication", "Engine oil change & oil filter", "Air intake filter clean", "Brake fluid check"],
@@ -85,7 +98,7 @@ export default function Home() {
     excavator: {
       title: "Heavy Excavators",
       subtitle: "Caterpillar / Komatsu / John Deere",
-      image: "images/excavator.png",
+      image: "images/excavator.webp",
       description: "High-stress earthmoving machinery operating in abrasive dust conditions. WillyFastSolutions alerts for track tension wear, swing gear lubrication, and cooling radiator status.",
       criticalCheck: "Hydraulic pump flow & boom swing gear grease",
       routineServices: ["Swing drive fluid change", "Engine oil & hydraulic filters", "Air pre-cleaner cartridge", "Glow plug replacement"],
@@ -95,7 +108,7 @@ export default function Home() {
     skid_steer: {
       title: "Skid Steer Loaders",
       subtitle: "Bobcat / Case / Kubota",
-      image: "images/skid_steer.png",
+      image: "images/skid_steer.webp",
       description: "Compact, agile machines with dynamic attachment changes. WillyFastSolutions handles quick-attach latch inspections, auxiliary hydraulic flow logs, and wheel hub wear logs.",
       criticalCheck: "Quick-attach mechanical latch & auxiliary line integrity",
       routineServices: ["Drive chain tension adjustment", "Engine oil & separator filter", "Engine cooling pack blow-out", "Fuel filter replacement"],

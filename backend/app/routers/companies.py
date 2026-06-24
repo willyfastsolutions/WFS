@@ -14,7 +14,12 @@ def read_companies(
     db: Session = Depends(get_db),
     current_user: Profile = Depends(get_current_user)
 ):
-    # Retrieve all registered companies
+    # Retrieve all registered companies (only for superadmin)
+    if current_user.role != "superadmin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden: Only superadmins can list all B2B companies"
+        )
     return db.query(Company).all()
 
 @router.post("/", response_model=CompanyResponse, status_code=status.HTTP_201_CREATED)

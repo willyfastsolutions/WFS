@@ -3,8 +3,10 @@ from app.models.models import Machine, HourLog
 from app.schemas.schemas import MachineCreate
 import uuid
 
-def get_machinery(db: Session, company_id: str = None):
+def get_machinery(db: Session, company_id: str = None, include_revoked: bool = False):
     query = db.query(Machine)
+    if not include_revoked:
+        query = query.filter(Machine.revoked == False)
     if company_id:
         query = query.filter(Machine.company_id == company_id)
     return query.all()
@@ -13,9 +15,19 @@ def get_machine_by_id(db: Session, machine_id: str):
     return db.query(Machine).filter(Machine.id == machine_id).first()
 
 def add_machine(db: Session, schema: MachineCreate):
-    # Enforce guard: initial hours cannot exceed 250
-    if schema.current_hours > 250.0:
-        raise ValueError("Initial hours cannot exceed 250 hours.")
+    # Fetch default threshold from system settings
+    from app.models.models import SystemSetting
+    default_threshold = 250.0
+    setting = db.query(SystemSetting).filter(SystemSetting.key == "default_maintenance_threshold").first()
+    if setting:
+        try:
+            default_threshold = float(setting.value)
+        except Exception:
+            pass
+
+    # Enforce guard: initial hours cannot exceed threshold
+    if schema.current_hours > default_threshold:
+        raise ValueError(f"Initial hours cannot exceed {default_threshold} hours.")
         
     db_machine = Machine(
         id=str(uuid.uuid4()),
@@ -26,7 +38,7 @@ def add_machine(db: Session, schema: MachineCreate):
         model=schema.model,
         serial_number=schema.serial_number,
         current_hours=schema.current_hours,
-        maintenance_threshold_hours=250.0,
+        maintenance_threshold_hours=default_threshold,
         last_maintenance_hours=0.0,
         photo=schema.photo
     )
@@ -38,10 +50,18 @@ def add_machine(db: Session, schema: MachineCreate):
 def delete_machine(db: Session, machine_id: str):
     db_machine = db.query(Machine).filter(Machine.id == machine_id).first()
     if db_machine:
-        db.delete(db_machine)
+        db_machine.revoked = True
         db.commit()
         return True
     return False
+
+def reactivate_machine(db: Session, machine_id: str):
+    db_machine = db.query(Machine).filter(Machine.id == machine_id).first()
+    if db_machine:
+        db_machine.revoked = False
+        db.commit()
+        return db_machine
+    return None
 
 def log_hours(db: Session, machine_id: str, new_hours: float, user_id: str):
     db_machine = db.query(Machine).filter(Machine.id == machine_id).first()

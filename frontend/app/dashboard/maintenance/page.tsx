@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { 
   Wrench, 
   AlertTriangle, 
@@ -15,9 +16,10 @@ import {
   Filter,
   Search
 } from "lucide-react";
-import { Profile, Company, Machine, MaintenanceLog, mockDb } from "../mockDb";
+import { Profile, Company, Machine, MaintenanceLog, ChecklistTemplate, ChecklistItem, mockDb } from "../mockDb";
 
 export default function MaintenancePortal() {
+  const router = useRouter(); // Wait, let's see if useRouter is imported. If not, we should import it!
   const [user, setUser] = useState<Profile | null>(null);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("all");
@@ -30,19 +32,12 @@ export default function MaintenancePortal() {
   const [selectedMachineId, setSelectedMachineId] = useState("");
   const [hoursAtMaintenance, setHoursAtMaintenance] = useState<number>(0);
   const [notes, setNotes] = useState("");
+  const [resetPhysicalHorometer, setResetPhysicalHorometer] = useState(false);
 
-  // Checklists (States)
-  const [oilChange, setOilChange] = useState(false);
-  const [oilFilter, setOilFilter] = useState(false);
-  const [airFilter, setAirFilter] = useState(false);
-  const [sparkPlugs, setSparkPlugs] = useState(false);
-
-  const [safetyBattery, setSafetyBattery] = useState(false);
-  const [safetyLights, setSafetyLights] = useState(false);
-  const [safetyHorn, setSafetyHorn] = useState(false);
-  const [safetyIgnition, setSafetyIgnition] = useState(false);
-  const [safetyFuel, setSafetyFuel] = useState(false);
-  const [safetyTires, setSafetyTires] = useState(false);
+  // Dynamic Checklist States
+  const [activeTemplates, setActiveTemplates] = useState<ChecklistTemplate[]>([]);
+  const [activeItems, setActiveItems] = useState<ChecklistItem[]>([]);
+  const [checklistSelections, setChecklistSelections] = useState<{ [itemId: string]: boolean }>({});
 
   // Dropdown UI (No native select)
   const [isMachineDropdownOpen, setIsMachineDropdownOpen] = useState(false);
@@ -58,27 +53,21 @@ export default function MaintenancePortal() {
         const profile = JSON.parse(sessionStr) as Profile;
         setUser(profile);
 
-        if (profile.role === "superadmin") {
-          const comps = mockDb.getCompanies();
-          setCompanies(comps);
-
-          const targetComp = selectedCompanyId === "all" ? null : selectedCompanyId;
-          const macs = mockDb.getMachinery(targetComp);
-          setMachinery(macs);
-
-          const logs = mockDb.getMaintenanceLogs(targetComp);
-          logs.sort((a, b) => new Date(b.performed_at).getTime() - new Date(a.performed_at).getTime());
-          setHistoryLogs(logs);
-        } else {
-          // Fetch company specific machinery and logs
-          const macs = mockDb.getMachinery(profile.company_id);
-          setMachinery(macs);
-
-          const logs = mockDb.getMaintenanceLogs(profile.company_id);
-          // Sort history by date descending
-          logs.sort((a, b) => new Date(b.performed_at).getTime() - new Date(a.performed_at).getTime());
-          setHistoryLogs(logs);
+        if (profile.role !== "superadmin") {
+          router.push("/dashboard");
+          return;
         }
+
+        const comps = mockDb.getCompanies();
+        setCompanies(comps);
+
+        const targetComp = selectedCompanyId === "all" ? null : selectedCompanyId;
+        const macs = mockDb.getMachinery(targetComp);
+        setMachinery(macs);
+
+        const logs = mockDb.getMaintenanceLogs(targetComp);
+        logs.sort((a, b) => new Date(b.performed_at).getTime() - new Date(a.performed_at).getTime());
+        setHistoryLogs(logs);
       }
     }
   };
@@ -92,6 +81,34 @@ export default function MaintenancePortal() {
     setSelectedMachineId("");
     setHoursAtMaintenance(0);
   }, [selectedCompanyId]);
+
+  useEffect(() => {
+    if (!selectedMachineId) {
+      setActiveTemplates([]);
+      setActiveItems([]);
+      setChecklistSelections({});
+      return;
+    }
+    const machine = machinery.find(m => m.id === selectedMachineId);
+    const companyIdForTemplates = machine ? machine.company_id : (user?.company_id || null);
+    
+    // Fetch templates matching company (or global)
+    const temps = mockDb.getChecklistTemplates(companyIdForTemplates);
+    setActiveTemplates(temps);
+    
+    // Fetch items for these templates
+    const tempIds = temps.map(t => t.id);
+    const allItems = mockDb.getChecklistItems();
+    const filteredItems = allItems.filter(item => tempIds.includes(item.template_id));
+    setActiveItems(filteredItems);
+
+    // Initialize checklist selections
+    const initialSelections: { [itemId: string]: boolean } = {};
+    filteredItems.forEach(item => {
+      initialSelections[item.id] = false;
+    });
+    setChecklistSelections(initialSelections);
+  }, [selectedMachineId, machinery, user]);
 
   const handleSelectMachine = (machine: Machine) => {
     setSelectedMachineId(machine.id);
@@ -111,7 +128,7 @@ export default function MaintenancePortal() {
     const machine = machinery.find(m => m.id === selectedMachineId);
     if (!machine) return;
 
-    if (hoursAtMaintenance < machine.last_maintenance_hours) {
+    if (!resetPhysicalHorometer && hoursAtMaintenance < machine.last_maintenance_hours) {
       setStatus({ type: "error", text: `Hours at maintenance cannot be less than last maintenance (${machine.last_maintenance_hours} hrs).` });
       return;
     }
@@ -120,39 +137,55 @@ export default function MaintenancePortal() {
 
     setTimeout(() => {
       try {
+        // Collect dynamic checklist results
+        const checklistResults = activeItems.map(item => ({
+          checklist_item_id: item.id,
+          passed: !!checklistSelections[item.id]
+        }));
+
+        // Populate legacy fields as a fallback based on dynamic selections
+        const legacyOil = checklistSelections['item_oil_change'] || false;
+        const legacyOilFilter = checklistSelections['item_oil_filter'] || false;
+        const legacyAirFilter = checklistSelections['item_air_filter'] || false;
+        const legacySpark = checklistSelections['item_spark_plugs'] || false;
+        const legacyBattery = checklistSelections['item_battery'] || false;
+        const legacyLights = checklistSelections['item_lights'] || false;
+        const legacyHorn = checklistSelections['item_horn'] || false;
+        const legacyIgnition = checklistSelections['item_ignition'] || false;
+        const legacyFuel = checklistSelections['item_fuel'] || false;
+        const legacyTires = checklistSelections['item_tires'] || false;
+
         mockDb.performMaintenance({
           machinery_id: selectedMachineId,
           performed_by: user.id,
           hours_at_maintenance: hoursAtMaintenance,
-          oil_change: oilChange,
-          oil_filter_change: oilFilter,
-          air_filter_change: airFilter,
-          spark_glow_plugs_change: sparkPlugs,
-          safety_battery: safetyBattery,
-          safety_lights: safetyLights,
-          safety_horn: safetyHorn,
-          safety_ignition: safetyIgnition,
-          safety_fuel: safetyFuel,
-          safety_tires: safetyTires,
-          notes: notes
-        });
+          oil_change: legacyOil,
+          oil_filter_change: legacyOilFilter,
+          air_filter_change: legacyAirFilter,
+          spark_glow_plugs_change: legacySpark,
+          safety_battery: legacyBattery,
+          safety_lights: legacyLights,
+          safety_horn: legacyHorn,
+          safety_ignition: legacyIgnition,
+          safety_fuel: legacyFuel,
+          safety_tires: legacyTires,
+          notes: notes,
+          reset_physical_horometer: resetPhysicalHorometer
+        }, checklistResults);
 
-        setStatus({ type: "success", text: "Preventive maintenance log submitted successfully! Telemetry hours reset." });
+        setStatus({ 
+          type: "success", 
+          text: resetPhysicalHorometer
+            ? "Maintenance logged & physical horometer reset back to 0.0h!" 
+            : "Preventive maintenance log submitted successfully!" 
+        });
         
         // Reset form
         setSelectedMachineId("");
         setHoursAtMaintenance(0);
         setNotes("");
-        setOilChange(false);
-        setOilFilter(false);
-        setAirFilter(false);
-        setSparkPlugs(false);
-        setSafetyBattery(false);
-        setSafetyLights(false);
-        setSafetyHorn(false);
-        setSafetyIgnition(false);
-        setSafetyFuel(false);
-        setSafetyTires(false);
+        setResetPhysicalHorometer(false);
+        setChecklistSelections({});
 
         refreshData();
       } catch (err) {
@@ -368,128 +401,73 @@ export default function MaintenancePortal() {
 
               </div>
 
-              {/* Checklist Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-zinc-900">
-                
-                {/* Checklist column 1: Routine Services */}
-                <div className="space-y-3.5">
-                  <h4 className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-2">Routine Services Checklist</h4>
+              {/* Dynamic Checklists Section */}
+              {selectedMachineId && activeTemplates.length > 0 && (
+                <div className="space-y-6 pt-4 border-t border-zinc-900">
+                  <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400">Required Inspection Checklists</h4>
                   
-                  {/* Item 1 */}
-                  <label className="flex items-center gap-3 text-xs text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer select-none">
-                    <input 
-                      type="checkbox" 
-                      checked={oilChange}
-                      onChange={(e) => setOilChange(e.target.checked)}
-                      className="h-4 w-4 rounded border-zinc-800 bg-zinc-950 text-zinc-200 focus:ring-0 focus:ring-offset-0 focus:outline-none accent-zinc-200"
-                    />
-                    Engine / Hydraulic Oil Change
-                  </label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {activeTemplates.map((temp) => {
+                      const tempItems = activeItems.filter(i => i.template_id === temp.id);
+                      if (tempItems.length === 0) return null;
 
-                  {/* Item 2 */}
-                  <label className="flex items-center gap-3 text-xs text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer select-none">
-                    <input 
-                      type="checkbox" 
-                      checked={oilFilter}
-                      onChange={(e) => setOilFilter(e.target.checked)}
-                      className="h-4 w-4 rounded border-zinc-800 bg-zinc-950 text-zinc-200 focus:ring-0 focus:ring-offset-0 focus:outline-none accent-zinc-200"
-                    />
-                    Oil Filter Replacement
-                  </label>
-
-                  {/* Item 3 */}
-                  <label className="flex items-center gap-3 text-xs text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer select-none">
-                    <input 
-                      type="checkbox" 
-                      checked={airFilter}
-                      onChange={(e) => setAirFilter(e.target.checked)}
-                      className="h-4 w-4 rounded border-zinc-800 bg-zinc-950 text-zinc-200 focus:ring-0 focus:ring-offset-0 focus:outline-none accent-zinc-200"
-                    />
-                    Air Filter Replacement
-                  </label>
-
-                  {/* Item 4 */}
-                  <label className="flex items-center gap-3 text-xs text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer select-none">
-                    <input 
-                      type="checkbox" 
-                      checked={sparkPlugs}
-                      onChange={(e) => setSparkPlugs(e.target.checked)}
-                      className="h-4 w-4 rounded border-zinc-800 bg-zinc-950 text-zinc-200 focus:ring-0 focus:ring-offset-0 focus:outline-none accent-zinc-200"
-                    />
-                    Spark / Glow Plugs Check
-                  </label>
-                </div>
-
-                {/* Checklist column 2: Advanced Safety Checks */}
-                <div className="space-y-3.5">
-                  <h4 className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 mb-2">Safety Verification Check (OSHA)</h4>
-                  
-                  <div className="grid grid-cols-2 gap-3">
-                    
-                    <label className="flex items-center gap-2.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer select-none">
-                      <input 
-                        type="checkbox" 
-                        checked={safetyBattery}
-                        onChange={(e) => setSafetyBattery(e.target.checked)}
-                        className="h-4 w-4 rounded border-zinc-800 bg-zinc-950 text-zinc-200 accent-zinc-200"
-                      />
-                      Batteries
-                    </label>
-
-                    <label className="flex items-center gap-2.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer select-none">
-                      <input 
-                        type="checkbox" 
-                        checked={safetyLights}
-                        onChange={(e) => setSafetyLights(e.target.checked)}
-                        className="h-4 w-4 rounded border-zinc-800 bg-zinc-950 text-zinc-200 accent-zinc-200"
-                      />
-                      Working Lights
-                    </label>
-
-                    <label className="flex items-center gap-2.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer select-none">
-                      <input 
-                        type="checkbox" 
-                        checked={safetyHorn}
-                        onChange={(e) => setSafetyHorn(e.target.checked)}
-                        className="h-4 w-4 rounded border-zinc-800 bg-zinc-950 text-zinc-200 accent-zinc-200"
-                      />
-                      Horn / Alarms
-                    </label>
-
-                    <label className="flex items-center gap-2.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer select-none">
-                      <input 
-                        type="checkbox" 
-                        checked={safetyIgnition}
-                        onChange={(e) => setSafetyIgnition(e.target.checked)}
-                        className="h-4 w-4 rounded border-zinc-800 bg-zinc-950 text-zinc-200 accent-zinc-200"
-                      />
-                      Ignition System
-                    </label>
-
-                    <label className="flex items-center gap-2.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer select-none">
-                      <input 
-                        type="checkbox" 
-                        checked={safetyFuel}
-                        onChange={(e) => setSafetyFuel(e.target.checked)}
-                        className="h-4 w-4 rounded border-zinc-800 bg-zinc-950 text-zinc-200 accent-zinc-200"
-                      />
-                      Fuel Injection
-                    </label>
-
-                    <label className="flex items-center gap-2.5 text-xs text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer select-none">
-                      <input 
-                        type="checkbox" 
-                        checked={safetyTires}
-                        onChange={(e) => setSafetyTires(e.target.checked)}
-                        className="h-4 w-4 rounded border-zinc-800 bg-zinc-950 text-zinc-200 accent-zinc-200"
-                      />
-                      Tires / Connectors
-                    </label>
-
+                      return (
+                        <div key={temp.id} className="space-y-3.5 border border-zinc-900/50 bg-zinc-900/5 p-4 rounded-xl">
+                          <h5 className="text-[10px] font-bold uppercase tracking-wider text-zinc-500 border-b border-zinc-900 pb-1.5">{temp.name}</h5>
+                          
+                          <div className="space-y-2.5">
+                            {tempItems.map((item) => (
+                              <label 
+                                key={item.id} 
+                                className="flex items-start gap-3 text-xs text-zinc-400 hover:text-zinc-250 transition-colors cursor-pointer select-none"
+                              >
+                                <input 
+                                  type="checkbox" 
+                                  checked={!!checklistSelections[item.id]}
+                                  onChange={(e) => setChecklistSelections(prev => ({ ...prev, [item.id]: e.target.checked }))}
+                                  className="h-4 w-4 mt-0.5 rounded border-zinc-800 bg-zinc-950 text-zinc-200 focus:ring-0 focus:ring-offset-0 focus:outline-none accent-zinc-200 flex-shrink-0"
+                                />
+                                <div>
+                                  <span className="font-medium">{item.label}</span>
+                                  <span className={`ml-1.5 px-1.5 py-0.5 rounded text-[8px] font-bold border uppercase tracking-wider ${
+                                    item.category === "routine" 
+                                      ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
+                                      : item.category === "safety"
+                                      ? "bg-amber-500/10 border-amber-500/20 text-amber-400"
+                                      : "bg-cyan-500/10 border-cyan-500/20 text-cyan-400"
+                                  }`}>
+                                    {item.category}
+                                  </span>
+                                </div>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
+              )}
 
-              </div>
+              {/* Toggle option for physical horometer reset */}
+              {selectedMachineId && (
+                <div className="space-y-3 pt-4 border-t border-zinc-900">
+                  <div className="border border-amber-500/10 bg-amber-500/5 rounded-xl p-4 space-y-2.5">
+                    <label className="flex items-center gap-3 text-xs font-bold text-zinc-300 hover:text-zinc-150 transition-colors cursor-pointer select-none">
+                      <input
+                        type="checkbox"
+                        checked={resetPhysicalHorometer}
+                        onChange={(e) => setResetPhysicalHorometer(e.target.checked)}
+                        className="h-4 w-4 rounded border-amber-900/60 bg-zinc-950 text-amber-500 focus:ring-0 focus:ring-offset-0 focus:outline-none accent-amber-500"
+                      />
+                      Reset Physical Horometer (Resetear Horómetro Físico a 0.0)
+                    </label>
+                    <p className="text-[10px] text-zinc-500 leading-relaxed font-sans pl-7">
+                      Enable this option only if the machine's physical horometer device has been replaced or reset to 0.0. This will set both the machine's current telemetry hours and last maintenance hours back to 0.0. Leave unchecked to continue accumulation.
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* Maintenance Notes */}
               <div className="space-y-1.5 pt-4 border-t border-zinc-900">
@@ -510,7 +488,11 @@ export default function MaintenancePortal() {
                 disabled={isSubmitting || !selectedMachineId}
                 className="w-full inline-flex h-11 items-center justify-center rounded-lg bg-zinc-100 text-sm font-semibold text-zinc-950 hover:bg-zinc-200 disabled:opacity-50 disabled:hover:bg-zinc-100 transition-all shadow-md cursor-pointer"
               >
-                {isSubmitting ? "Submitting Log Checklist..." : "Complete & Reset Horómetro"}
+                {isSubmitting 
+                  ? "Submitting Log Checklist..." 
+                  : resetPhysicalHorometer
+                  ? "Complete Maintenance & Reset Horometer to 0.0h"
+                  : "Complete Maintenance & Record Hours"}
               </button>
 
             </form>
@@ -537,43 +519,66 @@ export default function MaintenancePortal() {
                   <th className="py-3 px-2">Date</th>
                   <th className="py-3 px-2">Asset / Serial</th>
                   <th className="py-3 px-2">Hours Logged</th>
-                  <th className="py-3 px-2">Services Checked</th>
-                  <th className="py-3 px-2">Safety checks</th>
+                  <th className="py-3 px-2">Inspection Status</th>
                   <th className="py-3 px-2">Notes</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-zinc-900 text-zinc-300">
                 {historyLogs.map(log => {
-                  const servicesChecked = [
-                    log.oil_change && "Oil",
-                    log.oil_filter_change && "Oil Filter",
-                    log.air_filter_change && "Air Filter",
-                    log.spark_glow_plugs_change && "Plugs"
-                  ].filter(Boolean).join(", ") || "None";
+                  // Fetch dynamic results
+                  const results = mockDb.getMaintenanceChecklistResults(log.id);
+                  let passedCount = 0;
+                  let totalCount = 0;
 
-                  const safetyCount = [
-                    log.safety_battery,
-                    log.safety_lights,
-                    log.safety_horn,
-                    log.safety_ignition,
-                    log.safety_fuel,
-                    log.safety_tires
-                  ].filter(Boolean).length;
+                  if (results.length > 0) {
+                    passedCount = results.filter(r => r.passed).length;
+                    totalCount = results.length;
+                  } else {
+                    // Fallback to legacy count
+                    const servicesCount = [
+                      log.oil_change,
+                      log.oil_filter_change,
+                      log.air_filter_change,
+                      log.spark_glow_plugs_change
+                    ].filter(Boolean).length;
+                    const safetyCount = [
+                      log.safety_battery,
+                      log.safety_lights,
+                      log.safety_horn,
+                      log.safety_ignition,
+                      log.safety_fuel,
+                      log.safety_tires
+                    ].filter(Boolean).length;
+                    passedCount = servicesCount + safetyCount;
+                    totalCount = 10;
+                  }
 
                   return (
                     <tr key={log.id} className="hover:bg-zinc-900/20 transition-colors">
                       <td className="py-4 px-2 whitespace-nowrap text-zinc-400 font-mono">
-                        {new Date(log.performed_at).toLocaleDateString()}
+                        <div className="flex flex-col gap-1">
+                          <span>{new Date(log.performed_at).toLocaleDateString()}</span>
+                          {log.reset_physical_horometer && (
+                            <span className="inline-flex w-fit px-1 py-0.5 rounded text-[8px] font-bold bg-amber-500/10 border border-amber-500/20 text-amber-400 uppercase tracking-wider">
+                              Reset 0.0h
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="py-4 px-2">
                         <div className="font-bold text-zinc-200">{log.machineName}</div>
                         <div className="text-[10px] text-zinc-500 font-mono">{log.machineSerial}</div>
                       </td>
-                      <td className="py-4 px-2 font-mono">{log.hours_at_maintenance.toFixed(1)}h</td>
-                      <td className="py-4 px-2 text-zinc-400">{servicesChecked}</td>
+                      <td className="py-4 px-2 font-mono">
+                        {log.hours_at_maintenance.toFixed(1)}h
+                      </td>
                       <td className="py-4 px-2">
-                        <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-semibold bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
-                          {safetyCount} / 6 Passed
+                        <span className={`inline-flex px-1.5 py-0.5 rounded text-[10px] font-semibold border ${
+                          passedCount === totalCount
+                            ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                            : "bg-blue-500/10 border-blue-500/20 text-blue-400"
+                        }`}>
+                          {passedCount} / {totalCount} Passed
                         </span>
                       </td>
                       <td className="py-4 px-2 max-w-xs truncate text-zinc-500" title={log.notes}>

@@ -27,12 +27,31 @@ def perform_maintenance(db: Session, schema: MaintenanceLogCreate, user_id: str)
         safety_ignition=schema.safety_ignition,
         safety_fuel=schema.safety_fuel,
         safety_tires=schema.safety_tires,
-        notes=schema.notes
+        notes=schema.notes,
+        reset_physical_horometer=schema.reset_physical_horometer
     )
     db.add(db_log)
     
-    # Reset telemetry interval by updating machinery.last_maintenance_hours
-    db_machine.last_maintenance_hours = schema.hours_at_maintenance
+    # Process dynamic checklist results if provided
+    if schema.checklist_results:
+        from app.models.models import MaintenanceChecklistResult
+        for res in schema.checklist_results:
+            db_res = MaintenanceChecklistResult(
+                id=str(uuid.uuid4()),
+                maintenance_log_id=db_log.id,
+                checklist_item_id=res.checklist_item_id,
+                passed=res.passed
+            )
+            db.add(db_res)
+            
+    # Reset telemetry interval or reset physical horometer back to 0.0
+    if schema.reset_physical_horometer:
+        db_machine.current_hours = 0.0
+        db_machine.last_maintenance_hours = 0.0
+    else:
+        db_machine.last_maintenance_hours = schema.hours_at_maintenance
+        
+    db_machine.warning_sent = False
     
     db.commit()
     db.refresh(db_log)

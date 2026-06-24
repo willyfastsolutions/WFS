@@ -12,7 +12,9 @@ import {
   X, 
   User,
   ShieldAlert,
-  Building
+  Building,
+  ClipboardList,
+  Settings
 } from "lucide-react";
 import { Profile, mockDb } from "./mockDb";
 
@@ -57,22 +59,39 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   };
 
   useEffect(() => {
-    mockDb.initialize();
-    if (typeof window !== "undefined") {
-      const sessionStr = sessionStorage.getItem("wfs_session");
-      if (!sessionStr) {
-        redirectToLogin();
-      } else {
-        const profile = JSON.parse(sessionStr) as Profile;
-        setUser(profile);
-        if (profile.company_id) {
-          const comp = mockDb.getCompanyById(profile.company_id);
-          if (comp) setCompanyName(comp.name);
-        } else {
-          setCompanyName("WillyFastSolutions (Superadmin)");
+    try {
+      mockDb.initialize();
+      if (typeof window !== "undefined") {
+        let sessionStr = null;
+        try {
+          sessionStr = sessionStorage.getItem("wfs_session");
+        } catch (e) {
+          console.warn("sessionStorage read failed:", e);
         }
-        setLoading(false);
+        
+        if (!sessionStr) {
+          redirectToLogin();
+        } else {
+          try {
+            const profile = JSON.parse(sessionStr) as Profile;
+            setUser(profile);
+            if (profile.company_id) {
+              const comp = mockDb.getCompanyById(profile.company_id);
+              if (comp) setCompanyName(comp.name);
+            } else {
+              setCompanyName("WillyFastSolutions (Superadmin)");
+            }
+          } catch (e) {
+            console.error("Failed to parse session profile:", e);
+            redirectToLogin();
+            return;
+          }
+          setLoading(false);
+        }
       }
+    } catch (err) {
+      console.error("Auth check failed in layout:", err);
+      redirectToLogin();
     }
   }, [router]);
 
@@ -98,11 +117,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     { name: "Fleet Overview", href: "/dashboard", icon: LayoutDashboard },
     ...(user?.role === "superadmin" ? [{ name: "B2B Companies", href: "/dashboard/companies", icon: Building }] : []),
     { name: "Register Machinery", href: "/dashboard/machinery", icon: PlusCircle },
-    { name: "Maintenance Portal", href: "/dashboard/maintenance", icon: Wrench },
+    ...(user?.role === "superadmin" ? [
+      { name: "Maintenance Portal", href: "/dashboard/maintenance", icon: Wrench },
+      { name: "Checklists", href: "/dashboard/checklists", icon: ClipboardList },
+      { name: "Settings", href: "/dashboard/settings", icon: Settings }
+    ] : []),
   ];
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col md:flex-row">
+    <div className="h-screen w-full bg-zinc-950 text-zinc-100 flex flex-col md:flex-row overflow-hidden">
       
       {/* Mobile Header Banner */}
       <header className="md:hidden flex h-16 items-center justify-between border-b border-zinc-900 bg-zinc-950/80 px-4 backdrop-blur-md sticky top-0 z-40">
@@ -120,10 +143,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </button>
       </header>
 
-      {/* Sidebar Navigation */}
       <aside className={`
         fixed inset-y-0 left-0 z-40 w-64 border-r border-zinc-900 bg-zinc-950 flex flex-col justify-between transform transition-transform duration-300 ease-in-out
-        md:translate-x-0 md:static md:h-screen
+        md:translate-x-0 md:static md:h-screen overflow-y-auto no-scrollbar
         ${mobileMenuOpen ? "translate-x-0" : "-translate-x-full"}
       `}>
         <div className="flex flex-col gap-6 p-6">
@@ -202,7 +224,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 min-w-0 p-4 sm:p-8 md:p-10 overflow-y-auto max-h-screen">
+      <main className="flex-1 min-w-0 p-4 sm:p-8 md:p-10 overflow-y-auto">
         {children}
       </main>
 
