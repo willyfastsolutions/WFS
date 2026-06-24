@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.core.database import get_db
 from app.models.models import Profile
-from app.schemas.schemas import MachineResponse, MachineCreate, MachineHourUpdate
+from app.schemas.schemas import MachineResponse, MachineCreate, MachineUpdate, MachineHourUpdate
 from app.routers.auth import get_current_user
 from app.services import machinery as machinery_service
 
@@ -38,6 +38,23 @@ def create_machine(
         return machinery_service.add_machine(db, machine)
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
+
+@router.put("/{machine_id}", response_model=MachineResponse)
+def update_machine_route(
+    machine_id: str,
+    payload: MachineUpdate,
+    db: Session = Depends(get_db),
+    current_user: Profile = Depends(get_current_user)
+):
+    db_machine = machinery_service.get_machine_by_id(db, machine_id)
+    if not db_machine:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Machine not found")
+        
+    if current_user.role != "superadmin" and db_machine.company_id != current_user.company_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden: Access denied")
+        
+    updated = machinery_service.update_machine(db, machine_id, payload)
+    return updated
 
 @router.delete("/{machine_id}")
 def delete_machine(
@@ -206,3 +223,93 @@ def generate_report(
         media_type="application/pdf",
         filename=f"report_{db_machine.serial_number}.pdf"
     )
+
+@router.post("/{machine_id}/email-report")
+def email_report(
+    machine_id: str,
+    payload: ReportGenerationPayload,
+    db: Session = Depends(get_db),
+    current_user: Profile = Depends(get_current_user)
+):
+    """Generate and email the machinery PDF report to the company admin."""
+    if current_user.role != "superadmin" and payload.company_id != current_user.company_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden: Access denied")
+    
+    from app.models.models import Company, Machine
+    
+    # Get or create machine in local db (same logic as generate_report)
+    if payload.company_id:
+        company = db.query(Company).filter(Company.id == payload.company_id).first()
+        if not company:
+            company = Company(
+                id=payload.company_id,
+                name=payload.company_name or "Sync B2B Tenant"
+            )
+            db.add(company)
+            db.commit()
+    
+    db_machine = db.query(Machine).filter(Machine.id == machine_id).first()
+    if not db_machine:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Machine not found")
+    
+    comp_name = payload.company_name or "Unknown B2B Tenant"
+    if payload.company_id and not payload.company_name:
+        company = db.query(Company).filter(Company.id == payload.company_id).first()
+        if company:
+            comp_name = company.name
+    
+    # Generate PDF report
+    report_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "reports")
+    os.makedirs(report_dir, exist_ok=True)
+    report_path = os.path.abspath(os.path.join(report_dir, f"email_report_{db_machine.serial_number}.pdf"))
+    
+    from app.services.pdf_generator import generate_machinery_pdf
+    try:
+        generate_machinery_pdf(
+            machine_name=db_machine.name,
+            brand=db_machine.brand,
+            model=db_machine.model,
+            serial=db_machine.serial_number,
+            current_hours=db_machine.current_hours,
+            last_hours=db_machine.last_maintenance_hours,
+            limit_hours=db_machine.maintenance_threshold_hours,
+            company_name=comp_name,
+            output_path=report_path,
+            photo_base64=db_machine.photo
+        )
+    except Exception as ex:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to generate PDF: {str(ex)}"
+        )
+    
+    if not os.path.exists(report_path):
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Report file was not created.")
+    
+    # Find the company admin email to send the report to
+    admin_profile = db.query(Profile).filter(
+        Profile.company_id == payload.company_id,
+        Profile.role == "company_admin"
+    ).first()
+    
+    if not admin_profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No company admin found for this company. Cannot send email."
+        )
+    
+    from app.services.email_worker import send_report_email
+    sent = send_report_email(
+        to_email=admin_profile.email,
+        machine_name=db_machine.name,
+        company_name=comp_name,
+        attachment_path=report_path
+    )
+    
+    if not sent:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to send the report email."
+        )
+    
+    return {"message": f"Report emailed successfully to {admin_profile.email}", "sent_to": admin_profile.email}

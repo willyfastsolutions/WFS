@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.models.models import Machine, HourLog
-from app.schemas.schemas import MachineCreate
+from app.schemas.schemas import MachineCreate, MachineUpdate
 import uuid
 
 def get_machinery(db: Session, company_id: str = None, include_revoked: bool = False):
@@ -80,6 +80,25 @@ def log_hours(db: Session, machine_id: str, new_hours: float, user_id: str):
         logged_by=user_id
     )
     db.add(db_log)
+    db.commit()
+    db.refresh(db_machine)
+    return db_machine
+
+def update_machine(db: Session, machine_id: str, schema: MachineUpdate):
+    db_machine = db.query(Machine).filter(Machine.id == machine_id).first()
+    if not db_machine:
+        return None
+        
+    db_machine.name = schema.name
+    if schema.brand is not None:
+        db_machine.brand = schema.brand
+    if schema.model is not None:
+        db_machine.model = schema.model
+    if schema.serial_number is not None:
+        db_machine.serial_number = schema.serial_number
+    if schema.photo is not None:
+        db_machine.photo = schema.photo
+        
     db.commit()
     db.refresh(db_machine)
     return db_machine

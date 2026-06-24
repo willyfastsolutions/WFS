@@ -17,7 +17,8 @@ import {
   ChevronUp,
   Sliders,
   Download,
-  Info
+  Info,
+  Mail
 } from "lucide-react";
 import { Profile, Company, Machine, mockDb } from "../mockDb";
 import { motion, AnimatePresence } from "framer-motion";
@@ -37,6 +38,7 @@ export default function SuperadminSettings() {
   const [status, setStatus] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [generatingReportMachineId, setGeneratingReportMachineId] = useState<string | null>(null);
+  const [emailingReportMachineId, setEmailingReportMachineId] = useState<string | null>(null);
 
   const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
     ? `${window.location.protocol}//${window.location.hostname}:8000`
@@ -224,6 +226,58 @@ export default function SuperadminSettings() {
       mockDb.generateMachineReportPDF(machineId);
     } finally {
       setGeneratingReportMachineId(null);
+    }
+  };
+
+  const handleEmailReport = async (machineId: string, machine: Machine) => {
+    setEmailingReportMachineId(machineId);
+    setStatus(null);
+    try {
+      const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
+      if (!isOffline) {
+        const company = companies.find(c => c.id === machine.company_id);
+        const companyName = company ? company.name : "Unknown B2B Tenant";
+        const response = await fetch(`${API_BASE_URL}/api/machinery/${machineId}/email-report`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${sessionStorage.getItem("wfs_token") || ""}`
+          },
+          body: JSON.stringify({
+            name: machine.name,
+            type: machine.type,
+            brand: machine.brand || null,
+            model: machine.model || null,
+            serial_number: machine.serial_number || null,
+            current_hours: machine.current_hours,
+            last_maintenance_hours: machine.last_maintenance_hours,
+            maintenance_threshold_hours: machine.maintenance_threshold_hours,
+            photo: machine.photo || null,
+            company_id: machine.company_id || null,
+            company_name: companyName
+          })
+        });
+        if (response.ok) {
+          const data = await response.json();
+          setStatus({
+            type: "success",
+            text: `Report emailed successfully to ${data.sent_to}!`
+          });
+        } else {
+          const errData = await response.json();
+          setStatus({
+            type: "error",
+            text: errData.detail || "Failed to email report."
+          });
+        }
+      } else {
+        setStatus({ type: "error", text: "Email reports are not available in offline mode." });
+      }
+    } catch (err) {
+      console.error(err);
+      setStatus({ type: "error", text: "Failed to email report. Connection error." });
+    } finally {
+      setEmailingReportMachineId(null);
     }
   };
 
@@ -473,6 +527,26 @@ export default function SuperadminSettings() {
                                             <>
                                               <Download className="h-3 w-3" />
                                               Generate Report
+                                            </>
+                                          )}
+                                        </button>
+
+                                        <button
+                                          type="button"
+                                          disabled={emailingReportMachineId !== null}
+                                          onClick={() => handleEmailReport(mac.id, mac)}
+                                          title="Email report to company admin"
+                                          className="inline-flex h-8 px-3 items-center justify-center gap-1.5 rounded-lg border border-emerald-500/20 bg-emerald-500/5 text-[10px] font-bold text-emerald-400 hover:bg-emerald-500/10 hover:border-emerald-500/30 disabled:opacity-50 transition-all cursor-pointer shadow-sm"
+                                        >
+                                          {emailingReportMachineId === mac.id ? (
+                                            <>
+                                              <span className="h-3 w-3 animate-spin rounded-full border border-emerald-700 border-t-emerald-300" />
+                                              Sending...
+                                            </>
+                                          ) : (
+                                            <>
+                                              <Mail className="h-3 w-3" />
+                                              Email Report
                                             </>
                                           )}
                                         </button>

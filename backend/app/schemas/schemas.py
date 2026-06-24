@@ -50,10 +50,17 @@ class ProfileBase(BaseModel):
     company_id: Optional[str] = None
 
 class ProfileCreate(ProfileBase):
-    password: str
+    password: Optional[str] = None
+
+class ProfileUpdate(BaseModel):
+    email: str
+    role: str
+    full_name: Optional[str] = None
+    password: Optional[str] = None
 
 class ProfileResponse(ProfileBase):
     id: str
+    must_change_password: bool = False
     created_at: datetime
     
     class Config:
@@ -79,6 +86,13 @@ class MachineCreate(BaseModel):
     serial_number: Optional[str] = None
     current_hours: float = 0.0
     company_id: str  # Target B2B company
+    photo: Optional[str] = None
+
+class MachineUpdate(BaseModel):
+    name: str
+    brand: Optional[str] = None
+    model: Optional[str] = None
+    serial_number: Optional[str] = None
     photo: Optional[str] = None
 
 class MachineHourUpdate(BaseModel):

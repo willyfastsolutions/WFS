@@ -339,6 +339,52 @@ export const mockDb = {
     return profile || null;
   },
 
+  getProfiles: (companyId: string): Profile[] => {
+    mockDb.initialize();
+    const profiles = getStorageItem<Profile[]>('wfs_profiles', initialProfiles);
+    return profiles.filter(p => p.company_id === companyId);
+  },
+
+  setProfiles: (profiles: Profile[]): void => {
+    setStorageItem('wfs_profiles', profiles);
+  },
+
+  addProfile: (companyId: string, fields: Omit<Profile, "id" | "company_id">): Profile => {
+    mockDb.initialize();
+    const profiles = getStorageItem<Profile[]>('wfs_profiles', initialProfiles);
+    const newProfile: Profile = {
+      id: Math.random().toString(36).substr(2, 9),
+      company_id: companyId,
+      ...fields
+    };
+    profiles.push(newProfile);
+    setStorageItem('wfs_profiles', profiles);
+    return newProfile;
+  },
+
+  updateProfile: (id: string, fields: Partial<Profile>): boolean => {
+    mockDb.initialize();
+    const profiles = getStorageItem<Profile[]>('wfs_profiles', initialProfiles);
+    const index = profiles.findIndex(p => p.id === id);
+    if (index !== -1) {
+      profiles[index] = { ...profiles[index], ...fields };
+      setStorageItem('wfs_profiles', profiles);
+      return true;
+    }
+    return false;
+  },
+
+  deleteProfile: (id: string): boolean => {
+    mockDb.initialize();
+    const profiles = getStorageItem<Profile[]>('wfs_profiles', initialProfiles);
+    const updated = profiles.filter(p => p.id !== id);
+    if (updated.length !== profiles.length) {
+      setStorageItem('wfs_profiles', updated);
+      return true;
+    }
+    return false;
+  },
+
   // Company queries
   getCompanies: (): Company[] => {
     mockDb.initialize();

@@ -24,6 +24,7 @@ class Profile(Base):
     full_name = Column(String(255), nullable=True)
     email = Column(String(255), unique=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
+    must_change_password = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     
     company = relationship("Company", back_populates="profiles")

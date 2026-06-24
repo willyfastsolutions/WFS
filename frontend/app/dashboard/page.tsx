@@ -111,9 +111,49 @@ export default function FleetOverview() {
     setEditPhoto(machine.photo || null);
   };
 
-  const handleEditSubmit = (e: React.FormEvent) => {
+  const handleEditSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editModalMachine) return;
+
+    const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
+    const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+      ? `${window.location.protocol}//${window.location.hostname}:8000`
+      : "";
+
+    if (!isOffline) {
+      try {
+        const token = sessionStorage.getItem("wfs_token");
+        const response = await fetch(`${API_BASE_URL}/api/machinery/${editModalMachine.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            name: editName,
+            brand: editBrand,
+            model: editModel,
+            serial_number: editSerial,
+            photo: editPhoto || null
+          }),
+        });
+
+        if (response.ok) {
+          const updated = await response.json() as Machine;
+          mockDb.updateMachine(editModalMachine.id, updated);
+          setEditModalMachine(null);
+          refreshData();
+          return;
+        } else {
+          const errData = await response.json();
+          alert(errData.detail || "Failed to save updates to database.");
+          return;
+        }
+      } catch (err) {
+        console.error("API update machine failed, using mock fallback:", err);
+      }
+    }
+
     const success = mockDb.updateMachine(editModalMachine.id, {
       name: editName,
       brand: editBrand,

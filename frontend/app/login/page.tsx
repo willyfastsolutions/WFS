@@ -23,8 +23,11 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false);
   const [isForgotPassword, setIsForgotPassword] = useState(false);
+  const [mustChangePassword, setMustChangePassword] = useState(false);
+  const [changeToken, setChangeToken] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
@@ -83,16 +86,7 @@ export default function LoginPage() {
       return;
     }
 
-    if (isSignUp) {
-      setTimeout(() => {
-        setIsLoading(false);
-        setMessage({
-          type: "success",
-          text: "Registration request received! An administrator will approve your tenant."
-        });
-      }, 1200);
-      return;
-    }
+
 
     try {
       const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
@@ -140,6 +134,19 @@ export default function LoginPage() {
           const data = await response.json();
           const token = data.access_token;
           const payload = parseJwt(token);
+          
+          // Check if user must change their temporary password
+          if (data.must_change_password) {
+            setChangeToken(token);
+            setMustChangePassword(true);
+            setMessage({
+              type: "success",
+              text: "Temporary password accepted. Please set a new password to continue. / Contraseña temporal aceptada. Por favor establezca una nueva contraseña para continuar."
+            });
+            setIsLoading(false);
+            return;
+          }
+          
           if (payload) {
             const profile = {
               id: payload.user_id || "mock-user-id",
@@ -195,6 +202,61 @@ export default function LoginPage() {
     }
   };
 
+  const handleForceChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setMessage(null);
+
+    if (newPassword.length < 8) {
+      setMessage({ type: "error", text: "New password must be at least 8 characters. / La nueva contraseña debe tener al menos 8 caracteres." });
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      setMessage({ type: "error", text: "Passwords do not match. / Las contraseñas no coinciden." });
+      return;
+    }
+
+    setIsLoading(true);
+    const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+      ? `${window.location.protocol}//${window.location.hostname}:8000`
+      : "";
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/auth/force-change-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: changeToken, new_password: newPassword }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        const token = data.access_token;
+        const payload = parseJwt(token);
+        if (payload) {
+          const profile = {
+            id: payload.user_id || "mock-user-id",
+            email: payload.email,
+            full_name: payload.role === "superadmin" ? "WillyFastSolutions Superadmin" : (payload.email.split('@')[0]),
+            role: payload.role,
+            company_id: payload.company_id
+          };
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("wfs_session", JSON.stringify(profile));
+            sessionStorage.setItem("wfs_token", token);
+          }
+        }
+        setMessage({ type: "success", text: "Password updated successfully! Redirecting... / ¡Contraseña actualizada! Redirigiendo..." });
+        setTimeout(() => { router.push("/dashboard"); }, 1200);
+      } else {
+        const errData = await response.json();
+        setMessage({ type: "error", text: errData.detail || "Failed to update password." });
+      }
+    } catch (err) {
+      setMessage({ type: "error", text: "Connection error. / Error de conexión." });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col justify-center items-center px-4 relative">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-zinc-900/30 via-zinc-950 to-zinc-950 -z-10" />
@@ -222,15 +284,17 @@ export default function LoginPage() {
             <img src="../logo/logo.png" alt="WillyFastSolutions Logo" className="w-full h-full object-cover filter brightness-110" />
           </div>
           <h2 className="text-xl font-semibold tracking-tight text-zinc-200">
-            {isForgotPassword 
-              ? "Recover password" 
-              : (isSignUp ? "Create your workspace" : "Welcome back")}
+            {mustChangePassword
+              ? "Set new password"
+              : (isForgotPassword 
+                ? "Recover password" 
+                : "Welcome back")}
           </h2>
           <p className="text-xs text-zinc-500">
-            {isForgotPassword 
-              ? "Enter your email to receive a password reset link" 
-              : (isSignUp 
-                ? "Register your company fleet on WillyFastSolutions"
+            {mustChangePassword
+              ? "Your temporary password must be changed before continuing"
+              : (isForgotPassword 
+                ? "Enter your email to receive a password reset link" 
                 : "Sign in to manage your heavy equipment preventive maintenance")}
           </p>
         </div>
@@ -248,6 +312,55 @@ export default function LoginPage() {
             </div>
           )}
 
+          {mustChangePassword ? (
+            <form onSubmit={handleForceChangePassword} className="space-y-4">
+              <div className="space-y-1.5">
+                <label htmlFor="new-password" className="text-[10px] uppercase tracking-wider font-semibold text-zinc-500">
+                  New Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-600" />
+                  <input
+                    type="password"
+                    id="new-password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter your new password"
+                    required
+                    minLength={8}
+                    className="w-full h-10 pl-9 pr-3 rounded-lg border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-700 focus:outline-none focus:border-zinc-700 transition-colors"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label htmlFor="confirm-password" className="text-[10px] uppercase tracking-wider font-semibold text-zinc-500">
+                  Confirm New Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-600" />
+                  <input
+                    type="password"
+                    id="confirm-password"
+                    value={confirmNewPassword}
+                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                    placeholder="Confirm your new password"
+                    required
+                    minLength={8}
+                    className="w-full h-10 pl-9 pr-3 rounded-lg border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-700 focus:outline-none focus:border-zinc-700 transition-colors"
+                  />
+                </div>
+              </div>
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full inline-flex h-10 items-center justify-center rounded-lg bg-zinc-100 text-sm font-semibold text-zinc-950 hover:bg-zinc-200 disabled:opacity-50 transition-all shadow-md active:scale-95 cursor-pointer"
+              >
+                {isLoading ? (
+                  <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Updating...</>
+                ) : "Update Password"}
+              </button>
+            </form>
+          ) : (
           <form onSubmit={handleSubmit} className="space-y-4">
             
             {/* Email Field */}
@@ -276,18 +389,16 @@ export default function LoginPage() {
                   <label htmlFor="login-password" className="text-[10px] uppercase tracking-wider font-semibold text-zinc-500">
                     Password
                   </label>
-                  {!isSignUp && (
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setIsForgotPassword(true);
-                        setMessage(null);
-                      }}
-                      className="text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer hover:underline"
-                    >
-                      Forgot password?
-                    </button>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsForgotPassword(true);
+                      setMessage(null);
+                    }}
+                    className="text-[10px] text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer hover:underline"
+                  >
+                    Forgot password?
+                  </button>
                 </div>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-600" />
@@ -319,15 +430,16 @@ export default function LoginPage() {
               ) : (
                 isForgotPassword 
                   ? "Send Recovery Link" 
-                  : (isSignUp ? "Register" : "Sign In")
+                  : "Sign In"
               )}
             </button>
 
           </form>
+          )}
 
           {/* Toggle Link */}
-          <div className="text-center text-xs text-zinc-500 pt-2 border-t border-zinc-900/60">
-            {isForgotPassword ? (
+          {isForgotPassword && (
+            <div className="text-center text-xs text-zinc-500 pt-2 border-t border-zinc-900/60">
               <button 
                 type="button" 
                 onClick={() => {
@@ -338,22 +450,8 @@ export default function LoginPage() {
               >
                 Back to Sign In
               </button>
-            ) : (
-              <>
-                {isSignUp ? "Already have an account?" : "Need a workspace for your company?"}{" "}
-                <button 
-                  type="button" 
-                  onClick={() => {
-                    setIsSignUp(!isSignUp);
-                    setMessage(null);
-                  }}
-                  className="font-medium text-zinc-300 hover:text-zinc-100 underline decoration-zinc-700 hover:decoration-zinc-400 transition-colors cursor-pointer"
-                >
-                  {isSignUp ? "Sign In" : "Register Company"}
-                </button>
-              </>
-            )}
-          </div>
+            </div>
+          )}
 
         </div>
 

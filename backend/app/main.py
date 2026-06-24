@@ -134,6 +134,13 @@ def run_migrations():
         if "revoked" not in columns:
             db.execute(text("ALTER TABLE machinery ADD COLUMN revoked BOOLEAN DEFAULT 0 NOT NULL"))
             print("[MIGRATION] Added revoked column to machinery table.")
+
+        # Check if must_change_password column exists in profiles
+        cursor2 = db.execute(text("PRAGMA table_info(profiles)"))
+        profile_columns = [row[1] for row in cursor2.fetchall()]
+        if "must_change_password" not in profile_columns:
+            db.execute(text("ALTER TABLE profiles ADD COLUMN must_change_password BOOLEAN DEFAULT 0 NOT NULL"))
+            print("[MIGRATION] Added must_change_password column to profiles table.")
             
         # Seed default configs if not present
         from app.models.models import SystemSetting

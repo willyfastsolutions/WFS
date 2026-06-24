@@ -15,7 +15,9 @@ import {
   Loader2,
   Lock,
   AlertTriangle,
-  X
+  X,
+  Users,
+  Edit
 } from "lucide-react";
 import { Profile, Company, Machine, mockDb } from "../mockDb";
 
@@ -37,6 +39,232 @@ export default function B2BCompanies() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [modalError, setModalError] = useState<string | null>(null);
   const [isModalSubmitting, setIsModalSubmitting] = useState(false);
+
+  // Users Modal States
+  const [showUsersModal, setShowUsersModal] = useState(false);
+  const [usersModalCompany, setUsersModalCompany] = useState<Company | null>(null);
+  const [usersList, setUsersList] = useState<Profile[]>([]);
+  const [isFetchingUsers, setIsFetchingUsers] = useState(false);
+  const [userFormMode, setUserFormMode] = useState<"list" | "create" | "edit">("list");
+  const [selectedUser, setSelectedUser] = useState<Profile | null>(null);
+  
+  // User Form Input States
+  const [userFullName, setUserFullName] = useState("");
+  const [userEmail, setUserEmail] = useState("");
+  const [userRole, setUserRole] = useState<'company_admin' | 'superadmin'>("company_admin");
+  const [userPassword, setUserPassword] = useState("");
+  const [userError, setUserError] = useState<string | null>(null);
+  const [isUserSubmitting, setIsUserSubmitting] = useState(false);
+
+  const openUsersModal = async (company: Company) => {
+    setUsersModalCompany(company);
+    setUserFormMode("list");
+    setUserError(null);
+    setShowUsersModal(true);
+    await fetchCompanyUsers(company.id);
+  };
+
+  const fetchCompanyUsers = async (companyId: string) => {
+    setIsFetchingUsers(true);
+    const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
+    const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+      ? `${window.location.protocol}//${window.location.hostname}:8000`
+      : "";
+
+    if (!isOffline) {
+      try {
+        const token = sessionStorage.getItem("wfs_token");
+        const response = await fetch(`${API_BASE_URL}/api/companies/${companyId}/users`, {
+          headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (response.ok) {
+          const data = await response.json() as Profile[];
+          setUsersList(data);
+          mockDb.setProfiles(data); // Sync local mockDb
+          setIsFetchingUsers(false);
+          return;
+        }
+      } catch (err) {
+        console.warn("Could not fetch company users from API, using mockDb fallback:", err);
+      }
+    }
+
+    // Fallback
+    const data = mockDb.getProfiles(companyId);
+    setUsersList(data);
+    setIsFetchingUsers(false);
+  };
+
+  const handleUserSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setUserError(null);
+
+    if (!userFullName.trim() || !userEmail.trim()) {
+      setUserError("Full Name and Email are required.");
+      return;
+    }
+
+    if (!usersModalCompany) return;
+
+    setIsUserSubmitting(true);
+    const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
+    const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+      ? `${window.location.protocol}//${window.location.hostname}:8000`
+      : "";
+
+    if (!isOffline) {
+      try {
+        const token = sessionStorage.getItem("wfs_token");
+        let response;
+        if (userFormMode === "create") {
+          response = await fetch(`${API_BASE_URL}/api/companies/${usersModalCompany.id}/users`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              full_name: userFullName.trim(),
+              email: userEmail.trim().toLowerCase(),
+              role: userRole,
+              company_id: usersModalCompany.id
+            })
+          });
+        } else {
+          // Edit
+          if (!selectedUser) return;
+          response = await fetch(`${API_BASE_URL}/api/companies/users/${selectedUser.id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+              full_name: userFullName.trim(),
+              email: userEmail.trim().toLowerCase(),
+              password: userPassword || undefined,
+              role: userRole
+            })
+          });
+        }
+
+        if (response.ok) {
+          setUserFullName("");
+          setUserEmail("");
+          setUserPassword("");
+          setUserRole("company_admin");
+          setSelectedUser(null);
+          setUserFormMode("list");
+          await fetchCompanyUsers(usersModalCompany.id);
+          setIsUserSubmitting(false);
+          return;
+        } else {
+          const errData = await response.json();
+          setUserError(errData.detail || "Failed to save user.");
+          setIsUserSubmitting(false);
+          return;
+        }
+      } catch (err) {
+        console.error("API error during user management:", err);
+        setUserError("Server communication error.");
+        setIsUserSubmitting(false);
+        return;
+      }
+    }
+
+    // Offline / Fallback
+    setTimeout(() => {
+      try {
+        if (userFormMode === "create") {
+          mockDb.addProfile(usersModalCompany.id, {
+            full_name: userFullName.trim(),
+            email: userEmail.trim().toLowerCase(),
+            role: userRole
+          });
+        } else {
+          if (!selectedUser) return;
+          mockDb.updateProfile(selectedUser.id, {
+            full_name: userFullName.trim(),
+            email: userEmail.trim().toLowerCase(),
+            role: userRole
+          });
+        }
+
+        setUserFullName("");
+        setUserEmail("");
+        setUserPassword("");
+        setUserRole("company_admin");
+        setSelectedUser(null);
+        setUserFormMode("list");
+        fetchCompanyUsers(usersModalCompany.id);
+      } catch (err) {
+        setUserError("Failed to save user in mock storage.");
+      } finally {
+        setIsUserSubmitting(false);
+      }
+    }, 800);
+  };
+
+  const handleUserDelete = async (targetUser: Profile) => {
+    if (!usersModalCompany) return;
+    if (!confirm(`Are you sure you want to delete user "${targetUser.full_name}"? / ¿Está seguro de que desea eliminar al usuario "${targetUser.full_name}"?`)) {
+      return;
+    }
+
+    const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
+    const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+      ? `${window.location.protocol}//${window.location.hostname}:8000`
+      : "";
+
+    if (!isOffline) {
+      try {
+        const token = sessionStorage.getItem("wfs_token");
+        const response = await fetch(`${API_BASE_URL}/api/companies/users/${targetUser.id}`, {
+          method: "DELETE",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          await fetchCompanyUsers(usersModalCompany.id);
+          return;
+        } else {
+          const errData = await response.json();
+          alert(errData.detail || "Failed to delete user.");
+          return;
+        }
+      } catch (err) {
+        console.error("API error during user deletion:", err);
+        alert("Server communication error.");
+        return;
+      }
+    }
+
+    // Offline / Fallback
+    mockDb.deleteProfile(targetUser.id);
+    fetchCompanyUsers(usersModalCompany.id);
+  };
+
+  const startCreateUser = () => {
+    setUserFullName("");
+    setUserEmail("");
+    setUserPassword("");
+    setUserRole("company_admin");
+    setSelectedUser(null);
+    setUserError(null);
+    setUserFormMode("create");
+  };
+
+  const startEditUser = (targetUser: Profile) => {
+    setSelectedUser(targetUser);
+    setUserFullName(targetUser.full_name);
+    setUserEmail(targetUser.email);
+    setUserRole(targetUser.role);
+    setUserPassword("");
+    setUserError(null);
+    setUserFormMode("edit");
+  };
 
   const refreshData = async () => {
     if (typeof window !== "undefined") {
@@ -384,6 +612,13 @@ export default function B2BCompanies() {
                         <td className="py-4 px-2 text-right">
                           <div className="inline-flex items-center gap-2">
                             <button
+                              onClick={() => openUsersModal(comp)}
+                              title="Manage Users"
+                              className="p-1.5 rounded border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-all cursor-pointer"
+                            >
+                              <Users className="h-3.5 w-3.5" />
+                            </button>
+                            <button
                               onClick={() => openConfirmation("toggle-active", comp)}
                               title={comp.active === false ? "Activate Company" : "Deactivate Company"}
                               className={`p-1.5 rounded border transition-all cursor-pointer ${
@@ -515,6 +750,217 @@ export default function B2BCompanies() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Users Management Modal */}
+      {showUsersModal && usersModalCompany && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-md">
+          <div className="w-full max-w-2xl border border-zinc-900 bg-zinc-950 rounded-2xl shadow-2xl p-6 relative flex flex-col max-h-[90vh]">
+            
+            {/* Close Button */}
+            <button 
+              onClick={() => {
+                setShowUsersModal(false);
+                setUsersModalCompany(null);
+                setUsersList([]);
+              }}
+              className="absolute top-4 right-4 p-1 border border-zinc-900 rounded bg-zinc-900 text-zinc-500 hover:text-zinc-300 cursor-pointer"
+            >
+              <X className="h-4 w-4" />
+            </button>
+
+            {/* Modal Title */}
+            <div className="flex items-center gap-2 border-b border-zinc-900 pb-3 shrink-0">
+              <Users className="h-5 w-5 text-zinc-400" />
+              <h3 className="font-bold text-sm uppercase tracking-wider text-zinc-200">
+                Manage Admins: {usersModalCompany.name}
+              </h3>
+            </div>
+
+            {/* Modal Body */}
+            <div className="overflow-y-auto py-4 flex-1 space-y-4">
+              {userFormMode === "list" ? (
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center">
+                    <span className="text-xs text-zinc-500">Registered administrators who can manage equipment and log hours.</span>
+                    <button
+                      type="button"
+                      onClick={startCreateUser}
+                      className="inline-flex h-8 items-center px-3 rounded-lg bg-zinc-100 text-[11px] font-semibold text-zinc-950 hover:bg-zinc-200 transition-all cursor-pointer"
+                    >
+                      <Plus className="h-3.5 w-3.5 mr-1" /> Add User
+                    </button>
+                  </div>
+
+                  {isFetchingUsers ? (
+                    <div className="py-12 flex justify-center items-center">
+                      <Loader2 className="h-6 w-6 animate-spin text-zinc-600" />
+                    </div>
+                  ) : usersList.length === 0 ? (
+                    <div className="py-12 text-center text-xs text-zinc-500 font-mono border border-dashed border-zinc-900 rounded-xl">
+                      No administrator accounts found for this company.
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto border border-zinc-900 rounded-xl bg-zinc-950/20">
+                      <table className="w-full text-left text-xs border-collapse">
+                        <thead>
+                          <tr className="border-b border-zinc-900 bg-zinc-900/10 text-zinc-500 font-bold uppercase tracking-wider">
+                            <th className="py-2.5 px-3">Full Name</th>
+                            <th className="py-2.5 px-3">Email Address</th>
+                            <th className="py-2.5 px-3">Role</th>
+                            <th className="py-2.5 px-3 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-zinc-900 text-zinc-300">
+                          {usersList.map(item => (
+                            <tr key={item.id} className="hover:bg-zinc-900/20 transition-colors">
+                              <td className="py-3 px-3 font-bold text-zinc-200">{item.full_name}</td>
+                              <td className="py-3 px-3 text-zinc-400 font-mono">{item.email}</td>
+                              <td className="py-3 px-3">
+                                <span className="inline-flex px-1.5 py-0.5 rounded text-[9px] font-bold bg-zinc-800 text-zinc-400 border border-zinc-800 uppercase font-mono">
+                                  {item.role === 'superadmin' ? 'Superadmin' : 'Company Admin'}
+                                </span>
+                              </td>
+                              <td className="py-3 px-3 text-right">
+                                <div className="inline-flex items-center gap-1.5">
+                                  <button
+                                    onClick={() => startEditUser(item)}
+                                    title="Edit User"
+                                    className="p-1 rounded border border-zinc-850 bg-zinc-900 text-zinc-400 hover:text-zinc-250 cursor-pointer"
+                                  >
+                                    <Edit className="h-3 w-3" />
+                                  </button>
+                                  <button
+                                    onClick={() => handleUserDelete(item)}
+                                    title="Delete User"
+                                    className="p-1 rounded border border-rose-950/30 bg-rose-950/5 text-rose-400 hover:bg-rose-950/10 cursor-pointer"
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                // Create or Edit Form
+                <form onSubmit={handleUserSubmit} className="space-y-4 max-w-md mx-auto border border-zinc-900 bg-zinc-950/40 p-5 rounded-xl">
+                  <h4 className="text-xs font-bold text-zinc-300 uppercase tracking-wider border-b border-zinc-900 pb-2 flex justify-between items-center">
+                    <span>{userFormMode === "create" ? "Add New Administrator" : "Edit User Profile"}</span>
+                    <button 
+                      type="button" 
+                      onClick={() => setUserFormMode("list")}
+                      className="text-[10px] text-zinc-500 hover:text-zinc-300 cursor-pointer"
+                    >
+                      &larr; Back to list
+                    </button>
+                  </h4>
+
+                  {userError && (
+                    <div className="p-2.5 border border-rose-500/20 bg-rose-500/10 rounded-lg text-xs text-rose-400">
+                      {userError}
+                    </div>
+                  )}
+
+                  <div className="space-y-3">
+                    <div className="space-y-1.5">
+                      <label htmlFor="user-fullname" className="text-[10px] uppercase font-bold text-zinc-500">Full Name</label>
+                      <input
+                        type="text"
+                        id="user-fullname"
+                        required
+                        placeholder="e.g. John Doe"
+                        value={userFullName}
+                        onChange={(e) => setUserFullName(e.target.value)}
+                        className="w-full h-10 px-3 rounded-lg border border-zinc-900 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-800 focus:outline-none focus:border-zinc-850 transition-colors"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label htmlFor="user-email" className="text-[10px] uppercase font-bold text-zinc-500">Email Address (Domain emails allowed)</label>
+                      <input
+                        type="email"
+                        id="user-email"
+                        required
+                        placeholder="e.g. john@apex.com"
+                        value={userEmail}
+                        onChange={(e) => setUserEmail(e.target.value)}
+                        className="w-full h-10 px-3 rounded-lg border border-zinc-900 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-800 focus:outline-none focus:border-zinc-850 transition-colors font-mono"
+                      />
+                    </div>
+
+                    <div className="space-y-1.5">
+                      <label htmlFor="user-role" className="text-[10px] uppercase font-bold text-zinc-500">System Role</label>
+                      <select
+                        id="user-role"
+                        value={userRole}
+                        onChange={(e) => setUserRole(e.target.value as any)}
+                        className="w-full h-10 px-3 rounded-lg border border-zinc-900 bg-zinc-950 text-sm text-zinc-200 focus:outline-none focus:border-zinc-850 transition-colors"
+                      >
+                        <option value="company_admin">Company Admin (Limited tenant access)</option>
+                        <option value="superadmin">Superadmin (Global platform access)</option>
+                      </select>
+                    </div>
+
+                    {userFormMode === "edit" && (
+                      <div className="space-y-1.5">
+                        <label htmlFor="user-pass" className="text-[10px] uppercase font-bold text-zinc-500">
+                          New Password (Leave blank to keep current)
+                        </label>
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-700" />
+                          <input
+                            type="password"
+                            id="user-pass"
+                            placeholder="••••••••"
+                            value={userPassword}
+                            onChange={(e) => setUserPassword(e.target.value)}
+                            className="w-full h-10 pl-9 pr-3 rounded-lg border border-zinc-900 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-800 focus:outline-none focus:border-zinc-850 transition-colors font-mono"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {userFormMode === "create" && (
+                      <div className="p-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 text-xs text-emerald-400 leading-relaxed">
+                        <strong>📧 Auto-generated password:</strong> A secure temporary password will be generated automatically and sent to the user&apos;s email. They will be required to change it on their first login.
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex gap-3 justify-end pt-3 border-t border-zinc-900 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => setUserFormMode("list")}
+                      className="px-4 h-9 border border-zinc-900 bg-zinc-900/40 text-xs font-semibold text-zinc-400 hover:text-zinc-200 rounded-lg transition-colors cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      disabled={isUserSubmitting}
+                      className="inline-flex items-center justify-center px-4 h-9 rounded-lg bg-zinc-100 text-xs font-semibold text-zinc-950 hover:bg-zinc-200 shadow-md transition-all cursor-pointer"
+                    >
+                      {isUserSubmitting ? (
+                        <>
+                          <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
+                          Saving...
+                        </>
+                      ) : (
+                        userFormMode === "create" ? "Register User" : "Save Changes"
+                      )}
+                    </button>
+                  </div>
+                </form>
+              )}
+            </div>
+
           </div>
         </div>
       )}

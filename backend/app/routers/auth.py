@@ -61,7 +61,7 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
             "user_id": user.id
         }
     )
-    return {"access_token": access_token, "token_type": "bearer"}
+    return {"access_token": access_token, "token_type": "bearer", "must_change_password": user.must_change_password}
 
 @router.post("/forgot-password")
 def forgot_password(request: ForgotPasswordRequest, db: Session = Depends(get_db)):
@@ -126,3 +126,37 @@ def reset_password(request: ResetPasswordRequest, db: Session = Depends(get_db))
     db.commit()
     
     return {"message": "Password reset successfully. You can now log in with your new password."}
+
+@router.post("/force-change-password")
+def force_change_password(request: ResetPasswordRequest, db: Session = Depends(get_db)):
+    """Endpoint for users who must change their temporary password on first login."""
+    # Decode the token to get the user
+    payload = decode_access_token(request.token)
+    if not payload:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired token."
+        )
+    
+    email = payload.get("email")
+    user = db.query(Profile).filter(Profile.email == email).first()
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found."
+        )
+    
+    user.password_hash = get_password_hash(request.new_password)
+    user.must_change_password = False
+    db.commit()
+    
+    # Generate a fresh token so the user can proceed
+    access_token = create_access_token(
+        data={
+            "email": user.email,
+            "role": user.role,
+            "company_id": user.company_id,
+            "user_id": user.id
+        }
+    )
+    return {"access_token": access_token, "token_type": "bearer", "must_change_password": False, "message": "Password updated successfully."}
