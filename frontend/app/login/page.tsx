@@ -5,6 +5,18 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Wrench, Mail, Lock, ArrowLeft, Loader2 } from "lucide-react";
 import { mockDb } from "../dashboard/mockDb";
+const parseJwt = (token: string) => {
+  try {
+    const base64Url = token.split('.')[1];
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+      return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+    }).join(''));
+    return JSON.parse(jsonPayload);
+  } catch (e) {
+    return null;
+  }
+};
 
 export default function LoginPage() {
   const router = useRouter();
@@ -88,54 +100,91 @@ export default function LoginPage() {
         ? `${window.location.protocol}//${window.location.hostname}:8000`
         : "";
 
-      let token = "";
-
-      if (!isOffline) {
-        // Try to authenticate with the real backend API
-        try {
-          const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email, password }),
-          });
-          if (response.ok) {
-            const data = await response.json();
-            token = data.access_token;
-          }
-        } catch (apiErr) {
-          console.warn("Could not authenticate with real API, using mock fallback:", apiErr);
-        }
-      }
-
-      // Check against mock database for local navigation
-      const profile = mockDb.getProfileByEmail(email);
-      if (profile && password === "admin1234") {
-        if (typeof window !== "undefined") {
-          sessionStorage.setItem("wfs_session", JSON.stringify(profile));
-          if (token) {
-            sessionStorage.setItem("wfs_token", token);
-          } else {
-            // Seed a mock token if offline to prevent UI crashes, though it won't be validated
+      if (isOffline) {
+        // Check against mock database for local navigation (Offline Fallback for file: protocol)
+        const profile = mockDb.getProfileByEmail(email);
+        if (profile && password === "admin1234") {
+          if (typeof window !== "undefined") {
+            sessionStorage.setItem("wfs_session", JSON.stringify(profile));
             sessionStorage.setItem("wfs_token", "mock-offline-token-xyz");
           }
+          setMessage({
+            type: "success",
+            text: "Successfully signed in (Offline Fallback)! Redirecting..."
+          });
+          setTimeout(() => {
+            if (typeof window !== "undefined") {
+              window.location.href = "../dashboard/index.html";
+            }
+          }, 1000);
+        } else {
+          setMessage({
+            type: "error",
+            text: "Invalid email or password. Hint: Use admin@willyfastsolutions.com with admin1234"
+          });
         }
-        setMessage({
-          type: "success",
-          text: "Successfully signed in! Redirecting..."
+        return;
+      }
+
+      // Online mode: Authenticate strictly with the real API backend
+      try {
+        const response = await fetch(`${API_BASE_URL}/api/auth/login`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ email, password }),
         });
-        setTimeout(() => {
-          if (typeof window !== "undefined" && window.location.protocol === "file:") {
-            window.location.href = "../dashboard/index.html";
+
+        if (response.ok) {
+          const data = await response.json();
+          const token = data.access_token;
+          const payload = parseJwt(token);
+          if (payload) {
+            const profile = {
+              id: payload.user_id || "mock-user-id",
+              email: payload.email,
+              full_name: payload.role === "superadmin" ? "WillyFastSolutions Superadmin" : (payload.email.split('@')[0]),
+              role: payload.role,
+              company_id: payload.company_id
+            };
+            if (typeof window !== "undefined") {
+              sessionStorage.setItem("wfs_session", JSON.stringify(profile));
+              sessionStorage.setItem("wfs_token", token);
+            }
+            setMessage({
+              type: "success",
+              text: "Successfully signed in! Redirecting... / ¡Sesión iniciada con éxito! Redirigiendo..."
+            });
+            setTimeout(() => {
+              router.push("/dashboard");
+            }, 1000);
           } else {
-            router.push("/dashboard");
+            setMessage({
+              type: "error",
+              text: "Invalid authentication payload structure. / Estructura de payload de autenticación inválida."
+            });
           }
-        }, 1000);
-      } else {
+        } else {
+          let errorMessage = "Invalid email or password. / Correo o contraseña incorrectos.";
+          try {
+            const errData = await response.json();
+            if (errData && errData.detail) {
+              errorMessage = errData.detail;
+            }
+          } catch (e) {
+            // Ignore json parse error
+          }
+          setMessage({
+            type: "error",
+            text: errorMessage
+          });
+        }
+      } catch (apiErr) {
+        console.error("API login error:", apiErr);
         setMessage({
           type: "error",
-          text: "Invalid email or password. Hint: Use admin@willyfastsolutions.com with admin1234"
+          text: "Connection error: Could not contact authentication server. / Error de conexión: No se pudo contactar al servidor de autenticación."
         });
       }
     } catch (err) {
