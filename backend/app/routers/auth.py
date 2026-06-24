@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from app.core.database import get_db
-from app.models.models import Profile
+from app.models.models import Profile, Company
 from app.schemas.schemas import LoginRequest, Token
 from app.services.auth import verify_password, create_access_token, decode_access_token
 
@@ -35,6 +35,16 @@ def login(request: LoginRequest, db: Session = Depends(get_db)):
             detail="Incorrect email or password",
             headers={"WWW-Authenticate": "Bearer"},
         )
+        
+    # Check if user's company is active
+    if user.company_id:
+        company = db.query(Company).filter(Company.id == user.company_id).first()
+        if company and not company.active:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Your company account has been deactivated. Please contact support."
+            )
+            
     access_token = create_access_token(
         data={
             "email": user.email, 

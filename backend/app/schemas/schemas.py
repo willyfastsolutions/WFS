@@ -26,10 +26,14 @@ class CompanyCreate(CompanyBase):
 
 class CompanyResponse(CompanyBase):
     id: str
+    active: bool
     created_at: datetime
     
     class Config:
         from_attributes = True
+
+class AuthActionRequest(BaseModel):
+    password: str
 
 # Profile Schemas
 class ProfileBase(BaseModel):

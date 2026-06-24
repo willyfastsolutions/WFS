@@ -2,6 +2,7 @@
 export interface Company {
   id: string;
   name: string;
+  active?: boolean;
 }
 
 export interface Profile {
@@ -82,8 +83,8 @@ export interface MaintenanceLog {
 
 // Initial seed data matching database/seed.sql
 const initialCompanies: Company[] = [
-  { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', name: 'Apex Logistics Corp' },
-  { id: 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b22', name: 'Titan Mining Industries' }
+  { id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11', name: 'Apex Logistics Corp', active: true },
+  { id: 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b22', name: 'Titan Mining Industries', active: true }
 ];
 
 const initialProfiles: Profile[] = [

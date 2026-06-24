@@ -9,6 +9,7 @@ class Company(Base):
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(255), nullable=False)
+    active = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     
     profiles = relationship("Profile", back_populates="company", cascade="all, delete-orphan")
