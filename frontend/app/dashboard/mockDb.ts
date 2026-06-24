@@ -345,6 +345,14 @@ export const mockDb = {
     return getStorageItem<Company[]>('wfs_companies', initialCompanies);
   },
 
+  setCompanies: (comps: Company[]): void => {
+    setStorageItem('wfs_companies', comps);
+  },
+
+  setMachinery: (macs: Machine[]): void => {
+    setStorageItem('wfs_machinery', macs);
+  },
+
   getCompanyById: (id: string): Company | null => {
     mockDb.initialize();
     const companies = getStorageItem<Company[]>('wfs_companies', initialCompanies);

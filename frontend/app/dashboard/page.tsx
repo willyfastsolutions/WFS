@@ -128,22 +128,64 @@ export default function FleetOverview() {
   };
 
   // Fetch Session & Data
-  const refreshData = () => {
+  const refreshData = async () => {
     if (typeof window !== "undefined") {
       const sessionStr = sessionStorage.getItem("wfs_session");
       if (sessionStr) {
         const profile = JSON.parse(sessionStr) as Profile;
         setUser(profile);
         
-        // Fetch companies for Superadmin
+        const isOffline = window.location.protocol === "file:";
+        const API_BASE_URL = (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+          ? `${window.location.protocol}//${window.location.hostname}:8000`
+          : "";
+
+        if (!isOffline) {
+          try {
+            const token = sessionStorage.getItem("wfs_token");
+            
+            // 1. Fetch companies
+            if (profile.role === "superadmin") {
+              const compsResponse = await fetch(`${API_BASE_URL}/api/companies/`, {
+                headers: { "Authorization": `Bearer ${token}` }
+              });
+              if (compsResponse.ok) {
+                const comps = await compsResponse.json() as Company[];
+                setCompanies(comps);
+                mockDb.setCompanies(comps);
+              }
+            }
+
+            // 2. Fetch machinery
+            let machineryUrl = `${API_BASE_URL}/api/machinery/`;
+            if (profile.role !== "superadmin") {
+              machineryUrl += `?company_id=${profile.company_id}`;
+            } else if (selectedCompanyId !== "all") {
+              machineryUrl += `?company_id=${selectedCompanyId}`;
+            }
+            
+            const macsResponse = await fetch(machineryUrl, {
+              headers: { "Authorization": `Bearer ${token}` }
+            });
+            
+            if (macsResponse.ok) {
+              const macs = await macsResponse.json() as Machine[];
+              setMachinery(macs);
+              mockDb.setMachinery(macs);
+              return;
+            }
+          } catch (err) {
+            console.warn("Could not fetch dashboard data from API, using mockDb fallback:", err);
+          }
+        }
+
+        // Fallback to mockDb
         if (profile.role === "superadmin") {
           const comps = mockDb.getCompanies();
           setCompanies(comps);
-          // Fetch all machinery (including revoked ones)
           const macs = mockDb.getMachinery(selectedCompanyId === "all" ? null : selectedCompanyId, true);
           setMachinery(macs);
         } else {
-          // Fetch machinery for current company (active only)
           const macs = mockDb.getMachinery(profile.company_id, false);
           setMachinery(macs);
         }
@@ -156,13 +198,46 @@ export default function FleetOverview() {
     refreshData();
   }, [selectedCompanyId]);
 
-  const handleLogHoursSubmit = (e: React.FormEvent) => {
+  const handleLogHoursSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!hoursModalMachine || !user) return;
     
     if (newHoursValue < hoursModalMachine.current_hours) {
       setHoursModalError(`New hours cannot be less than current hours (${hoursModalMachine.current_hours} hrs).`);
       return;
+    }
+
+    const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
+    const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+      ? `${window.location.protocol}//${window.location.hostname}:8000`
+      : "";
+
+    if (!isOffline) {
+      try {
+        const token = sessionStorage.getItem("wfs_token");
+        const response = await fetch(`${API_BASE_URL}/api/machinery/${hoursModalMachine.id}/hours`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ hours: newHoursValue })
+        });
+        if (response.ok) {
+          // Sync local mockDb
+          mockDb.logHours(hoursModalMachine.id, newHoursValue, user.id);
+          setHoursModalMachine(null);
+          setHoursModalError(null);
+          refreshData();
+          return;
+        } else {
+          const errData = await response.json();
+          setHoursModalError(errData.detail || "Failed to update hours in backend database.");
+          return;
+        }
+      } catch (err) {
+        console.error("API error, falling back to mockDb:", err);
+      }
     }
 
     const success = mockDb.logHours(hoursModalMachine.id, newHoursValue, user.id);

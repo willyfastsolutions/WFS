@@ -97,27 +97,57 @@ export default function RegisterMachinery() {
 
   useEffect(() => {
     mockDb.initialize();
-    if (typeof window !== "undefined") {
+    
+    async function loadData() {
+      if (typeof window === "undefined") return;
+      
       const settings = mockDb.getSystemSettings();
       setMaxHours(settings.default_maintenance_threshold);
       
       const sessionStr = sessionStorage.getItem("wfs_session");
-      if (sessionStr) {
-        const profile = JSON.parse(sessionStr) as Profile;
-        setUser(profile);
-        
-        if (profile.role === "superadmin") {
-          const comps = mockDb.getCompanies();
-          setCompanies(comps);
-          if (comps.length > 0) setTargetCompanyId(comps[0].id);
-        } else {
-          setTargetCompanyId(profile.company_id || "");
+      if (!sessionStr) return;
+      
+      const profile = JSON.parse(sessionStr) as Profile;
+      setUser(profile);
+      
+      if (profile.role === "superadmin") {
+        const isOffline = window.location.protocol === "file:";
+        const API_BASE_URL = (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+          ? `${window.location.protocol}//${window.location.hostname}:8000`
+          : "";
+
+        if (!isOffline) {
+          try {
+            const token = sessionStorage.getItem("wfs_token");
+            const response = await fetch(`${API_BASE_URL}/api/companies/`, {
+              headers: {
+                "Authorization": `Bearer ${token}`
+              }
+            });
+            if (response.ok) {
+              const data = await response.json() as Company[];
+              setCompanies(data);
+              mockDb.setCompanies(data);
+              if (data.length > 0) setTargetCompanyId(data[0].id);
+              return;
+            }
+          } catch (err) {
+            console.warn("Could not fetch companies from API in register machinery, using mockDb fallback:", err);
+          }
         }
+        
+        const comps = mockDb.getCompanies();
+        setCompanies(comps);
+        if (comps.length > 0) setTargetCompanyId(comps[0].id);
+      } else {
+        setTargetCompanyId(profile.company_id || "");
       }
     }
+    
+    loadData();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus(null);
     
@@ -139,6 +169,77 @@ export default function RegisterMachinery() {
 
     setIsSubmitting(true);
 
+    const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
+    const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+      ? `${window.location.protocol}//${window.location.hostname}:8000`
+      : "";
+
+    if (!isOffline) {
+      try {
+        const token = sessionStorage.getItem("wfs_token");
+        const response = await fetch(`${API_BASE_URL}/api/machinery/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            company_id: targetCompanyId,
+            name: name,
+            type: machineType,
+            brand: brand,
+            model: model,
+            serial_number: serial,
+            current_hours: hours,
+            maintenance_threshold_hours: maxHours
+          })
+        });
+
+        if (response.ok) {
+          // Also sync to mockDb locally for dashboard offline view consistency
+          try {
+            mockDb.addMachine({
+              company_id: targetCompanyId,
+              name: name,
+              type: machineType,
+              brand: brand,
+              model: model,
+              serial_number: serial,
+              current_hours: hours,
+              maintenance_threshold_hours: maxHours,
+              last_maintenance_hours: 0.0,
+              photo: photo || undefined
+            });
+          } catch (mockErr) {
+            console.error("mockDb sync failed:", mockErr);
+          }
+
+          setStatus({ type: "success", text: "Machine registered successfully! Redirecting to fleet inventory..." });
+          
+          // Reset form
+          setName("");
+          setBrand("");
+          setModel("");
+          setSerial("");
+          setInitialHours("0");
+          setPhoto(null);
+          
+          setTimeout(() => {
+            router.push("/dashboard");
+          }, 1500);
+          return;
+        } else {
+          const errData = await response.json();
+          setStatus({ type: "error", text: errData.detail || "Failed to register machine on backend database." });
+          setIsSubmitting(false);
+          return;
+        }
+      } catch (err) {
+        console.error("API error, falling back to mockDb:", err);
+      }
+    }
+
+    // Offline / Fallback
     setTimeout(() => {
       try {
         mockDb.addMachine({

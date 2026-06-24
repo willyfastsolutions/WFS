@@ -71,7 +71,7 @@ export default function B2BCompanies() {
               const data = await response.json() as Company[];
               setCompanies(data);
               // Sync to local storage for offline fallback compatibility
-              localStorage.setItem('wfs_companies', JSON.stringify(data));
+              mockDb.setCompanies(data);
               return;
             }
           } catch (err) {
@@ -241,12 +241,12 @@ export default function B2BCompanies() {
         if (confirmAction === "delete") {
           // Delete from local storage mockDb
           const updatedComps = comps.filter(c => c.id !== selectedCompany.id);
-          localStorage.setItem('wfs_companies', JSON.stringify(updatedComps));
+          mockDb.setCompanies(updatedComps);
           
           // Also delete associated machinery in local storage
           const macs = mockDb.getMachinery();
           const updatedMacs = macs.filter(m => m.company_id !== selectedCompany.id);
-          localStorage.setItem('wfs_machinery', JSON.stringify(updatedMacs));
+          mockDb.setMachinery(updatedMacs);
           
           setStatus({ type: "success", text: "B2B Company and all associated assets deleted successfully!" });
         } else {
@@ -257,7 +257,7 @@ export default function B2BCompanies() {
             }
             return c;
           });
-          localStorage.setItem('wfs_companies', JSON.stringify(updatedComps));
+          mockDb.setCompanies(updatedComps);
           setStatus({ type: "success", text: "B2B Company status toggled successfully!" });
         }
 
