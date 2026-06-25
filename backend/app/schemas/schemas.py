@@ -6,6 +6,7 @@ from datetime import datetime
 class Token(BaseModel):
     access_token: str
     token_type: str
+    must_change_password: bool = False
 
 class TokenData(BaseModel):
     email: Optional[str] = None
@@ -94,6 +95,7 @@ class MachineUpdate(BaseModel):
     model: Optional[str] = None
     serial_number: Optional[str] = None
     photo: Optional[str] = None
+    company_id: Optional[str] = None
 
 class MachineHourUpdate(BaseModel):
     hours: float

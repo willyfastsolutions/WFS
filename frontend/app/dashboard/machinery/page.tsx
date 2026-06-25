@@ -198,7 +198,8 @@ export default function RegisterMachinery() {
             model: model,
             serial_number: serial,
             current_hours: hours,
-            maintenance_threshold_hours: maxHours
+            maintenance_threshold_hours: maxHours,
+            photo: photo || null
           })
         });
 

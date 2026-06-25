@@ -48,6 +48,7 @@ export default function FleetOverview() {
   const [editModel, setEditModel] = useState("");
   const [editSerial, setEditSerial] = useState("");
   const [editPhoto, setEditPhoto] = useState<string | null>(null);
+  const [editCompanyId, setEditCompanyId] = useState("");
   
   // Edit Modal Webcam States
   const [isWebcamOpen, setIsWebcamOpen] = useState(false);
@@ -111,6 +112,7 @@ export default function FleetOverview() {
     setEditModel(machine.model);
     setEditSerial(machine.serial_number);
     setEditPhoto(machine.photo || null);
+    setEditCompanyId(machine.company_id);
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
@@ -136,7 +138,8 @@ export default function FleetOverview() {
             brand: editBrand,
             model: editModel,
             serial_number: editSerial,
-            photo: editPhoto || null
+            photo: editPhoto || null,
+            company_id: editCompanyId
           }),
         });
 
@@ -169,7 +172,8 @@ export default function FleetOverview() {
       brand: editBrand,
       model: editModel,
       serial_number: editSerial,
-      photo: editPhoto || undefined
+      photo: editPhoto || undefined,
+      company_id: editCompanyId
     });
     if (success) {
       setEditModalMachine(null);
@@ -898,6 +902,26 @@ export default function FleetOverview() {
                   className="w-full h-10 px-3 rounded-lg border border-zinc-900 bg-zinc-900/30 text-sm text-zinc-200 focus:outline-none focus:border-zinc-800 transition-colors font-mono"
                 />
               </div>
+
+              {/* Assigned Company (Superadmin Only) */}
+              {user?.role === "superadmin" && (
+                <div className="space-y-1.5">
+                  <label htmlFor="edit-company" className="text-[10px] uppercase font-bold text-zinc-500">Assigned Company</label>
+                  <select
+                    id="edit-company"
+                    required
+                    value={editCompanyId}
+                    onChange={(e) => setEditCompanyId(e.target.value)}
+                    className="w-full h-10 px-3 rounded-lg border border-zinc-900 bg-zinc-950 text-sm text-zinc-200 focus:outline-none focus:border-zinc-850 transition-colors"
+                  >
+                    {companies.map(c => (
+                      <option key={c.id} value={c.id}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
 
               {/* Photo Upload / Webcam */}
               <div className="space-y-1.5">

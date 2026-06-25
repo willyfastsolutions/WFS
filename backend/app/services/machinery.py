@@ -98,6 +98,8 @@ def update_machine(db: Session, machine_id: str, schema: MachineUpdate):
         db_machine.serial_number = schema.serial_number
     if schema.photo is not None:
         db_machine.photo = schema.photo
+    if schema.company_id is not None:
+        db_machine.company_id = schema.company_id
         
     db.commit()
     db.refresh(db_machine)
