@@ -77,6 +77,13 @@ export default function B2BCompanies() {
         const response = await fetch(`${API_BASE_URL}/api/companies/${companyId}/users`, {
           headers: { "Authorization": `Bearer ${token}` }
         });
+        if (response.status === 401) {
+          sessionStorage.removeItem("wfs_token");
+          sessionStorage.removeItem("wfs_role");
+          sessionStorage.removeItem("wfs_session");
+          router.push("/login");
+          return;
+        }
         if (response.ok) {
           const data = await response.json() as Profile[];
           setUsersList(data);
@@ -146,6 +153,14 @@ export default function B2BCompanies() {
               role: userRole
             })
           });
+        }
+
+        if (response.status === 401) {
+          sessionStorage.removeItem("wfs_token");
+          sessionStorage.removeItem("wfs_role");
+          sessionStorage.removeItem("wfs_session");
+          router.push("/login");
+          return;
         }
 
         if (response.ok) {
@@ -226,6 +241,14 @@ export default function B2BCompanies() {
           }
         });
 
+        if (response.status === 401) {
+          sessionStorage.removeItem("wfs_token");
+          sessionStorage.removeItem("wfs_role");
+          sessionStorage.removeItem("wfs_session");
+          router.push("/login");
+          return;
+        }
+
         if (response.ok) {
           await fetchCompanyUsers(usersModalCompany.id);
           return;
@@ -295,6 +318,13 @@ export default function B2BCompanies() {
                 "Authorization": `Bearer ${token}`
               }
             });
+            if (response.status === 401) {
+              sessionStorage.removeItem("wfs_token");
+              sessionStorage.removeItem("wfs_role");
+              sessionStorage.removeItem("wfs_session");
+              router.push("/login");
+              return;
+            }
             if (response.ok) {
               const data = await response.json() as Company[];
               setCompanies(data);
@@ -352,6 +382,14 @@ export default function B2BCompanies() {
           },
           body: JSON.stringify({ name: companyName.trim() })
         });
+
+        if (response.status === 401) {
+          sessionStorage.removeItem("wfs_token");
+          sessionStorage.removeItem("wfs_role");
+          sessionStorage.removeItem("wfs_session");
+          router.push("/login");
+          return;
+        }
 
         if (response.ok) {
           setStatus({ type: "success", text: "B2B Company registered successfully!" });
@@ -428,6 +466,14 @@ export default function B2BCompanies() {
           },
           body: JSON.stringify({ password: confirmPassword })
         });
+
+        if (response.status === 401) {
+          sessionStorage.removeItem("wfs_token");
+          sessionStorage.removeItem("wfs_role");
+          sessionStorage.removeItem("wfs_session");
+          router.push("/login");
+          return;
+        }
 
         if (response.ok) {
           setShowConfirmModal(false);

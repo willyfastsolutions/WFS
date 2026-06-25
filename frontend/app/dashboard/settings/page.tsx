@@ -71,6 +71,13 @@ export default function SuperadminSettings() {
             }
           })
           .then(res => {
+            if (res.status === 401) {
+              sessionStorage.removeItem("wfs_token");
+              sessionStorage.removeItem("wfs_role");
+              sessionStorage.removeItem("wfs_session");
+              router.push("/login");
+              return;
+            }
             if (res.ok) return res.json();
             throw new Error("Failed to fetch settings from server");
           })
@@ -142,7 +149,16 @@ export default function SuperadminSettings() {
               scan_interval_seconds: intervalSeconds,
               default_maintenance_threshold: defaultThreshold
             })
-          }).catch(err => console.warn("Could not sync settings to real API:", err));
+          })
+          .then(res => {
+            if (res.status === 401) {
+              sessionStorage.removeItem("wfs_token");
+              sessionStorage.removeItem("wfs_role");
+              sessionStorage.removeItem("wfs_session");
+              router.push("/login");
+            }
+          })
+          .catch(err => console.warn("Could not sync settings to real API:", err));
         }
 
         setStatus({ 
@@ -192,6 +208,15 @@ export default function SuperadminSettings() {
             company_name: companyName
           })
         });
+
+        if (response.status === 401) {
+          sessionStorage.removeItem("wfs_token");
+          sessionStorage.removeItem("wfs_role");
+          sessionStorage.removeItem("wfs_session");
+          router.push("/login");
+          return;
+        }
+
         if (response.ok) {
           const blob = await response.blob();
           const url = window.URL.createObjectURL(blob);
@@ -257,6 +282,15 @@ export default function SuperadminSettings() {
             company_name: companyName
           })
         });
+
+        if (response.status === 401) {
+          sessionStorage.removeItem("wfs_token");
+          sessionStorage.removeItem("wfs_role");
+          sessionStorage.removeItem("wfs_session");
+          router.push("/login");
+          return;
+        }
+
         if (response.ok) {
           const data = await response.json();
           setStatus({

@@ -124,6 +124,13 @@ export default function RegisterMachinery() {
                 "Authorization": `Bearer ${token}`
               }
             });
+            if (response.status === 401) {
+              sessionStorage.removeItem("wfs_token");
+              sessionStorage.removeItem("wfs_role");
+              sessionStorage.removeItem("wfs_session");
+              router.push("/login");
+              return;
+            }
             if (response.ok) {
               const data = await response.json() as Company[];
               setCompanies(data);
@@ -194,6 +201,14 @@ export default function RegisterMachinery() {
             maintenance_threshold_hours: maxHours
           })
         });
+
+        if (response.status === 401) {
+          sessionStorage.removeItem("wfs_token");
+          sessionStorage.removeItem("wfs_role");
+          sessionStorage.removeItem("wfs_session");
+          router.push("/login");
+          return;
+        }
 
         if (response.ok) {
           // Also sync to mockDb locally for dashboard offline view consistency

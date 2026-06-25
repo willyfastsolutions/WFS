@@ -90,14 +90,14 @@ const initialCompanies: Company[] = [
 const initialProfiles: Profile[] = [
   {
     id: '11111111-1111-1111-1111-111111111111',
-    email: 'admin@apex.com',
-    full_name: 'Apex Admin',
+    email: 'david.silva.cardona93@gmail.com',
+    full_name: 'David Silva Cardona',
     role: 'company_admin',
     company_id: 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'
   },
   {
     id: '22222222-2222-2222-2222-222222222222',
-    email: 'admin@titan.com',
+    email: 'dasilva-93@hotmail.com',
     full_name: 'Titan Admin',
     role: 'company_admin',
     company_id: 'b0eebc99-9c0b-4ef8-bb6d-6bb9bd380b22'

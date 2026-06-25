@@ -30,6 +30,26 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
+      <head>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "WillyFastSolutions",
+              "url": "https://willyfastsolutions.com",
+              "logo": "https://willyfastsolutions.com/logo/logo.png",
+              "description": "Maximize heavy machinery uptime. WillyFastSolutions automates hour logging, safety checklists, and preventive maintenance audits for B2B fleets.",
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "contactType": "customer service",
+                "email": "info@willyfastsolutions.com"
+              }
+            })
+          }}
+        />
+      </head>
       <body className="min-h-full flex flex-col">{children}</body>
     </html>
   );

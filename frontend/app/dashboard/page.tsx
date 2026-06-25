@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { 
   Activity, 
   AlertTriangle, 
@@ -22,6 +23,7 @@ import {
 import { Profile, Company, Machine, mockDb } from "./mockDb";
 
 export default function FleetOverview() {
+  const router = useRouter();
   const [user, setUser] = useState<Profile | null>(null);
   const [companies, setCompanies] = useState<Company[]>([]);
   const [selectedCompanyId, setSelectedCompanyId] = useState<string>("all");
@@ -138,6 +140,14 @@ export default function FleetOverview() {
           }),
         });
 
+        if (response.status === 401) {
+          sessionStorage.removeItem("wfs_token");
+          sessionStorage.removeItem("wfs_role");
+          sessionStorage.removeItem("wfs_session");
+          router.push("/login");
+          return;
+        }
+
         if (response.ok) {
           const updated = await response.json() as Machine;
           mockDb.updateMachine(editModalMachine.id, updated);
@@ -189,6 +199,13 @@ export default function FleetOverview() {
               const compsResponse = await fetch(`${API_BASE_URL}/api/companies/`, {
                 headers: { "Authorization": `Bearer ${token}` }
               });
+              if (compsResponse.status === 401) {
+                sessionStorage.removeItem("wfs_token");
+                sessionStorage.removeItem("wfs_role");
+                sessionStorage.removeItem("wfs_session");
+                router.push("/login");
+                return;
+              }
               if (compsResponse.ok) {
                 const comps = await compsResponse.json() as Company[];
                 setCompanies(comps);
@@ -208,6 +225,14 @@ export default function FleetOverview() {
               headers: { "Authorization": `Bearer ${token}` }
             });
             
+            if (macsResponse.status === 401) {
+              sessionStorage.removeItem("wfs_token");
+              sessionStorage.removeItem("wfs_role");
+              sessionStorage.removeItem("wfs_session");
+              router.push("/login");
+              return;
+            }
+
             if (macsResponse.ok) {
               const macs = await macsResponse.json() as Machine[];
               setMachinery(macs);
@@ -263,6 +288,13 @@ export default function FleetOverview() {
           },
           body: JSON.stringify({ hours: newHoursValue })
         });
+        if (response.status === 401) {
+          sessionStorage.removeItem("wfs_token");
+          sessionStorage.removeItem("wfs_role");
+          sessionStorage.removeItem("wfs_session");
+          router.push("/login");
+          return;
+        }
         if (response.ok) {
           // Sync local mockDb
           mockDb.logHours(hoursModalMachine.id, newHoursValue, user.id);
@@ -305,12 +337,20 @@ export default function FleetOverview() {
           ? `${window.location.protocol}//${window.location.hostname}:8000`
           : "";
         
-        await fetch(`${API_BASE_URL}/api/machinery/${revokeModalMachine.id}`, {
+        const res = await fetch(`${API_BASE_URL}/api/machinery/${revokeModalMachine.id}`, {
           method: "DELETE",
           headers: {
             "Authorization": `Bearer ${sessionStorage.getItem("wfs_token") || ""}`
           }
         }).catch(err => console.warn("Failed to delete machine in real API:", err));
+        
+        if (res && res.status === 401) {
+          sessionStorage.removeItem("wfs_token");
+          sessionStorage.removeItem("wfs_role");
+          sessionStorage.removeItem("wfs_session");
+          router.push("/login");
+          return;
+        }
       }
 
       setRevokeModalMachine(null);
@@ -329,12 +369,20 @@ export default function FleetOverview() {
           ? `${window.location.protocol}//${window.location.hostname}:8000`
           : "";
         
-        await fetch(`${API_BASE_URL}/api/machinery/${machineId}/reactivate`, {
+        const res = await fetch(`${API_BASE_URL}/api/machinery/${machineId}/reactivate`, {
           method: "POST",
           headers: {
             "Authorization": `Bearer ${sessionStorage.getItem("wfs_token") || ""}`
           }
         }).catch(err => console.warn("Failed to reactivate machine in real API:", err));
+
+        if (res && res.status === 401) {
+          sessionStorage.removeItem("wfs_token");
+          sessionStorage.removeItem("wfs_role");
+          sessionStorage.removeItem("wfs_session");
+          router.push("/login");
+          return;
+        }
       }
       refreshData();
     }
