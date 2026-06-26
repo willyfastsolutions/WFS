@@ -81,7 +81,9 @@ def create_item(
         )
         
     # Verify ownership
-    if current_user.role != "superadmin" and template.company_id != current_user.company_id:
+    template_company_id = str(template.company_id) if template.company_id else None
+    user_company_id = str(current_user.company_id) if current_user.company_id else None
+    if current_user.role != "superadmin" and template_company_id != user_company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Forbidden: Cannot add items to templates of another company"
@@ -112,7 +114,9 @@ def delete_template(
         )
         
     # Verify ownership
-    if current_user.role != "superadmin" and template.company_id != current_user.company_id:
+    template_company_id = str(template.company_id) if template.company_id else None
+    user_company_id = str(current_user.company_id) if current_user.company_id else None
+    if current_user.role != "superadmin" and template_company_id != user_company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Forbidden: Cannot delete templates of another company"

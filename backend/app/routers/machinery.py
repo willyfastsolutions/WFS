@@ -6,6 +6,34 @@ from app.models.models import Profile
 from app.schemas.schemas import MachineResponse, MachineCreate, MachineUpdate, MachineHourUpdate
 from app.routers.auth import get_current_user
 from app.services import machinery as machinery_service
+from app.services.audit import log_audit_action
+
+def validate_and_sanitize_image_base64(photo_str: str) -> str:
+    if not photo_str:
+        return photo_str
+    
+    # Check for Data URI format
+    if photo_str.startswith("data:"):
+        try:
+            header, data = photo_str.split(",", 1)
+            mime_type = header.split(";")[0].split(":")[1]
+            # Block SVGs to avoid cross-site scripting via vector scripts
+            if "svg" in mime_type.lower():
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="SVG image uploads are forbidden for security reasons. Please use JPEG, PNG, or WebP."
+                )
+            if not any(img_type in mime_type.lower() for img_type in ["jpeg", "png", "webp", "gif", "jpg"]):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Invalid image type. Only JPEG, PNG, WebP, and GIF are allowed."
+                )
+        except (ValueError, IndexError):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Malformed image data structure."
+            )
+    return photo_str
 
 router = APIRouter(prefix="/machinery", tags=["machinery"])
 
@@ -29,13 +57,21 @@ def create_machine(
     current_user: Profile = Depends(get_current_user)
 ):
     # Tenant Admin cannot register machinery for other companies
-    if current_user.role != "superadmin" and machine.company_id != current_user.company_id:
+    machine_company_id = str(machine.company_id) if machine.company_id else None
+    user_company_id = str(current_user.company_id) if current_user.company_id else None
+    if current_user.role != "superadmin" and machine_company_id != user_company_id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Forbidden: Cannot register machinery for another tenant."
         )
+    
+    # Sanitize image
+    validate_and_sanitize_image_base64(machine.photo)
+    
     try:
-        return machinery_service.add_machine(db, machine)
+        created_machine = machinery_service.add_machine(db, machine)
+        log_audit_action(db, action="MACHINE_CREATED", user_id=current_user.id, email=current_user.email, details={"machine_id": created_machine.id, "name": created_machine.name, "company_id": created_machine.company_id})
+        return created_machine
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
@@ -50,15 +86,22 @@ def update_machine_route(
     if not db_machine:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Machine not found")
         
-    if current_user.role != "superadmin" and db_machine.company_id != current_user.company_id:
+    machine_company_id = str(db_machine.company_id) if db_machine.company_id else None
+    user_company_id = str(current_user.company_id) if current_user.company_id else None
+    if current_user.role != "superadmin" and machine_company_id != user_company_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden: Access denied")
         
+    # Sanitize image
+    validate_and_sanitize_image_base64(payload.photo)
+        
     updated = machinery_service.update_machine(db, machine_id, payload)
+    log_audit_action(db, action="MACHINE_UPDATED", user_id=current_user.id, email=current_user.email, details={"machine_id": machine_id, "name": updated.name})
     return updated
 
 @router.delete("/{machine_id}")
 def delete_machine(
     machine_id: str,
+    hard: bool = False,
     db: Session = Depends(get_db),
     current_user: Profile = Depends(get_current_user)
 ):
@@ -66,11 +109,25 @@ def delete_machine(
     if not db_machine:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Machine not found")
         
-    if current_user.role != "superadmin" and db_machine.company_id != current_user.company_id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden: Access denied")
+    machine_company_id = str(db_machine.company_id) if db_machine.company_id else None
+    user_company_id = str(current_user.company_id) if current_user.company_id else None
+    if current_user.role != "superadmin":
+        if machine_company_id != user_company_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden: Access denied")
+        if hard:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Forbidden: Only superadmins can permanently delete machinery from the database."
+            )
         
-    machinery_service.delete_machine(db, machine_id)
-    return {"message": "Machine revoked successfully"}
+    if hard:
+        machinery_service.hard_delete_machine(db, machine_id)
+        log_audit_action(db, action="MACHINE_PERMANENTLY_DELETED", user_id=current_user.id, email=current_user.email, details={"machine_id": machine_id, "name": db_machine.name, "company_id": db_machine.company_id})
+        return {"message": "Machine permanently deleted successfully"}
+    else:
+        machinery_service.delete_machine(db, machine_id)
+        log_audit_action(db, action="MACHINE_REVOKED", user_id=current_user.id, email=current_user.email, details={"machine_id": machine_id})
+        return {"message": "Machine revoked successfully"}
 
 @router.post("/{machine_id}/reactivate", response_model=MachineResponse)
 def reactivate_machine(
@@ -84,6 +141,7 @@ def reactivate_machine(
     db_machine = machinery_service.reactivate_machine(db, machine_id)
     if not db_machine:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Machine not found")
+    log_audit_action(db, action="MACHINE_REACTIVATED", user_id=current_user.id, email=current_user.email, details={"machine_id": machine_id})
     return db_machine
 
 @router.post("/{machine_id}/hours", response_model=MachineResponse)
@@ -97,13 +155,16 @@ def update_hours(
     if not db_machine:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Machine not found")
         
-    if current_user.role != "superadmin" and db_machine.company_id != current_user.company_id:
+    machine_company_id = str(db_machine.company_id) if db_machine.company_id else None
+    user_company_id = str(current_user.company_id) if current_user.company_id else None
+    if current_user.role != "superadmin" and machine_company_id != user_company_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden: Access denied")
         
     try:
         updated = machinery_service.log_hours(db, machine_id, payload.hours, current_user.id)
         if not updated:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Failed to log hours")
+        log_audit_action(db, action="MACHINE_HOURS_LOGGED", user_id=current_user.id, email=current_user.email, details={"machine_id": machine_id, "hours": payload.hours})
         return updated
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
@@ -133,7 +194,9 @@ def generate_report(
     db: Session = Depends(get_db),
     current_user: Profile = Depends(get_current_user)
 ):
-    if current_user.role != "superadmin" and payload.company_id != current_user.company_id:
+    payload_company_id = str(payload.company_id) if payload.company_id else None
+    user_company_id = str(current_user.company_id) if current_user.company_id else None
+    if current_user.role != "superadmin" and payload_company_id != user_company_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden: Access denied")
         
     # Ensure the company exists if provided
@@ -169,7 +232,9 @@ def generate_report(
         db.refresh(db_machine)
     else:
         # Check permissions on existing machine in db
-        if current_user.role != "superadmin" and db_machine.company_id != current_user.company_id:
+        machine_company_id = str(db_machine.company_id) if db_machine.company_id else None
+        user_company_id = str(current_user.company_id) if current_user.company_id else None
+        if current_user.role != "superadmin" and machine_company_id != user_company_id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden: Access denied")
         db_machine.name = payload.name
         db_machine.type = payload.type
@@ -232,7 +297,9 @@ def email_report(
     current_user: Profile = Depends(get_current_user)
 ):
     """Generate and email the machinery PDF report to the company admin."""
-    if current_user.role != "superadmin" and payload.company_id != current_user.company_id:
+    payload_company_id = str(payload.company_id) if payload.company_id else None
+    user_company_id = str(current_user.company_id) if current_user.company_id else None
+    if current_user.role != "superadmin" and payload_company_id != user_company_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden: Access denied")
     
     from app.models.models import Company, Machine

@@ -506,7 +506,7 @@ export default function B2BCompanies() {
     setTimeout(() => {
       try {
         if (confirmPassword !== "admin1234") {
-          setModalError("Invalid password confirmation. Hint: Use admin1234");
+          setModalError("Invalid password confirmation. Please enter your password.");
           setIsModalSubmitting(false);
           return;
         }

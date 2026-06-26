@@ -32,14 +32,27 @@ def decode_access_token(token: str) -> Optional[dict]:
     except JWTError:
         return None
 
-def create_password_reset_token(email: str) -> str:
+from sqlalchemy.orm import Session
+
+def create_password_reset_token(email: str, password_hash: str) -> str:
+    # Include the last 10 characters of the current password hash in the payload.
+    # If the user resets their password, the hash changes and this token becomes invalid.
     return create_access_token(
-        data={"sub": email, "action": "password_reset"},
+        data={"sub": email, "action": "password_reset", "pwh": password_hash[-10:]},
         expires_delta=timedelta(minutes=15)
     )
 
-def verify_password_reset_token(token: str) -> Optional[str]:
+def verify_password_reset_token(token: str, db: Session) -> Optional[str]:
     payload = decode_access_token(token)
     if payload and payload.get("action") == "password_reset":
-        return payload.get("sub")
+        email = payload.get("sub")
+        pwh_in_token = payload.get("pwh")
+        if not email or not pwh_in_token:
+            return None
+        
+        # Look up the user in the database to check their current password hash
+        from app.models.models import Profile
+        user = db.query(Profile).filter(Profile.email == email).first()
+        if user and user.password_hash[-10:] == pwh_in_token:
+            return email
     return None

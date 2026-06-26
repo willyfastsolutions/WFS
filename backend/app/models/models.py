@@ -131,3 +131,13 @@ class SystemSetting(Base):
     
     key = Column(String(50), primary_key=True)
     value = Column(String(255), nullable=False)
+
+class AuditLog(Base):
+    __tablename__ = "audit_logs"
+    
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    user_id = Column(String(36), nullable=True)
+    email = Column(String(255), nullable=True)
+    action = Column(String(100), nullable=False)  # e.g. 'LOGIN_SUCCESS', 'RESET_PASSWORD'
+    details = Column(Text, nullable=True)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)

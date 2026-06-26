@@ -205,10 +205,7 @@ export default function RegisterMachinery() {
       return;
     }
 
-    if (hours > maxHours) {
-      setStatus({ type: "error", text: `Initial hours cannot exceed ${maxHours} hours (Maximum safety threshold limit).` });
-      return;
-    }
+    // Removed frontend initial hours limit check to allow real machinery with high initial hours.
 
     setIsSubmitting(true);
 

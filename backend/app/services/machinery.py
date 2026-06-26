@@ -25,9 +25,7 @@ def add_machine(db: Session, schema: MachineCreate):
         except Exception:
             pass
 
-    # Enforce guard: initial hours cannot exceed threshold
-    if schema.current_hours > default_threshold:
-        raise ValueError(f"Initial hours cannot exceed {default_threshold} hours.")
+    # Removed initial hours check to support real machinery registration with high initial hours (e.g. 1234.0h)
         
     db_machine = Machine(
         id=str(uuid.uuid4()),
@@ -51,6 +49,14 @@ def delete_machine(db: Session, machine_id: str):
     db_machine = db.query(Machine).filter(Machine.id == machine_id).first()
     if db_machine:
         db_machine.revoked = True
+        db.commit()
+        return True
+    return False
+
+def hard_delete_machine(db: Session, machine_id: str):
+    db_machine = db.query(Machine).filter(Machine.id == machine_id).first()
+    if db_machine:
+        db.delete(db_machine)
         db.commit()
         return True
     return False

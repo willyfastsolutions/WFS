@@ -12,10 +12,19 @@ Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="WillyFastSolutions Telemetry Backend", version="1.0.0")
 
-# Configure CORS to allow direct frontend queries (localhost and offline file pages)
+# Configure CORS to allow direct frontend queries (localhost, production and offline file pages)
+allowed_origins = [
+    "https://willyfastsolutions.com",
+    "https://www.willyfastsolutions.com",
+    "http://localhost:3000",
+    "http://localhost:5173",
+    "http://127.0.0.1:3000",
+    "http://127.0.0.1:5173",
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -124,6 +133,19 @@ def run_migrations():
     try:
         # Create table system_settings if not exists
         db.execute(text("CREATE TABLE IF NOT EXISTS system_settings (key VARCHAR(50) PRIMARY KEY, value VARCHAR(255) NOT NULL)"))
+        
+        # Create table audit_logs if not exists
+        db.execute(text("""
+            CREATE TABLE IF NOT EXISTS audit_logs (
+                id VARCHAR(36) PRIMARY KEY,
+                user_id VARCHAR(36),
+                email VARCHAR(255),
+                action VARCHAR(100) NOT NULL,
+                details TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+            )
+        """))
+        print("[MIGRATION] Ensured audit_logs table exists.")
         
         # Check if warning_sent column exists
         cursor = db.execute(text("PRAGMA table_info(machinery)"))

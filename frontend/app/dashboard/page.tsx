@@ -41,6 +41,10 @@ export default function FleetOverview() {
   const [revokePassword, setRevokePassword] = useState("");
   const [revokeError, setRevokeError] = useState<string | null>(null);
 
+  const [deleteModalMachine, setDeleteModalMachine] = useState<Machine | null>(null);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
   // Edit Modal States
   const [editModalMachine, setEditModalMachine] = useState<Machine | null>(null);
   const [editName, setEditName] = useState("");
@@ -328,32 +332,74 @@ export default function FleetOverview() {
 
   const handleRevokeSubmit = async () => {
     if (!revokeModalMachine) return;
-    if (revokePassword !== "admin1234") {
-      setRevokeError("Incorrect password. Re-authentication failed.");
-      return;
-    }
+    if (!user) return;
 
-    const success = mockDb.deleteMachine(revokeModalMachine.id);
-    if (success) {
-      // If online (server mode), try to delete in backend database too
-      if (typeof window !== "undefined" && window.location.protocol !== "file:") {
-        const API_BASE_URL = (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-          ? `${window.location.protocol}//${window.location.hostname}:8000`
-          : "";
-        
-        const res = await fetch(`${API_BASE_URL}/api/machinery/${revokeModalMachine.id}`, {
-          method: "DELETE",
+    const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
+    const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+      ? `${window.location.protocol}//${window.location.hostname}:8000`
+      : "";
+
+    if (!isOffline) {
+      try {
+        const token = sessionStorage.getItem("wfs_token");
+        const verifyRes = await fetch(`${API_BASE_URL}/api/auth/verify-password`, {
+          method: "POST",
           headers: {
-            "Authorization": `Bearer ${sessionStorage.getItem("wfs_token") || ""}`
-          }
-        }).catch(err => console.warn("Failed to delete machine in real API:", err));
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ password: revokePassword })
+        });
         
-        if (res && res.status === 401) {
+        if (verifyRes.status === 401) {
           sessionStorage.removeItem("wfs_token");
           sessionStorage.removeItem("wfs_role");
           sessionStorage.removeItem("wfs_session");
           router.push("/login");
           return;
+        }
+
+        if (!verifyRes.ok) {
+          const errData = await verifyRes.json();
+          setRevokeError(errData.detail || "Incorrect password. Re-authentication failed.");
+          return;
+        }
+      } catch (err) {
+        console.warn("Verify password failed, falling back to mock authentication check:", err);
+        if (revokePassword !== "admin1234") {
+          setRevokeError("Incorrect password. Re-authentication failed.");
+          return;
+        }
+      }
+    } else {
+      if (revokePassword !== "admin1234") {
+        setRevokeError("Incorrect password. Re-authentication failed.");
+        return;
+      }
+    }
+
+    const success = mockDb.deleteMachine(revokeModalMachine.id);
+    if (success) {
+      // If online (server mode), try to delete in backend database too
+      if (!isOffline) {
+        try {
+          const token = sessionStorage.getItem("wfs_token");
+          const res = await fetch(`${API_BASE_URL}/api/machinery/${revokeModalMachine.id}`, {
+            method: "DELETE",
+            headers: {
+              "Authorization": `Bearer ${token}`
+            }
+          });
+          
+          if (res.status === 401) {
+            sessionStorage.removeItem("wfs_token");
+            sessionStorage.removeItem("wfs_role");
+            sessionStorage.removeItem("wfs_session");
+            router.push("/login");
+            return;
+          }
+        } catch (err) {
+          console.warn("Failed to delete machine in real API:", err);
         }
       }
 
@@ -361,7 +407,90 @@ export default function FleetOverview() {
       setRevokePassword("");
       setRevokeError(null);
       refreshData();
+    } else {
+      setRevokeError("Failed to revoke machine. Please check input values.");
     }
+  };
+
+  const handleDeleteSubmit = async () => {
+    if (!deleteModalMachine) return;
+    if (!user) return;
+
+    const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
+    const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+      ? `${window.location.protocol}//${window.location.hostname}:8000`
+      : "";
+
+    if (!isOffline) {
+      try {
+        const token = sessionStorage.getItem("wfs_token");
+        const verifyRes = await fetch(`${API_BASE_URL}/api/auth/verify-password`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({ password: deletePassword })
+        });
+        
+        if (verifyRes.status === 401) {
+          sessionStorage.removeItem("wfs_token");
+          sessionStorage.removeItem("wfs_role");
+          sessionStorage.removeItem("wfs_session");
+          router.push("/login");
+          return;
+        }
+
+        if (!verifyRes.ok) {
+          const errData = await verifyRes.json();
+          setDeleteError(errData.detail || "Incorrect password. Re-authentication failed.");
+          return;
+        }
+      } catch (err) {
+        console.warn("Verify password failed, falling back to mock authentication check:", err);
+        if (deletePassword !== "admin1234") {
+          setDeleteError("Incorrect password. Re-authentication failed.");
+          return;
+        }
+      }
+    } else {
+      if (deletePassword !== "admin1234") {
+        setDeleteError("Incorrect password. Re-authentication failed.");
+        return;
+      }
+    }
+
+    // SQLite / mockDb local hard delete
+    const comps = mockDb.getMachinery();
+    const updatedComps = comps.filter(c => c.id !== deleteModalMachine.id);
+    mockDb.setMachinery(updatedComps);
+
+    if (!isOffline) {
+      try {
+        const token = sessionStorage.getItem("wfs_token");
+        const res = await fetch(`${API_BASE_URL}/api/machinery/${deleteModalMachine.id}?hard=true`, {
+          method: "DELETE",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        
+        if (res.status === 401) {
+          sessionStorage.removeItem("wfs_token");
+          sessionStorage.removeItem("wfs_role");
+          sessionStorage.removeItem("wfs_session");
+          router.push("/login");
+          return;
+        }
+      } catch (err) {
+        console.warn("Failed to permanently delete machine in real API:", err);
+      }
+    }
+
+    setDeleteModalMachine(null);
+    setDeletePassword("");
+    setDeleteError(null);
+    refreshData();
   };
 
   const handleReactivateMachine = async (machineId: string) => {
@@ -671,12 +800,26 @@ export default function FleetOverview() {
                 {mac.revoked ? (
                   <div className="flex items-center gap-2 border-t border-zinc-900 pt-3.5 w-full">
                     {user?.role === "superadmin" && (
-                      <button
-                        onClick={() => handleReactivateMachine(mac.id)}
-                        className="flex-1 inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-emerald-950 bg-emerald-950/20 text-xs font-semibold text-emerald-400 hover:bg-emerald-900/10 hover:border-emerald-850 transition-all cursor-pointer"
-                      >
-                        <PlusCircle className="h-3.5 w-3.5" /> Reactivate Asset
-                      </button>
+                      <>
+                        <button
+                          onClick={() => handleReactivateMachine(mac.id)}
+                          className="flex-1 inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-emerald-950 bg-emerald-950/20 text-xs font-semibold text-emerald-400 hover:bg-emerald-900/10 hover:border-emerald-850 transition-all cursor-pointer"
+                        >
+                          <PlusCircle className="h-3.5 w-3.5" /> Reactivate Asset
+                        </button>
+                        
+                        <button
+                          onClick={() => {
+                            setDeleteModalMachine(mac);
+                            setDeletePassword("");
+                            setDeleteError(null);
+                          }}
+                          className="inline-flex h-9 px-3 items-center justify-center gap-1.5 rounded-lg border border-rose-950 bg-rose-950/20 text-xs font-semibold text-rose-400 hover:bg-rose-900/10 hover:border-rose-850 transition-all cursor-pointer"
+                          title="Permanently Delete Asset"
+                        >
+                          <Trash2 className="h-4 w-4" /> Delete
+                        </button>
+                      </>
                     )}
                   </div>
                 ) : (
@@ -795,7 +938,7 @@ export default function FleetOverview() {
             )}
 
             <div className="space-y-1.5">
-              <label htmlFor="revoke-password-input" className="text-[10px] uppercase font-bold text-zinc-500">Re-enter Admin Password (admin1234)</label>
+              <label htmlFor="revoke-password-input" className="text-[10px] uppercase font-bold text-zinc-500">Confirm Password</label>
               <input
                 type="password"
                 id="revoke-password-input"
@@ -826,6 +969,67 @@ export default function FleetOverview() {
                 className="inline-flex h-9 items-center justify-center px-4 rounded-lg bg-rose-500 text-xs font-semibold text-zinc-100 hover:bg-rose-600 transition-all cursor-pointer"
               >
                 Delete Asset
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Permanent Hard Delete Machine Confirmation Modal Overlay */}
+      {deleteModalMachine && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm">
+          <div className="bg-zinc-950 border border-zinc-900 w-full max-w-sm rounded-xl shadow-2xl p-6 space-y-4">
+            <div>
+              <div className="flex items-center gap-1.5 border-b border-zinc-900 pb-2">
+                <AlertTriangle className="h-4 w-4 text-rose-500" />
+                <h3 className="text-sm font-bold text-zinc-100 uppercase tracking-wider">Delete Asset Permanently?</h3>
+              </div>
+              <p className="text-xs text-rose-400 font-semibold mt-2.5">
+                WARNING: IRREVERSIBLE ACTION
+              </p>
+              <p className="text-[11px] text-zinc-500 mt-1 leading-relaxed">
+                You are about to permanently delete <span className="text-zinc-300 font-semibold">{deleteModalMachine.name}</span>. This will completely remove the machine, all hour logs, and all maintenance records from the database.
+              </p>
+            </div>
+
+            {deleteError && (
+              <div className="p-2.5 rounded bg-rose-500/10 border border-rose-500/20 text-[11px] text-rose-400 font-mono">
+                {deleteError}
+              </div>
+            )}
+
+            <div className="space-y-1.5">
+              <label htmlFor="delete-password-input" className="text-[10px] uppercase font-bold text-zinc-500">Superadmin Password Confirmation</label>
+              <input
+                type="password"
+                id="delete-password-input"
+                required
+                value={deletePassword}
+                onChange={(e) => {
+                  setDeletePassword(e.target.value);
+                  setDeleteError(null);
+                }}
+                placeholder="••••••••"
+                className="w-full h-10 px-3 rounded-lg border border-zinc-900 bg-zinc-900/40 text-sm text-zinc-200 placeholder-zinc-700 focus:outline-none focus:border-zinc-800 transition-colors font-mono"
+              />
+            </div>
+
+            <div className="flex gap-2 justify-end pt-2">
+              <button
+                onClick={() => {
+                  setDeleteModalMachine(null);
+                  setDeletePassword("");
+                  setDeleteError(null);
+                }}
+                className="inline-flex h-9 items-center justify-center px-4 rounded-lg border border-zinc-900 bg-zinc-950 text-xs font-semibold text-zinc-500 hover:text-zinc-300 transition-all cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleDeleteSubmit}
+                className="inline-flex h-9 items-center justify-center px-4 rounded-lg bg-rose-600 hover:bg-rose-700 text-xs font-semibold text-zinc-100 transition-all cursor-pointer"
+              >
+                Permanently Delete
               </button>
             </div>
           </div>

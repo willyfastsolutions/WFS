@@ -20,7 +20,9 @@ def record_maintenance(
     if not db_machine:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Machine not found")
         
-    if current_user.role != "superadmin" and db_machine.company_id != current_user.company_id:
+    machine_company_id = str(db_machine.company_id) if db_machine.company_id else None
+    user_company_id = str(current_user.company_id) if current_user.company_id else None
+    if current_user.role != "superadmin" and machine_company_id != user_company_id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden: Access denied")
         
     try:
