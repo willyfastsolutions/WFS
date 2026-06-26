@@ -217,7 +217,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {/* Navigation Items */}
           <nav className="flex flex-col gap-1 mt-4">
             {navItems.map((item) => {
-              const isActive = pathname === item.href;
+              // Normalize trailing slashes to ensure accurate matching
+              const cleanPathname = pathname.replace(/\/$/, "");
+              const cleanHref = item.href.replace(/\/$/, "");
+              const isActive = cleanPathname === cleanHref;
               const Icon = item.icon;
               return (
                 <Link
@@ -227,11 +230,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                   className={`
                     flex items-center gap-3 px-3.5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200
                     ${isActive 
-                      ? "bg-zinc-900 border border-zinc-800 text-zinc-100 shadow-sm" 
-                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40 border border-transparent"}
+                      ? "bg-zinc-900/80 border-l-2 border-l-emerald-500 border-y-zinc-900 border-r-zinc-900 text-zinc-100 shadow-sm font-semibold" 
+                      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-900/40 border-l-2 border-l-transparent border-y-transparent border-r-transparent"}
                   `}
                 >
-                  <Icon className={`h-4.5 w-4.5 ${isActive ? "text-zinc-200" : "text-zinc-500"}`} />
+                  <Icon className={`h-4.5 w-4.5 ${isActive ? "text-emerald-400" : "text-zinc-500"}`} />
                   {item.name}
                 </Link>
               );

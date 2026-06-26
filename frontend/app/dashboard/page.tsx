@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   Activity, 
   AlertTriangle, 
@@ -706,20 +707,26 @@ export default function FleetOverview() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {filteredMachinery.map((mac) => {
-            const hoursSincePM = mac.current_hours - mac.last_maintenance_hours;
-            const percentage = Math.min(Math.max((hoursSincePM / mac.maintenance_threshold_hours) * 100, 0), 100);
-            const isOverdue = hoursSincePM >= mac.maintenance_threshold_hours;
-            
-            return (
-              <div 
-                key={mac.id}
-                className={`border bg-zinc-900/10 transition-all rounded-xl overflow-hidden flex flex-col justify-between gap-6 relative group ${
-                  mac.revoked 
-                    ? "border-rose-950/40 opacity-70 bg-rose-950/5" 
-                    : "border-zinc-900 hover:border-zinc-800/80"
-                }`}
-              >
+          <AnimatePresence mode="popLayout">
+            {filteredMachinery.map((mac) => {
+              const hoursSincePM = mac.current_hours - mac.last_maintenance_hours;
+              const percentage = Math.min(Math.max((hoursSincePM / mac.maintenance_threshold_hours) * 100, 0), 100);
+              const isOverdue = hoursSincePM >= mac.maintenance_threshold_hours;
+              
+              return (
+                <motion.div 
+                  key={mac.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+                  transition={{ duration: 0.3 }}
+                  className={`border bg-zinc-900/10 transition-all rounded-xl overflow-hidden flex flex-col justify-between gap-6 relative group ${
+                    mac.revoked 
+                      ? "border-rose-950/40 opacity-70 bg-rose-950/5" 
+                      : "border-zinc-900 hover:border-zinc-800/80"
+                  }`}
+                >
                 {mac.photo && (
                   <div className="h-36 w-full border-b border-zinc-900 overflow-hidden bg-zinc-950 relative">
                     <img src={mac.photo} alt={mac.name} className={`w-full h-full object-cover filter brightness-90 group-hover:scale-105 transition-transform duration-300 ${mac.revoked ? "grayscale" : ""}`} />
@@ -851,12 +858,13 @@ export default function FleetOverview() {
                     </button>
                   </div>
                 )}
-              </div>
-            </div>
-          );
+                </div>
+              </motion.div>
+            );
           })}
-        </div>
-      )}
+        </AnimatePresence>
+      </div>
+    )}
 
       {/* Log Hours Modal Overlay */}
       {hoursModalMachine && (
