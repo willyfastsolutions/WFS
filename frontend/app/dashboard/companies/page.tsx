@@ -714,8 +714,8 @@ export default function B2BCompanies() {
                         <td className="py-4 px-2 font-bold text-zinc-200">
                           {comp.name}
                         </td>
-                        <td className="py-4 px-2 text-zinc-500 font-mono">
-                          {comp.id}
+                        <td className="py-4 px-2 text-zinc-500 font-mono cursor-help" title={comp.id}>
+                          {comp.id.substring(0, 8)}...{comp.id.substring(comp.id.length - 4)}
                         </td>
                         <td className="py-4 px-2 text-center font-mono text-zinc-400">
                           {comp.maintenance_threshold ? `${comp.maintenance_threshold} hrs` : "Default (250 hrs)"}
