@@ -51,12 +51,56 @@ def create_company(
     db_company = Company(
         id=str(uuid.uuid4()),
         name=company.name,
+        maintenance_threshold=company.maintenance_threshold,
         active=True
     )
     db.add(db_company)
     db.commit()
     db.refresh(db_company)
     log_audit_action(db, action="COMPANY_CREATED", user_id=current_user.id, email=current_user.email, details={"company_id": db_company.id, "company_name": db_company.name})
+    return db_company
+
+@router.put("/{company_id}", response_model=CompanyResponse)
+def update_company(
+    company_id: str,
+    payload: CompanyCreate,
+    db: Session = Depends(get_db),
+    current_user: Profile = Depends(get_current_user)
+):
+    if current_user.role != "superadmin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden: Only superadmins can update B2B companies"
+        )
+        
+    db_company = db.query(Company).filter(Company.id == company_id).first()
+    if not db_company:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="B2B Company not found"
+        )
+        
+    # Check name collision if name is changing
+    if payload.name != db_company.name:
+        exists = db.query(Company).filter(Company.name == payload.name).first()
+        if exists:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="A B2B company with this name is already registered."
+            )
+            
+    db_company.name = payload.name
+    db_company.maintenance_threshold = payload.maintenance_threshold
+    db.commit()
+    db.refresh(db_company)
+    
+    log_audit_action(
+        db, 
+        action="COMPANY_UPDATED", 
+        user_id=current_user.id, 
+        email=current_user.email, 
+        details={"company_id": db_company.id, "company_name": db_company.name, "maintenance_threshold": db_company.maintenance_threshold}
+    )
     return db_company
 
 @router.patch("/{company_id}/toggle-active", response_model=CompanyResponse)

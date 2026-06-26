@@ -29,8 +29,24 @@ export default function B2BCompanies() {
   
   // Form States
   const [companyName, setCompanyName] = useState("");
+  const [maintenanceThreshold, setMaintenanceThreshold] = useState("");
+  const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [status, setStatus] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const startEditCompany = (comp: Company) => {
+    setEditingCompany(comp);
+    setCompanyName(comp.name);
+    setMaintenanceThreshold(comp.maintenance_threshold ? String(comp.maintenance_threshold) : "");
+    setStatus(null);
+  };
+
+  const cancelEditCompany = () => {
+    setEditingCompany(null);
+    setCompanyName("");
+    setMaintenanceThreshold("");
+    setStatus(null);
+  };
 
   // Modal Authorization States
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -358,14 +374,19 @@ export default function B2BCompanies() {
       return;
     }
 
-    const exists = companies.some(c => c.name.toLowerCase() === companyName.trim().toLowerCase());
-    if (exists) {
-      setStatus({ type: "error", text: "A company with this name is already registered." });
-      return;
+    // Name collision check only if registering new company or name changes on edit
+    const isNewName = !editingCompany || editingCompany.name.toLowerCase() !== companyName.trim().toLowerCase();
+    if (isNewName) {
+      const exists = companies.some(c => c.name.toLowerCase() === companyName.trim().toLowerCase());
+      if (exists) {
+        setStatus({ type: "error", text: "A company with this name is already registered." });
+        return;
+      }
     }
 
     setIsSubmitting(true);
 
+    const thresholdVal = maintenanceThreshold.trim() ? parseFloat(maintenanceThreshold) : null;
     const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
     const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
       ? `${window.location.protocol}//${window.location.hostname}:8000`
@@ -374,13 +395,21 @@ export default function B2BCompanies() {
     if (!isOffline) {
       try {
         const token = sessionStorage.getItem("wfs_token");
-        const response = await fetch(`${API_BASE_URL}/api/companies/`, {
-          method: "POST",
+        const url = editingCompany
+          ? `${API_BASE_URL}/api/companies/${editingCompany.id}`
+          : `${API_BASE_URL}/api/companies/`;
+        const method = editingCompany ? "PUT" : "POST";
+
+        const response = await fetch(url, {
+          method: method,
           headers: {
             "Content-Type": "application/json",
             "Authorization": `Bearer ${token}`
           },
-          body: JSON.stringify({ name: companyName.trim() })
+          body: JSON.stringify({ 
+            name: companyName.trim(),
+            maintenance_threshold: thresholdVal
+          })
         });
 
         if (response.status === 401) {
@@ -392,14 +421,21 @@ export default function B2BCompanies() {
         }
 
         if (response.ok) {
-          setStatus({ type: "success", text: "B2B Company registered successfully!" });
+          setStatus({ 
+            type: "success", 
+            text: editingCompany 
+              ? "B2B Company settings updated successfully!" 
+              : "B2B Company registered successfully!" 
+          });
           setCompanyName("");
+          setMaintenanceThreshold("");
+          setEditingCompany(null);
           refreshData();
           setIsSubmitting(false);
           return;
         } else {
           const errData = await response.json();
-          setStatus({ type: "error", text: errData.detail || "Failed to register company." });
+          setStatus({ type: "error", text: errData.detail || "Failed to save company." });
           setIsSubmitting(false);
           return;
         }
@@ -411,9 +447,16 @@ export default function B2BCompanies() {
     // Offline / Fallback
     setTimeout(() => {
       try {
-        mockDb.addCompany(companyName.trim());
-        setStatus({ type: "success", text: "B2B Company registered successfully!" });
+        if (editingCompany) {
+          mockDb.updateCompany(editingCompany.id, companyName.trim(), thresholdVal || undefined);
+          setStatus({ type: "success", text: "B2B Company settings updated successfully!" });
+        } else {
+          mockDb.addCompany(companyName.trim(), thresholdVal || undefined);
+          setStatus({ type: "success", text: "B2B Company registered successfully!" });
+        }
         setCompanyName("");
+        setMaintenanceThreshold("");
+        setEditingCompany(null);
         refreshData();
       } catch (err) {
         setStatus({ type: "error", text: "Failed to save company." });
@@ -571,7 +614,15 @@ export default function B2BCompanies() {
         <div className="lg:col-span-1 space-y-6">
           <div className="border border-zinc-900 bg-zinc-900/10 rounded-xl p-5 space-y-4">
             <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5 border-b border-zinc-900 pb-3">
-              <Plus className="h-4 w-4 text-zinc-400" /> Register B2B Client
+              {editingCompany ? (
+                <>
+                  <Edit className="h-4 w-4 text-zinc-400" /> Edit B2B Client
+                </>
+              ) : (
+                <>
+                  <Plus className="h-4 w-4 text-zinc-400" /> Register B2B Client
+                </>
+              )}
             </h3>
 
             {status && (
@@ -598,13 +649,37 @@ export default function B2BCompanies() {
                 />
               </div>
 
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full inline-flex h-10 items-center justify-center rounded-lg bg-zinc-100 text-xs font-semibold text-zinc-950 hover:bg-zinc-200 disabled:opacity-50 disabled:hover:bg-zinc-100 transition-all shadow-md cursor-pointer"
-              >
-                {isSubmitting ? "Saving Company..." : "Register Company"}
-              </button>
+              <div className="space-y-1.5">
+                <label htmlFor="comp-threshold" className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Maintenance Threshold (Hours)</label>
+                <input
+                  type="number"
+                  id="comp-threshold"
+                  min="1"
+                  placeholder="e.g. 250 (leave empty for machine default)"
+                  value={maintenanceThreshold}
+                  onChange={(e) => setMaintenanceThreshold(e.target.value)}
+                  className="w-full h-10 px-3 rounded-lg border border-zinc-900 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-800 focus:outline-none focus:border-zinc-800 transition-colors"
+                />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full inline-flex h-10 items-center justify-center rounded-lg bg-zinc-100 text-xs font-semibold text-zinc-950 hover:bg-zinc-200 disabled:opacity-50 disabled:hover:bg-zinc-100 transition-all shadow-md cursor-pointer"
+                >
+                  {isSubmitting ? "Saving Company..." : (editingCompany ? "Save Changes" : "Register Company")}
+                </button>
+                {editingCompany && (
+                  <button
+                    type="button"
+                    onClick={cancelEditCompany}
+                    className="w-full inline-flex h-10 items-center justify-center rounded-lg border border-zinc-950 bg-zinc-900/20 text-xs font-semibold text-zinc-400 hover:text-zinc-200 transition-all cursor-pointer"
+                  >
+                    Cancel Edit
+                  </button>
+                )}
+              </div>
             </form>
           </div>
         </div>
@@ -627,6 +702,7 @@ export default function B2BCompanies() {
                     <tr className="border-b border-zinc-900 text-zinc-500 font-bold uppercase tracking-wider">
                       <th className="py-3 px-2">Company Name</th>
                       <th className="py-3 px-2">Database ID</th>
+                      <th className="py-3 px-2 text-center">Threshold</th>
                       <th className="py-3 px-2">Status</th>
                       <th className="py-3 px-2 text-center">Active Assets</th>
                       <th className="py-3 px-2 text-right">Actions</th>
@@ -640,6 +716,9 @@ export default function B2BCompanies() {
                         </td>
                         <td className="py-4 px-2 text-zinc-500 font-mono">
                           {comp.id}
+                        </td>
+                        <td className="py-4 px-2 text-center font-mono text-zinc-400">
+                          {comp.maintenance_threshold ? `${comp.maintenance_threshold} hrs` : "Default (250 hrs)"}
                         </td>
                         <td className="py-4 px-2">
                           {comp.active === false ? (
@@ -657,6 +736,13 @@ export default function B2BCompanies() {
                         </td>
                         <td className="py-4 px-2 text-right">
                           <div className="inline-flex items-center gap-2">
+                            <button
+                              onClick={() => startEditCompany(comp)}
+                              title="Edit Company Details"
+                              className="p-1.5 rounded border border-zinc-800 bg-zinc-900 text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800 transition-all cursor-pointer"
+                            >
+                              <Edit className="h-3.5 w-3.5" />
+                            </button>
                             <button
                               onClick={() => openUsersModal(comp)}
                               title="Manage Users"

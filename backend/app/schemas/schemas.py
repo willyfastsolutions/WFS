@@ -28,6 +28,7 @@ class ResetPasswordRequest(BaseModel):
 # Company Schemas
 class CompanyBase(BaseModel):
     name: str
+    maintenance_threshold: Optional[float] = None
 
 class CompanyCreate(CompanyBase):
     pass

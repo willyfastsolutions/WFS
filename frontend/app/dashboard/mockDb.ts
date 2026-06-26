@@ -3,6 +3,7 @@ export interface Company {
   id: string;
   name: string;
   active?: boolean;
+  maintenance_threshold?: number;
 }
 
 export interface Profile {
@@ -405,16 +406,28 @@ export const mockDb = {
     return companies.find(c => c.id === id) || null;
   },
 
-  addCompany: (name: string): Company => {
+  addCompany: (name: string, maintenance_threshold?: number): Company => {
     mockDb.initialize();
     const companies = getStorageItem<Company[]>('wfs_companies', initialCompanies);
     const newCompany: Company = {
       id: 'comp_' + Math.random().toString(36).substr(2, 9),
-      name: name
+      name: name,
+      maintenance_threshold: maintenance_threshold
     };
     companies.push(newCompany);
     setStorageItem('wfs_companies', companies);
     return newCompany;
+  },
+
+  updateCompany: (id: string, name: string, maintenance_threshold?: number): Company | null => {
+    mockDb.initialize();
+    const companies = getStorageItem<Company[]>('wfs_companies', initialCompanies);
+    const index = companies.findIndex(c => c.id === id);
+    if (index === -1) return null;
+    companies[index].name = name;
+    companies[index].maintenance_threshold = maintenance_threshold;
+    setStorageItem('wfs_companies', companies);
+    return companies[index];
   },
 
   // Machinery queries

@@ -161,8 +161,19 @@ def run_migrations():
         cursor2 = db.execute(text("PRAGMA table_info(profiles)"))
         profile_columns = [row[1] for row in cursor2.fetchall()]
         if "must_change_password" not in profile_columns:
-            db.execute(text("ALTER TABLE profiles ADD COLUMN must_change_password BOOLEAN DEFAULT 0 NOT NULL"))
-            print("[MIGRATION] Added must_change_password column to profiles table.")
+            try:
+                db.execute(text("ALTER TABLE profiles ADD COLUMN must_change_password BOOLEAN DEFAULT 0 NOT NULL"))
+                print("[MIGRATION] Added must_change_password column to profiles table.")
+            except Exception:
+                db.rollback()
+
+        # Add maintenance_threshold column to companies table
+        try:
+            db.execute(text("ALTER TABLE companies ADD COLUMN maintenance_threshold FLOAT"))
+            db.commit()
+            print("[MIGRATION] Added maintenance_threshold column to companies table.")
+        except Exception:
+            db.rollback()
             
         # Seed default configs if not present
         from app.models.models import SystemSetting
