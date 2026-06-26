@@ -39,7 +39,7 @@ def add_machine(db: Session, schema: MachineCreate):
         serial_number=schema.serial_number,
         current_hours=schema.current_hours,
         maintenance_threshold_hours=default_threshold,
-        last_maintenance_hours=0.0,
+        last_maintenance_hours=schema.current_hours,
         photo=schema.photo
     )
     db.add(db_machine)

@@ -260,3 +260,23 @@ def delete_company_user(
     db.delete(db_profile)
     db.commit()
     return {"message": "User profile deleted successfully"}
+
+@router.get("/{company_id}", response_model=CompanyResponse)
+def get_company_by_id(
+    company_id: str,
+    db: Session = Depends(get_db),
+    current_user: Profile = Depends(get_current_user)
+):
+    if current_user.role != "superadmin" and current_user.company_id != company_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden: You can only query details of your own company."
+        )
+    db_company = db.query(Company).filter(Company.id == company_id).first()
+    if not db_company:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Company not found"
+        )
+    return db_company
+

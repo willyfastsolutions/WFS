@@ -19,6 +19,7 @@ export default function RegisterMachinery() {
   const router = useRouter();
   const [user, setUser] = useState<Profile | null>(null);
   const [companies, setCompanies] = useState<Company[]>([]);
+  const [companyName, setCompanyName] = useState("");
   
   // Form States
   const [name, setName] = useState("");
@@ -147,7 +148,42 @@ export default function RegisterMachinery() {
         setCompanies(comps);
         if (comps.length > 0) setTargetCompanyId(comps[0].id);
       } else {
-        setTargetCompanyId(profile.company_id || "");
+        const compId = profile.company_id || "";
+        setTargetCompanyId(compId);
+        if (compId) {
+          const comp = mockDb.getCompanyById(compId);
+          if (comp) setCompanyName(comp.name);
+          
+          const isOffline = window.location.protocol === "file:";
+          const API_BASE_URL = (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+            ? `${window.location.protocol}//${window.location.hostname}:8000`
+            : "";
+
+          if (!isOffline) {
+            const token = sessionStorage.getItem("wfs_token");
+            fetch(`${API_BASE_URL}/api/companies/${compId}`, {
+              headers: {
+                "Authorization": `Bearer ${token}`
+              }
+            })
+            .then(res => {
+              if (res.ok) return res.json();
+              throw new Error("Failed to fetch company details");
+            })
+            .then(data => {
+              if (data && data.name) {
+                setCompanyName(data.name);
+                try {
+                  // Sincronizar localmente en mockDb para consistencia
+                  mockDb.addCompany(data);
+                } catch (e) {}
+              }
+            })
+            .catch(err => {
+              console.warn("Could not fetch company details from API:", err);
+            });
+          }
+        }
       }
     }
     
@@ -223,7 +259,7 @@ export default function RegisterMachinery() {
               serial_number: serial,
               current_hours: hours,
               maintenance_threshold_hours: maxHours,
-              last_maintenance_hours: 0.0,
+              last_maintenance_hours: hours,
               photo: photo || undefined
             });
           } catch (mockErr) {
@@ -267,7 +303,7 @@ export default function RegisterMachinery() {
           serial_number: serial,
           current_hours: hours,
           maintenance_threshold_hours: maxHours,
-          last_maintenance_hours: 0.0,
+          last_maintenance_hours: hours,
           photo: photo || undefined
         });
 
@@ -490,7 +526,7 @@ export default function RegisterMachinery() {
               ) : (
                 <div className="flex h-10 w-full items-center rounded-lg border border-zinc-900 bg-zinc-900/40 px-3 text-xs text-zinc-500 font-semibold select-none">
                   <Building className="h-3.5 w-3.5 text-zinc-600 mr-2" />
-                  Apex Logistics Corp (Locked Tenant)
+                  {companyName || "Your Company"} (Locked Tenant)
                 </div>
               )}
             </div>

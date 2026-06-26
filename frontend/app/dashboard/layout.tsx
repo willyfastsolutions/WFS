@@ -76,8 +76,38 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             const profile = JSON.parse(sessionStr) as Profile;
             setUser(profile);
             if (profile.company_id) {
-              const comp = mockDb.getCompanyById(profile.company_id);
+              const compId = profile.company_id;
+              const comp = mockDb.getCompanyById(compId);
               if (comp) setCompanyName(comp.name);
+
+              const isOffline = window.location.protocol === "file:";
+              const API_BASE_URL = (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+                ? `${window.location.protocol}//${window.location.hostname}:8000`
+                : "";
+
+              if (!isOffline) {
+                const token = sessionStorage.getItem("wfs_token");
+                fetch(`${API_BASE_URL}/api/companies/${compId}`, {
+                  headers: {
+                    "Authorization": `Bearer ${token}`
+                  }
+                })
+                .then(res => {
+                  if (res.ok) return res.json();
+                  throw new Error("Failed to fetch company details");
+                })
+                .then(data => {
+                  if (data && data.name) {
+                    setCompanyName(data.name);
+                    try {
+                      mockDb.addCompany(data);
+                    } catch (e) {}
+                  }
+                })
+                .catch(err => {
+                  console.warn("Could not fetch company details from API in layout:", err);
+                });
+              }
             } else {
               setCompanyName("WillyFastSolutions (Superadmin)");
             }
