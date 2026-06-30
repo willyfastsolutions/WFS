@@ -224,4 +224,23 @@ class SystemSettingsResponse(BaseModel):
     scan_mode: str
     scan_daily_time: str
 
+# Quote Request Schemas
+class QuoteRequestCreate(BaseModel):
+    full_name: str
+    email: str
+    company_name: str
+    message: str
+
+class QuoteRequestResponse(BaseModel):
+    id: str
+    full_name: str
+    email: str
+    company_name: str
+    message: str
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
 

@@ -41,6 +41,7 @@ export default function Home() {
   const [activeTab, setActiveTab] = useState<MachineType>("forklift");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   const [simHours, setSimHours] = useState(180);
   const [fleetSize, setFleetSize] = useState(15);
   const [downtimeCost, setDowntimeCost] = useState(150);
@@ -74,14 +75,62 @@ export default function Home() {
     }
   };
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => {
+    setFormError(null);
+    setFormSubmitted(false);
+
+    const form = e.target as HTMLFormElement;
+    const formData = new FormData(form);
+    
+    const payload = {
+      full_name: formData.get("name") as string,
+      email: formData.get("email") as string,
+      company_name: formData.get("company") as string,
+      message: formData.get("message") as string,
+    };
+
+    const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
+    const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+      ? `${window.location.protocol}//${window.location.hostname}:8000`
+      : "";
+
+    if (isOffline) {
+      setTimeout(() => {
+        setIsSubmitting(false);
+        setFormSubmitted(true);
+        form.reset();
+        setTimeout(() => setFormSubmitted(false), 5000);
+      }, 1200);
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/quotes`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setIsSubmitting(false);
+        setFormSubmitted(true);
+        form.reset();
+        setTimeout(() => setFormSubmitted(false), 6000);
+      } else {
+        setIsSubmitting(false);
+        setFormError(data.detail || "Something went wrong. Please try again later.");
+      }
+    } catch (err) {
+      console.error(err);
       setIsSubmitting(false);
-      setFormSubmitted(true);
-      setTimeout(() => setFormSubmitted(false), 5000);
-    }, 1500);
+      setFormError("Could not connect to the server. Please check your internet connection.");
+    }
   };
 
   const machineryDetails: Record<MachineType, MachineDetail> = {
@@ -967,7 +1016,17 @@ export default function Home() {
                 Thank you! Your quote request has been received. Our team will review your fleet details and contact you shortly.
               </motion.div>
             ) : (
-              <form onSubmit={handleContactSubmit} className="space-y-4">
+              <div className="space-y-4">
+                {formError && (
+                  <motion.div 
+                    initial={{ opacity: 0, y: -5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-3.5 rounded-xl border border-rose-500/20 bg-rose-500/10 text-center text-rose-400 text-xs font-semibold"
+                  >
+                    {formError}
+                  </motion.div>
+                )}
+                <form onSubmit={handleContactSubmit} className="space-y-4">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
                     <label htmlFor="contact-name" className="text-xs font-medium text-zinc-400">Full Name</label>
@@ -1033,6 +1092,7 @@ export default function Home() {
                   )}
                 </button>
               </form>
+              </div>
             )}
           </div>
         </div>

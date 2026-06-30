@@ -142,3 +142,15 @@ class AuditLog(Base):
     action = Column(String(100), nullable=False)  # e.g. 'LOGIN_SUCCESS', 'RESET_PASSWORD'
     details = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+class QuoteRequest(Base):
+    __tablename__ = "quote_requests"
+    
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    full_name = Column(String(255), nullable=False)
+    email = Column(String(255), nullable=False)
+    company_name = Column(String(255), nullable=False)
+    message = Column(Text, nullable=False)
+    ip_address = Column(String(45), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+

@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import engine, Base, SessionLocal
-from app.models.models import Company, Profile, Machine
+from app.models.models import Company, Profile, Machine, QuoteRequest
 from app.services.auth import get_password_hash
-from app.routers import auth, machinery, maintenance, companies, checklists, settings
+from app.routers import auth, machinery, maintenance, companies, checklists, settings, quotes
 from app.services.audit_worker import start_audit_daemon
 from sqlalchemy import text
 
@@ -36,6 +36,7 @@ app.include_router(maintenance.router, prefix="/api")
 app.include_router(companies.router, prefix="/api")
 app.include_router(checklists.router, prefix="/api")
 app.include_router(settings.router, prefix="/api")
+app.include_router(quotes.router, prefix="/api")
 
 # Database Seeding function
 def seed_database():
@@ -183,6 +184,20 @@ def run_migrations():
             )
         """))
         print("[MIGRATION] Ensured audit_logs table exists.")
+
+        # Create table quote_requests if not exists
+        db.execute(text("""
+            CREATE TABLE IF NOT EXISTS quote_requests (
+                id VARCHAR(36) PRIMARY KEY,
+                full_name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL,
+                company_name VARCHAR(255) NOT NULL,
+                message TEXT NOT NULL,
+                ip_address VARCHAR(45) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+            )
+        """))
+        print("[MIGRATION] Ensured quote_requests table exists.")
         
         # Check if warning_sent column exists
         cursor = db.execute(text("PRAGMA table_info(machinery)"))

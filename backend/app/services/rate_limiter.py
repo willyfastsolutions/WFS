@@ -25,3 +25,7 @@ class InMemoryRateLimiter:
 
 # Limiter for login endpoint: 5 attempts per 60 seconds per IP
 login_limiter = InMemoryRateLimiter(limit=5, window_seconds=60)
+
+# Limiter for quotation requests: max 2 requests per 5 minutes per IP
+quote_limiter = InMemoryRateLimiter(limit=2, window_seconds=300)
+

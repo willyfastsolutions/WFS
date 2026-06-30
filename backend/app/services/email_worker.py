@@ -217,3 +217,80 @@ def send_report_email(to_email: str, machine_name: str, company_name: str, attac
 </html>
 """
     return send_alert_email(to_email=to_email, subject=subject, body_text=body_html, attachment_path=attachment_path)
+
+def send_quote_request_email(full_name: str, email: str, company_name: str, message: str) -> bool:
+    from datetime import datetime
+    subject = f"💼 New Quote Request / Nueva Solicitud de Cotización - {company_name}"
+    
+    # Clean message to avoid HTML injection
+    safe_message = message.replace("<", "&lt;").replace(">", "&gt;").replace("\n", "<br>")
+    
+    body_html = f"""<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {{ font-family: sans-serif; background-color: #09090b; color: #e4e4e7; padding: 20px; margin: 0; }}
+    .card {{ background-color: #18181b; border: 1px solid #27272a; border-radius: 16px; padding: 32px; max-width: 600px; margin: 20px auto; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.3); }}
+    .badge {{ display: inline-block; background-color: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); color: #10b981; padding: 4px 10px; font-size: 10px; font-weight: bold; border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 16px; }}
+    .logo {{ font-size: 14px; font-weight: bold; color: #71717a; letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 24px; border-bottom: 1px solid #27272a; padding-bottom: 12px; }}
+    .title {{ font-size: 20px; font-weight: bold; color: #f4f4f5; margin-bottom: 8px; }}
+    .subtitle {{ font-size: 12px; color: #a1a1aa; margin-bottom: 24px; }}
+    .info-grid {{ border-top: 1px solid #27272a; border-bottom: 1px solid #27272a; padding: 16px 0; margin-bottom: 24px; }}
+    .info-row {{ display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; }}
+    .info-label {{ color: #71717a; font-weight: 500; }}
+    .info-value {{ color: #f4f4f5; font-weight: 600; text-align: right; }}
+    .message-box {{ background-color: #09090b; border: 1px solid #27272a; border-radius: 8px; padding: 16px; font-size: 13px; color: #d4d4d8; line-height: 1.6; font-style: italic; margin-bottom: 28px; }}
+    .btn-container {{ display: flex; gap: 12px; margin-top: 24px; }}
+    .btn {{ flex: 1; text-align: center; display: inline-block; padding: 12px; text-decoration: none; font-weight: bold; border-radius: 8px; font-size: 12px; transition: all 0.2s; }}
+    .btn-primary {{ background-color: #f4f4f5; color: #09090b; border: 1px solid #f4f4f5; }}
+    .btn-secondary {{ background-color: transparent; color: #a1a1aa; border: 1px solid #27272a; }}
+    .footer {{ font-size: 11px; color: #52525b; margin-top: 32px; border-top: 1px solid #27272a; padding-top: 15px; text-align: center; line-height: 1.5; }}
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="logo">WillyFastSolutions</div>
+    <div class="badge">New Lead / Nuevo Prospecto</div>
+    <div class="title">Service Quotation Request</div>
+    <div class="subtitle">A customer has submitted a new inquiry through the landing page.</div>
+    
+    <div class="info-grid">
+      <div class="info-row">
+        <span class="info-label">Full Name</span>
+        <span class="info-value">{full_name}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Email Address</span>
+        <span class="info-value"><a href="mailto:{email}" style="color: #10b981; text-decoration: none;">{email}</a></span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Company Name</span>
+        <span class="info-value">{company_name}</span>
+      </div>
+      <div class="info-row">
+        <span class="info-label">Submission Date</span>
+        <span class="info-value">{datetime.utcnow().strftime('%Y-%m-%d %H:%M UTC')}</span>
+      </div>
+    </div>
+    
+    <div style="font-size: 11px; color: #71717a; text-transform: uppercase; font-weight: bold; margin-bottom: 8px; letter-spacing: 0.05em;">Message / Fleet Details:</div>
+    <div class="message-box">
+      "{safe_message}"
+    </div>
+    
+    <div class="btn-container">
+      <a href="mailto:{email}?subject=WillyFastSolutions Quotation Request - {company_name}" class="btn btn-primary">Reply to Lead</a>
+      <a href="https://willyfastsolutions.com/dashboard" class="btn btn-secondary">Open Admin Dashboard</a>
+    </div>
+    
+    <div class="footer">
+      This is an automated notification from the WillyFastSolutions platform.<br>
+      Please contact support if you notice any unusual activity.
+    </div>
+  </div>
+</body>
+</html>
+"""
+    return send_alert_email(to_email="admin@willyfastsolutions.com", subject=subject, body_text=body_html)
+
