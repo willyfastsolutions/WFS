@@ -872,7 +872,7 @@ export default function FleetOverview() {
           <div className="bg-zinc-950 border border-zinc-900 w-full max-w-sm rounded-xl shadow-2xl p-6 space-y-4">
             <div>
               <h3 className="text-sm font-bold text-zinc-100">Log Operating Hours</h3>
-              <p className="text-xs text-zinc-500 mt-1">Increment horómetro for {hoursModalMachine.name}.</p>
+              <p className="text-xs text-zinc-500 mt-1">Increment hour meter for {hoursModalMachine.name}.</p>
             </div>
 
             {hoursModalError && (
@@ -901,6 +901,7 @@ export default function FleetOverview() {
                     setNewHoursValue(Number(e.target.value));
                     setHoursModalError(null);
                   }}
+                  onFocus={(e) => e.target.select()}
                   className="w-full h-10 px-3 rounded-lg border border-zinc-900 bg-zinc-900/40 text-sm text-zinc-200 placeholder-zinc-700 focus:outline-none focus:border-zinc-800 transition-colors font-mono"
                 />
               </div>

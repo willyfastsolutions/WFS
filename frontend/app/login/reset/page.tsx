@@ -17,7 +17,7 @@ function ResetPasswordForm() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      setMessage({ type: "error", text: "Passwords do not match / Las contraseñas no coinciden." });
+      setMessage({ type: "error", text: "Passwords do not match." });
       return;
     }
 
@@ -32,7 +32,7 @@ function ResetPasswordForm() {
         setIsLoading(false);
         setMessage({
           type: "success",
-          text: "SUCCESS (Offline Demo): Password reset successfully! Redirecting to login... / ¡Contraseña restablecida con éxito! Redirigiendo..."
+          text: "SUCCESS (Offline Demo): Password reset successfully! Redirecting to login..."
         });
         setTimeout(() => {
           if (isOffline) {
@@ -62,7 +62,7 @@ function ResetPasswordForm() {
       if (response.ok) {
         setMessage({
           type: "success",
-          text: "Password updated successfully! Redirecting to login... / ¡Contraseña actualizada con éxito! Redirigiendo..."
+          text: "Password updated successfully! Redirecting to login..."
         });
         setTimeout(() => {
           router.push("/login");
@@ -70,7 +70,7 @@ function ResetPasswordForm() {
       } else {
         setMessage({
           type: "error",
-          text: data.detail || "Invalid or expired token / Token inválido o vencido."
+          text: data.detail || "Invalid or expired token."
         });
       }
     } catch (err) {
@@ -88,7 +88,7 @@ function ResetPasswordForm() {
           <img src="../../logo/logo.png" alt="WillyFastSolutions Logo" className="w-full h-full object-cover filter brightness-110" />
         </div>
         <h2 className="text-xl font-semibold tracking-tight text-zinc-200">
-          Reset password / Restablecer Contraseña
+          Reset password
         </h2>
         <p className="text-xs text-zinc-500">
           Define a new password for your fleet operator account
@@ -109,7 +109,7 @@ function ResetPasswordForm() {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
             <label htmlFor="new-pass" className="text-[10px] uppercase tracking-wider font-semibold text-zinc-500">
-              New Password / Nueva Contraseña
+              New Password
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-600" />
@@ -127,7 +127,7 @@ function ResetPasswordForm() {
 
           <div className="space-y-1.5">
             <label htmlFor="confirm-new-pass" className="text-[10px] uppercase tracking-wider font-semibold text-zinc-500">
-              Confirm Password / Confirmar Contraseña
+              Confirm Password
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-600" />
@@ -154,20 +154,20 @@ function ResetPasswordForm() {
                 Please wait...
               </>
             ) : (
-              "Save Password / Guardar Contraseña"
+              "Save Password"
             )}
           </button>
         </form>
 
         {!token && token !== "mock-offline-token" && (
           <div className="text-center text-xs text-rose-400 font-medium">
-            Missing or invalid token. Please request another link. / Token inválido o ausente. Solicita otro enlace.
+            Missing or invalid token. Please request another link.
           </div>
         )}
 
         <div className="text-center text-xs text-zinc-500 pt-2 border-t border-zinc-900/60">
           <a href="../../login" className="font-medium text-zinc-300 hover:text-zinc-100 underline decoration-zinc-700 hover:decoration-zinc-400 transition-colors">
-            Back to login / Volver al login
+            Back to login
           </a>
         </div>
       </div>

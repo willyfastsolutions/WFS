@@ -215,8 +215,13 @@ class ChecklistTemplateResponse(ChecklistTemplateBase):
 class SystemSettingsUpdate(BaseModel):
     scan_interval_seconds: int
     default_maintenance_threshold: float
+    scan_mode: str = "interval"
+    scan_daily_time: str = "12:00"
 
 class SystemSettingsResponse(BaseModel):
     scan_interval_seconds: int
     default_maintenance_threshold: float
+    scan_mode: str
+    scan_daily_time: str
+
 

@@ -80,6 +80,7 @@ export interface MaintenanceLog {
   safety_tires: boolean;
   notes: string;
   reset_physical_horometer?: boolean;
+  checklist_results?: { id?: string; maintenance_log_id?: string; checklist_item_id: string; passed: boolean }[];
 }
 
 // Initial seed data matching database/seed.sql
@@ -567,6 +568,34 @@ export const mockDb = {
     return newLog;
   },
 
+  deleteMaintenanceLog: (id: string): boolean => {
+    mockDb.initialize();
+    const logs = getStorageItem<MaintenanceLog[]>('wfs_maintenance_logs', initialMaintenanceLogs);
+    const logIndex = logs.findIndex(l => l.id === id);
+    if (logIndex === -1) return false;
+    
+    const machineId = logs[logIndex].machinery_id;
+    
+    const filtered = logs.filter(l => l.id !== id);
+    setStorageItem('wfs_maintenance_logs', filtered);
+    
+    const machinery = getStorageItem<Machine[]>('wfs_machinery', initialMachinery);
+    const machineIndex = machinery.findIndex(m => m.id === machineId);
+    if (machineIndex !== -1) {
+      const remainingLogs = filtered.filter(l => l.machinery_id === machineId);
+      remainingLogs.sort((a, b) => new Date(b.performed_at).getTime() - new Date(a.performed_at).getTime());
+      
+      if (remainingLogs.length > 0) {
+        machinery[machineIndex].last_maintenance_hours = remainingLogs[0].hours_at_maintenance;
+      } else {
+        machinery[machineIndex].last_maintenance_hours = 0.0;
+      }
+      setStorageItem('wfs_machinery', machinery);
+    }
+    
+    return true;
+  },
+
   getMaintenanceLogs: (companyId?: string | null): (MaintenanceLog & { machineName: string; machineSerial: string })[] => {
     mockDb.initialize();
     const logs = getStorageItem<MaintenanceLog[]>('wfs_maintenance_logs', initialMaintenanceLogs);
@@ -683,19 +712,23 @@ export const mockDb = {
     setStorageItem('wfs_maintenance_checklist_results', results);
   },
 
-  getSystemSettings: (): { scan_interval_seconds: number; default_maintenance_threshold: number } => {
+  getSystemSettings: (): { scan_interval_seconds: number; default_maintenance_threshold: number; scan_mode: string; scan_daily_time: string } => {
     mockDb.initialize();
-    return getStorageItem<{ scan_interval_seconds: number; default_maintenance_threshold: number }>('wfs_settings', {
+    return getStorageItem<{ scan_interval_seconds: number; default_maintenance_threshold: number; scan_mode: string; scan_daily_time: string }>('wfs_settings', {
       scan_interval_seconds: 86400,
-      default_maintenance_threshold: 250.0
+      default_maintenance_threshold: 250.0,
+      scan_mode: 'interval',
+      scan_daily_time: '12:00'
     });
   },
 
-  updateSystemSettings: (scanInterval: number, defaultThreshold: number): void => {
+  updateSystemSettings: (scanInterval: number, defaultThreshold: number, scanMode: string = 'interval', scanDailyTime: string = '12:00'): void => {
     mockDb.initialize();
     setStorageItem('wfs_settings', {
       scan_interval_seconds: scanInterval,
-      default_maintenance_threshold: defaultThreshold
+      default_maintenance_threshold: defaultThreshold,
+      scan_mode: scanMode,
+      scan_daily_time: scanDailyTime
     });
   },
 

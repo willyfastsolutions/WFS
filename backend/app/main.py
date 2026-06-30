@@ -122,7 +122,44 @@ def seed_database():
             )
             db.add_all([m1, m2, m3])
             db.commit()
-            print("[SEED] Database seeded successfully!")
+            
+        # 4. Seed Checklist Templates & Items
+        from app.models.models import ChecklistTemplate, ChecklistItem
+        if db.query(ChecklistTemplate).count() == 0:
+            print("[SEED] Seeding Checklist Templates & Items...")
+            t_routine = ChecklistTemplate(
+                id='temp_routine',
+                name='Routine Services',
+                description='Standard technical maintenance checklist items',
+                company_id=None
+            )
+            t_safety = ChecklistTemplate(
+                id='temp_safety',
+                name='OSHA Safety Checks',
+                description='Mandatory OSHA-compliant safety items',
+                company_id=None
+            )
+            db.add_all([t_routine, t_safety])
+            db.commit()
+
+            # Seed Items
+            items = [
+                ChecklistItem(id='item_oil_change', template_id='temp_routine', label='Engine / Hydraulic Oil Change', category='routine'),
+                ChecklistItem(id='item_oil_filter', template_id='temp_routine', label='Oil Filter Replacement', category='routine'),
+                ChecklistItem(id='item_air_filter', template_id='temp_routine', label='Air Filter Replacement', category='routine'),
+                ChecklistItem(id='item_spark_plugs', template_id='temp_routine', label='Spark / Glow Plugs Check', category='routine'),
+                ChecklistItem(id='item_battery', template_id='temp_safety', label='Batteries Connections & Charge', category='safety'),
+                ChecklistItem(id='item_lights', template_id='temp_safety', label='Working Lights & Alarm Signals', category='safety'),
+                ChecklistItem(id='item_horn', template_id='temp_safety', label='Horn & Backup Alert Check', category='safety'),
+                ChecklistItem(id='item_ignition', template_id='temp_safety', label='Ignition System & Controls', category='safety'),
+                ChecklistItem(id='item_fuel', template_id='temp_safety', label='Fuel Lines & Injection Check', category='safety'),
+                ChecklistItem(id='item_tires', template_id='temp_safety', label='Tires & structural integrity check', category='safety')
+            ]
+            db.add_all(items)
+            db.commit()
+            print("[SEED] Checklist Templates & Items seeded successfully!")
+            
+        print("[SEED] Database seeded successfully!")
     except Exception as e:
         print(f"[SEED] Error seeding database: {str(e)}")
     finally:

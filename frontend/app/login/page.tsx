@@ -69,7 +69,7 @@ export default function LoginPage() {
         if (response.ok) {
           setMessage({
             type: "success",
-            text: "Recovery link dispatched! Check your email inbox (and SPAM folder) / ¡Enlace de recuperación enviado! Revisa tu bandeja de correo (y carpeta de SPAM)."
+            text: "Recovery link dispatched! Check your email inbox (and SPAM folder)."
           });
         } else {
           setMessage({
@@ -141,7 +141,7 @@ export default function LoginPage() {
             setMustChangePassword(true);
             setMessage({
               type: "success",
-              text: "Temporary password accepted. Please set a new password to continue. / Contraseña temporal aceptada. Por favor establezca una nueva contraseña para continuar."
+              text: "Temporary password accepted. Please set a new password to continue."
             });
             setIsLoading(false);
             return;
@@ -161,7 +161,7 @@ export default function LoginPage() {
             }
             setMessage({
               type: "success",
-              text: "Successfully signed in! Redirecting... / ¡Sesión iniciada con éxito! Redirigiendo..."
+              text: "Successfully signed in! Redirecting..."
             });
             setTimeout(() => {
               router.push("/dashboard");
@@ -169,11 +169,11 @@ export default function LoginPage() {
           } else {
             setMessage({
               type: "error",
-              text: "Invalid authentication payload structure. / Estructura de payload de autenticación inválida."
+              text: "Invalid authentication payload structure."
             });
           }
         } else {
-          let errorMessage = "Invalid email or password. / Correo o contraseña incorrectos.";
+          let errorMessage = "Invalid email or password.";
           try {
             const errData = await response.json();
             if (errData && errData.detail) {
@@ -191,7 +191,7 @@ export default function LoginPage() {
         console.error("API login error:", apiErr);
         setMessage({
           type: "error",
-          text: "Connection error: Could not contact authentication server. / Error de conexión: No se pudo contactar al servidor de autenticación."
+          text: "Connection error: Could not contact authentication server."
         });
       }
     } catch (err) {
@@ -207,11 +207,11 @@ export default function LoginPage() {
     setMessage(null);
 
     if (newPassword.length < 8) {
-      setMessage({ type: "error", text: "New password must be at least 8 characters. / La nueva contraseña debe tener al menos 8 caracteres." });
+      setMessage({ type: "error", text: "New password must be at least 8 characters." });
       return;
     }
     if (newPassword !== confirmNewPassword) {
-      setMessage({ type: "error", text: "Passwords do not match. / Las contraseñas no coinciden." });
+      setMessage({ type: "error", text: "Passwords do not match." });
       return;
     }
 
@@ -244,14 +244,14 @@ export default function LoginPage() {
             sessionStorage.setItem("wfs_token", token);
           }
         }
-        setMessage({ type: "success", text: "Password updated successfully! Redirecting... / ¡Contraseña actualizada! Redirigiendo..." });
+        setMessage({ type: "success", text: "Password updated successfully! Redirecting..." });
         setTimeout(() => { router.push("/dashboard"); }, 1200);
       } else {
         const errData = await response.json();
         setMessage({ type: "error", text: errData.detail || "Failed to update password." });
       }
     } catch (err) {
-      setMessage({ type: "error", text: "Connection error. / Error de conexión." });
+      setMessage({ type: "error", text: "Connection error." });
     } finally {
       setIsLoading(false);
     }

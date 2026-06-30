@@ -457,7 +457,7 @@ export default function Home() {
               </div>
               <h3 className="text-lg font-semibold text-zinc-200">Precise Hour Meter Logging</h3>
               <p className="text-sm text-zinc-400 leading-relaxed">
-                Log accurate operating hours (horómetro) for each machine. Automatically update fleet diagnostic metrics to trigger maintenance intervals correctly.
+                Log accurate operating hours (hour meter) for each machine. Automatically update fleet diagnostic metrics to trigger maintenance intervals correctly.
               </p>
             </motion.div>
 

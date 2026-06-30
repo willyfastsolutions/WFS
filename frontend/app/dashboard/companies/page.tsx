@@ -17,7 +17,8 @@ import {
   AlertTriangle,
   X,
   Users,
-  Edit
+  Edit,
+  Search
 } from "lucide-react";
 import { Profile, Company, Machine, mockDb } from "../mockDb";
 
@@ -33,6 +34,7 @@ export default function B2BCompanies() {
   const [editingCompany, setEditingCompany] = useState<Company | null>(null);
   const [status, setStatus] = useState<{ type: "success" | "error"; text: string } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   const startEditCompany = (comp: Company) => {
     setEditingCompany(comp);
@@ -238,7 +240,7 @@ export default function B2BCompanies() {
 
   const handleUserDelete = async (targetUser: Profile) => {
     if (!usersModalCompany) return;
-    if (!confirm(`Are you sure you want to delete user "${targetUser.full_name}"? / ¿Está seguro de que desea eliminar al usuario "${targetUser.full_name}"?`)) {
+    if (!confirm(`Are you sure you want to delete user "${targetUser.full_name}"?`)) {
       return;
     }
 
@@ -595,6 +597,11 @@ export default function B2BCompanies() {
     return machinery.filter(m => m.company_id === companyId).length;
   };
 
+  // Filtered companies based on search query
+  const filteredCompanies = companies.filter(comp =>
+    comp.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="space-y-8">
       
@@ -608,10 +615,10 @@ export default function B2BCompanies() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-8">
         
         {/* Left Column: Register Company Form (Span 1) */}
-        <div className="lg:col-span-1 space-y-6">
+        <div className="xl:col-span-1 space-y-6">
           <div className="border border-zinc-900 bg-zinc-900/10 rounded-xl p-5 space-y-4">
             <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5 border-b border-zinc-900 pb-3">
               {editingCompany ? (
@@ -684,16 +691,33 @@ export default function B2BCompanies() {
           </div>
         </div>
 
-        {/* Right Column: Companies List (Span 2) */}
-        <div className="lg:col-span-2 space-y-6">
+        {/* Right Column: Companies List (Span 3) */}
+        <div className="xl:col-span-3 space-y-6">
           <div className="border border-zinc-900 bg-zinc-900/10 rounded-xl p-6 shadow-xl space-y-4">
             <h3 className="text-xs font-bold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5 border-b border-zinc-900 pb-3">
               <Briefcase className="h-4 w-4 text-zinc-400" /> B2B Clients Registry
             </h3>
 
+            {companies.length > 0 && (
+              <div className="relative">
+                <Search className="absolute left-3 top-2.5 h-4 w-4 text-zinc-500" />
+                <input
+                  type="text"
+                  placeholder="Search by company name..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full h-10 pl-9 pr-3 rounded-lg border border-zinc-900 bg-zinc-950/50 text-xs text-zinc-200 placeholder-zinc-700 focus:outline-none focus:border-zinc-800 transition-colors"
+                />
+              </div>
+            )}
+
             {companies.length === 0 ? (
               <div className="py-12 text-center text-xs text-zinc-500 font-mono">
                 No B2B companies found in the registry.
+              </div>
+            ) : filteredCompanies.length === 0 ? (
+              <div className="py-12 text-center text-xs text-zinc-500 font-mono">
+                No companies match your search "{searchQuery}".
               </div>
             ) : (
               <div className="overflow-x-auto">
@@ -709,7 +733,7 @@ export default function B2BCompanies() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-zinc-900 text-zinc-300">
-                    {companies.map(comp => (
+                    {filteredCompanies.map(comp => (
                       <tr key={comp.id} className="hover:bg-zinc-900/20 transition-colors">
                         <td className="py-4 px-2 font-bold text-zinc-200">
                           {comp.name}

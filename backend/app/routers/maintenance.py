@@ -39,3 +39,23 @@ def read_maintenance_logs(
         return maintenance_service.get_maintenance_logs(db, company_id=current_user.company_id)
     else:
         return maintenance_service.get_maintenance_logs(db)
+
+@router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_maintenance_log(
+    id: str,
+    db: Session = Depends(get_db),
+    current_user: Profile = Depends(get_current_user)
+):
+    if current_user.role != "superadmin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden: Only superadmins can delete maintenance logs."
+        )
+        
+    success = maintenance_service.delete_maintenance(db, id)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Maintenance log not found."
+        )
+    return None
