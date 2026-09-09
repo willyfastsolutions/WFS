@@ -174,7 +174,11 @@ export default function MaintenancePortal() {
     const companyIdForTemplates = machine ? machine.company_id : (user?.company_id || null);
     
     // Fallback: Fetch templates matching company (or global)
-    const temps = mockDb.getChecklistTemplates(companyIdForTemplates);
+    const allTemps = mockDb.getChecklistTemplates();
+      // Merge Global and Company specific templates
+      const globalTemps = allTemps.filter(t => t.company_id === null);
+      const companyTemps = allTemps.filter(t => t.company_id === companyIdForTemplates);
+      const temps = [...globalTemps, ...companyTemps];
     const tempIds = temps.map(t => t.id);
     const allItems = mockDb.getChecklistItems();
     const filteredItems = allItems.filter(item => tempIds.includes(item.template_id));
@@ -200,7 +204,9 @@ export default function MaintenancePortal() {
       .then(res => res.ok ? res.json() : [])
       .then(data => {
         if (Array.isArray(data)) {
-          const tempsReal = data.filter(t => t.company_id === companyIdForTemplates || t.company_id === null);
+          const globalTempsReal = data.filter(t => t.company_id === null);
+            const companyTempsReal = data.filter(t => t.company_id === companyIdForTemplates);
+            const tempsReal = [...globalTempsReal, ...companyTempsReal];
           setActiveTemplates(tempsReal);
           
           const itemsList: any[] = [];
@@ -628,7 +634,16 @@ export default function MaintenancePortal() {
               {/* Dynamic Checklists Section */}
               {selectedMachineId && activeTemplates.length > 0 && (
                 <div className="space-y-6 pt-4 border-t border-zinc-900">
-                  <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400">Required Inspection Checklists</h4>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-zinc-400">Required Inspection Checklists</h4>
+                      <span className={`px-2 py-1 rounded text-[9px] font-bold uppercase tracking-wider border w-fit ${
+                        activeTemplates[0]?.company_id 
+                          ? "bg-blue-500/10 border-blue-500/20 text-blue-400" 
+                          : "bg-purple-500/10 border-purple-500/20 text-purple-400"
+                      }`}>
+                        {activeTemplates.some(t => t.company_id) ? "Global + Company Routine" : "Global Default Routine"}
+                      </span>
+                    </div>
                   
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     {activeTemplates.map((temp) => {

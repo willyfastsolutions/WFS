@@ -428,6 +428,22 @@ export const mockDb = {
     companies[index].name = name;
     companies[index].maintenance_threshold = maintenance_threshold;
     setStorageItem('wfs_companies', companies);
+    
+    // Cascade to machines
+    if (maintenance_threshold !== undefined && maintenance_threshold !== null) {
+      const machinery = getStorageItem<Machine[]>('wfs_machinery', initialMachinery);
+      let updated = false;
+      machinery.forEach(m => {
+        if (m.company_id === id) {
+          m.maintenance_threshold_hours = maintenance_threshold;
+          updated = true;
+        }
+      });
+      if (updated) {
+        setStorageItem('wfs_machinery', machinery);
+      }
+    }
+    
     return companies[index];
   },
 

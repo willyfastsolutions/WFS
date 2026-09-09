@@ -125,3 +125,26 @@ def delete_template(
     db.delete(template)
     db.commit()
     return None
+
+
+@router.delete("/items/{id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_item(
+    id: str,
+    db: Session = Depends(get_db),
+    current_user: Profile = Depends(get_current_user)
+):
+    item = db.query(ChecklistItem).filter(ChecklistItem.id == id).first()
+    if not item:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Item not found")
+        
+    template = db.query(ChecklistTemplate).filter(ChecklistTemplate.id == item.template_id).first()
+    if template:
+        if current_user.role != "superadmin" and str(template.company_id) != str(current_user.company_id):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Forbidden: Cannot delete items of another company's template"
+            )
+            
+    db.delete(item)
+    db.commit()
+    return None

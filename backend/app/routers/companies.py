@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from app.core.database import get_db
-from app.models.models import Profile, Company
+from app.models.models import Machine, Profile, Company
 from app.schemas.schemas import CompanyResponse, CompanyCreate, AuthActionRequest, ProfileCreate, ProfileResponse, ProfileUpdate
 from app.routers.auth import get_current_user, validate_password_strength
 from app.services.auth import verify_password, get_password_hash
@@ -91,6 +91,13 @@ def update_company(
             
     db_company.name = payload.name
     db_company.maintenance_threshold = payload.maintenance_threshold
+    
+    # Cascade the new threshold to all existing machines for this company
+    if payload.maintenance_threshold is not None:
+        db.query(Machine).filter(Machine.company_id == company_id).update(
+            {"maintenance_threshold_hours": payload.maintenance_threshold}
+        )
+        
     db.commit()
     db.refresh(db_company)
     
