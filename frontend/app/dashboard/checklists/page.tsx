@@ -385,7 +385,7 @@ export default function ChecklistManagement() {
         <div className="space-y-8 pt-4">
           {/* Helper Component to Render Sections */}
           {(() => {
-            const renderSection = (title: string, catItems: ChecklistItem[], colorClass: string) => (
+            const renderSection = (title: string, catItems: (ChecklistItem & { isGlobalInherited?: boolean })[], colorClass: string) => (
               <div className="space-y-3">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-zinc-300 flex items-center gap-2">
                   <div className={`w-2 h-2 rounded-full ${colorClass.split(' ')[0]}`} />
