@@ -351,7 +351,8 @@ export default function MaintenancePortal() {
       // Collect dynamic checklist results
       const checklistResults = activeItems.map(item => ({
         checklist_item_id: item.id,
-        passed: !!checklistSelections[item.id]
+        passed: !!checklistSelections[item.id],
+        photo_data: itemPhotos[item.id] || null
       }));
 
       // Populate legacy fields as a fallback based on dynamic selections

@@ -31,7 +31,46 @@ def record_maintenance(
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden: Access denied")
         
     try:
-        return maintenance_service.perform_maintenance(db, log, current_user.id)
+        db_log = maintenance_service.perform_maintenance(db, log, current_user.id)
+        
+        # Auto-generate detailed PDF & send email to company admin
+        try:
+            comp_name = "WillyFastSolutions"
+            company = db.query(Company).filter(Company.id == db_machine.company_id).first()
+            if company:
+                comp_name = company.name
+                
+            report_dir = sys_os.path.join(sys_os.path.dirname(sys_os.path.dirname(sys_os.path.dirname(__file__))), "reports")
+            sys_os.makedirs(report_dir, exist_ok=True)
+            report_path = sys_os.path.abspath(sys_os.path.join(report_dir, f"maintenance_report_{db_log.id}.pdf"))
+            
+            mechanic_name = current_user.full_name or current_user.email
+            generate_detailed_maintenance_pdf(
+                machine=db_machine,
+                company_name=comp_name,
+                maintenance_log=db_log,
+                checklist_results=db_log.checklist_results,
+                mechanic_name=mechanic_name,
+                output_path=report_path
+            )
+            
+            # Find company admin to email
+            from app.models.models import Profile
+            admin_profile = db.query(Profile).filter(
+                Profile.company_id == db_machine.company_id,
+                Profile.role == "company_admin"
+            ).first()
+            if admin_profile and admin_profile.email:
+                send_report_email(
+                    to_email=admin_profile.email,
+                    machine_name=db_machine.name,
+                    company_name=comp_name,
+                    attachment_path=report_path
+                )
+        except Exception as mail_err:
+            print(f"[MAINTENANCE] Error generating/sending report email: {mail_err}")
+            
+        return db_log
     except ValueError as e:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e))
 
@@ -71,7 +110,7 @@ def download_maintenance_report(
     db: Session = Depends(get_db),
     current_user: Profile = Depends(get_current_user)
 ):
-    from app.models.models import MaintenanceLog
+    from app.models.models import MaintenanceLog, Profile
     
     log = db.query(MaintenanceLog).filter(MaintenanceLog.id == id).first()
     if not log:
@@ -98,16 +137,15 @@ def download_maintenance_report(
     if mechanic:
         mechanic_name = mechanic.full_name or mechanic.email
         
-    if not sys_os.path.exists(report_path):
-        # Generate on the fly if it doesn't exist
-        generate_detailed_maintenance_pdf(
-            machine=db_machine,
-            company_name=comp_name,
-            maintenance_log=log,
-            checklist_results=log.checklist_results,
-            mechanic_name=mechanic_name,
-            output_path=report_path
-        )
+    # Always regenerate fresh to ensure latest layout, photos, and edits are reflected
+    generate_detailed_maintenance_pdf(
+        machine=db_machine,
+        company_name=comp_name,
+        maintenance_log=log,
+        checklist_results=log.checklist_results,
+        mechanic_name=mechanic_name,
+        output_path=report_path
+    )
         
     return FileResponse(
         path=report_path,

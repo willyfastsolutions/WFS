@@ -37,9 +37,9 @@ def generate_detailed_maintenance_pdf(
 ):
     # Escape inputs
     machine_name = escape_xml(machine.name) if getattr(machine, "name", None) else ""
-    brand = escape_xml(machine.brand)
-    model = escape_xml(machine.model)
-    serial = escape_xml(machine.serial_number)
+    brand = escape_xml(machine.brand) if getattr(machine, "brand", None) else ""
+    model = escape_xml(machine.model) if getattr(machine, "model", None) else ""
+    serial = escape_xml(machine.serial_number) if getattr(machine, "serial_number", None) else "SN-N/A"
     company_name = escape_xml(company_name)
     mechanic_name = escape_xml(mechanic_name)
 
@@ -50,132 +50,141 @@ def generate_detailed_maintenance_pdf(
     
     styles = getSampleStyleSheet()
     title_style = ParagraphStyle(
-        'TitleStyle',
+        'DocTitle',
         parent=styles['Heading1'],
-        fontName='Helvetica-Bold',
         fontSize=20,
         textColor=colors.HexColor('#09090b'),
-        spaceAfter=2
+        spaceAfter=4,
+        fontName='Helvetica-Bold'
     )
+    
     subtitle_style = ParagraphStyle(
-        'SubtitleStyle',
+        'DocSubTitle',
         parent=styles['Normal'],
-        fontName='Helvetica',
-        fontSize=10,
+        fontSize=9,
         textColor=colors.HexColor('#71717a'),
         spaceAfter=15
     )
+    
     section_title = ParagraphStyle(
         'SectionTitle',
         parent=styles['Heading2'],
-        fontName='Helvetica-Bold',
-        fontSize=14,
-        textColor=colors.HexColor('#09090b'),
-        spaceBefore=15,
-        spaceAfter=10
+        fontSize=11,
+        textColor=colors.HexColor('#18181b'),
+        spaceBefore=10,
+        spaceAfter=6,
+        fontName='Helvetica-Bold'
     )
+    
     body_style = ParagraphStyle(
-        'BodyStyle',
+        'DocBody',
         parent=styles['Normal'],
-        fontName='Helvetica',
-        fontSize=10,
+        fontSize=8.5,
         textColor=colors.HexColor('#27272a'),
-        leading=14
+        leading=12
     )
-    alert_box_style = ParagraphStyle(
-        'AlertBox',
+    
+    success_style = ParagraphStyle(
+        'DocSuccess',
         parent=styles['Normal'],
-        fontName='Helvetica',
-        fontSize=10,
-        textColor=colors.HexColor('#064e3b'), # Emerald 900
-        leading=14
+        fontSize=9,
+        textColor=colors.HexColor('#14532d'),
+        backColor=colors.HexColor('#f0fdf4'),
+        borderColor=colors.HexColor('#bbf7d0'),
+        borderWidth=1,
+        borderPadding=8,
+        spaceBefore=8,
+        spaceAfter=12,
+        leading=13
     )
 
-    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+    # Resolve project root
+    services_dir = os.path.dirname(os.path.abspath(__file__))
+    app_dir = os.path.dirname(services_dir)
+    backend_dir = os.path.dirname(app_dir)
+    project_root = os.path.dirname(backend_dir)
+
     logo_path = resolve_static_file(project_root, "/logo/logo.png")
     
-    # Header layout
-    header_data = []
+    # Header Layout with exact 42x42 Logo matching original design
+    logo_flowable = None
     if logo_path and os.path.exists(logo_path):
-        header_data.append([
-            RLImage(logo_path, width=80, height=80),
-            [
-                Paragraph("WillyFastSolutions Telemetry Audit", title_style),
-                Paragraph("DETAILED MAINTENANCE & FIELD SERVICE REPORT", subtitle_style)
-            ]
-        ])
+        try:
+            logo_flowable = RLImage(logo_path, width=42, height=42)
+        except Exception as ex:
+            print(f"[PDF GENERATOR] Error loading logo: {str(ex)}")
+
+    title_block = [
+        Paragraph("WillyFastSolutions Telemetry Audit", title_style),
+        Paragraph("AUTOMATED FLEET PREVENTIVE MAINTENANCE WARNING REPORT", subtitle_style)
+    ]
+
+    if logo_flowable:
+        header_table = Table([[logo_flowable, title_block]], colWidths=[52, 488])
+        header_table.setStyle(TableStyle([
+            ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+            ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+            ('LEFTPADDING', (1,0), (1,0), 0),
+            ('RIGHTPADDING', (0,0), (-1,-1), 0),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 0),
+            ('TOPPADDING', (0,0), (-1,-1), 0),
+        ]))
+        story.append(header_table)
+        story.append(Spacer(1, 10))
     else:
-        header_data.append([
-            [
-                Paragraph("WillyFastSolutions Telemetry Audit", title_style),
-                Paragraph("DETAILED MAINTENANCE & FIELD SERVICE REPORT", subtitle_style)
-            ], ""
-        ])
-        
-    header_table = Table(header_data, colWidths=[90, 450])
-    header_table.setStyle(TableStyle([
-        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('ALIGN', (0,0), (0,0), 'LEFT'),
-        ('ALIGN', (1,0), (1,0), 'LEFT'),
-    ]))
-    story.append(header_table)
-    story.append(Spacer(1, 10))
+        story.append(Paragraph("WillyFastSolutions Telemetry Audit", title_style))
+        story.append(Paragraph("AUTOMATED FLEET PREVENTIVE MAINTENANCE WARNING REPORT", subtitle_style))
     
     # Alert Box (Safe)
-    status_text = f"<b>MAINTENANCE COMPLETED:</b> The asset was serviced successfully at <b>{maintenance_log.hours_at_maintenance} hours</b>. Operating normally and safe for deployment."
-    alert_box = Table([[Paragraph(status_text, alert_box_style)]], colWidths=[540])
-    alert_box.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#ecfdf5')), # Emerald 50
-        ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#a7f3d0')),      # Emerald 200
-        ('TOPPADDING', (0,0), (-1,-1), 10),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 10),
-        ('LEFTPADDING', (0,0), (-1,-1), 10),
-        ('RIGHTPADDING', (0,0), (-1,-1), 10),
-    ]))
-    story.append(alert_box)
-    story.append(Spacer(1, 15))
+    status_text = f"<b>SAFE OPERATING STATUS:</b> This B2B asset is operating within its normal service parameters. Maintenance completed at <b>{maintenance_log.hours_at_maintenance:.1f} hours</b>. Inspection passed and certified for deployment."
+    story.append(Paragraph(status_text, success_style))
     
     story.append(Paragraph("Asset & Client Specifications", section_title))
     
-    # Metadata
-    date_str = maintenance_log.performed_at.strftime("%Y-%m-%d %H:%M:%S") if maintenance_log.performed_at else "N/A"
+    # Metadata Table
+    date_str = maintenance_log.performed_at.strftime("%Y-%m-%d %H:%M:%S") if getattr(maintenance_log, 'performed_at', None) else "N/A"
     meta_data = [
         [Paragraph("<b>Client Company:</b>", body_style), Paragraph(company_name, body_style)],
         [Paragraph("<b>Asset Name:</b>", body_style), Paragraph(machine_name, body_style)],
-        [Paragraph("<b>Brand / Model:</b>", body_style), Paragraph(f"{brand} {model}", body_style)],
+        [Paragraph("<b>Brand / Model:</b>", body_style), Paragraph(f"{brand} {model}".strip(), body_style)],
         [Paragraph("<b>Serial Number:</b>", body_style), Paragraph(serial, body_style)],
         [Paragraph("<b>Service Date:</b>", body_style), Paragraph(date_str, body_style)],
-        [Paragraph("<b>Service Hours:</b>", body_style), Paragraph(f"{maintenance_log.hours_at_maintenance} hrs", body_style)],
+        [Paragraph("<b>Service Hours:</b>", body_style), Paragraph(f"{maintenance_log.hours_at_maintenance:.1f} hrs", body_style)],
         [Paragraph("<b>Inspector:</b>", body_style), Paragraph(mechanic_name, body_style)]
     ]
-    meta_table = Table(meta_data, colWidths=[130, 160])
+    meta_table = Table(meta_data, colWidths=[100, 180])
     meta_table.setStyle(TableStyle([
-        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 8),
+        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+        ('VALIGN', (0,0), (-1,-1), 'TOP'),
         ('LINEBELOW', (0,0), (-1,-1), 0.5, colors.HexColor('#f4f4f5')),
+        ('TOPPADDING', (0,0), (-1,-1), 4),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
     ]))
 
-    # Machine photo
-    photo_base64 = machine.photo if hasattr(machine, 'photo') else None
-    temp_image_path = None
+    # Machine photo (side by side with metadata)
+    photo_raw = getattr(machine, 'photo', None)
+    temp_files = []
     img_flowable = None
-    if photo_base64:
-        if photo_base64.startswith("data:image/") or ";" in photo_base64 or "," in photo_base64:
+    
+    if photo_raw:
+        if photo_raw.startswith("data:image/") or ";" in photo_raw or "," in photo_raw:
             try:
-                if "," in photo_base64: photo_base64 = photo_base64.split(",")[1]
-                image_data = base64.b64decode(photo_base64)
-                temp_image_path = os.path.abspath(os.path.join(os.path.dirname(output_path), f"temp_{serial}.png"))
-                with open(temp_image_path, "wb") as fh: fh.write(image_data)
-                img_flowable = RLImage(temp_image_path, width=220, height=130)
-            except Exception:
-                temp_image_path = None
+                base64_str = photo_raw.split(",")[1] if "," in photo_raw else photo_raw
+                img_bytes = base64.b64decode(base64_str)
+                with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tf:
+                    tf.write(img_bytes)
+                    temp_img_path = tf.name
+                    temp_files.append(temp_img_path)
+                img_flowable = RLImage(temp_img_path, width=220, height=130)
+            except Exception as ex:
+                print(f"[PDF] Machine image base64 error: {ex}")
                 img_flowable = Paragraph("<i>Image decoding error</i>", body_style)
         else:
-            resolved_img_path = resolve_static_file(project_root, photo_base64)
-            if resolved_img_path and os.path.exists(resolved_img_path):
-                img_flowable = RLImage(resolved_img_path, width=220, height=130)
+            resolved = resolve_static_file(project_root, photo_raw)
+            if resolved and os.path.exists(resolved):
+                img_flowable = RLImage(resolved, width=220, height=130)
             else:
-                img_flowable = Paragraph("<font color='#a1a1aa'><i>Image not found</i></font>", body_style)
+                img_flowable = Paragraph("<font color='#a1a1aa'><i>No image found</i></font>", body_style)
     else:
         img_flowable = Paragraph("<font color='#a1a1aa'><i>No image uploaded for this asset</i></font>", body_style)
 
@@ -191,58 +200,59 @@ def generate_detailed_maintenance_pdf(
     story.append(layout_table)
     story.append(Spacer(1, 10))
     
-    # Detailed Checklist Results
+    # Detailed Checklist Results & Photographic Evidence
     story.append(Paragraph("Detailed Inspection Results & Photographic Evidence", section_title))
     
-    # Keep track of temporary files to clean up
-    temp_files = []
-    if temp_image_path: temp_files.append(temp_image_path)
-    
-    for res in checklist_results:
-        item_label = escape_xml(res.item.label) if res.item else "Unknown Item"
-        item_category = escape_xml(res.item.category.capitalize()) if res.item else "N/A"
-        
-        status_color = "green" if res.passed else "red"
-        status_text = "PASSED / COMPLETED" if res.passed else "FAILED / PENDING"
-        
-        item_title = f"<b>[{item_category}]</b> {item_label} - <font color='{status_color}'><b>{status_text}</b></font>"
-        story.append(Paragraph(item_title, body_style))
-        
-        if getattr(res, 'photo_data', None):
-            try:
-                img_data = res.photo_data
-                if "," in img_data: img_data = img_data.split(",")[1]
-                img_bytes = base64.b64decode(img_data)
-                ext = ".png"
-                if img_bytes.startswith(b"\xff\xd8"): ext = ".jpg"
-                
-                with tempfile.NamedTemporaryFile(delete=False, suffix=ext) as tmp_img:
-                    tmp_img.write(img_bytes)
-                    tmp_img_path = tmp_img.name
-                    temp_files.append(tmp_img_path)
-                    
-                story.append(Spacer(1, 5))
-                story.append(RLImage(tmp_img_path, width=150, height=100))
-                story.append(Spacer(1, 10))
-            except Exception as e:
-                story.append(Paragraph(f"<i><font color='red'>Could not load photo evidence</font></i>", body_style))
-        else:
-            story.append(Paragraph("<font color='#a1a1aa'><i>No photo evidence attached.</i></font>", body_style))
-            story.append(Spacer(1, 10))
+    if checklist_results:
+        for res in checklist_results:
+            item_label = escape_xml(res.item.label) if getattr(res, 'item', None) else "Inspection Item"
+            item_category = escape_xml(res.item.category.capitalize()) if getattr(res, 'item', None) and getattr(res.item, 'category', None) else "Routine"
             
+            status_color = "#16a34a" if res.passed else "#dc2626"
+            status_text = "PASSED / COMPLETED" if res.passed else "FAILED / PENDING"
+            
+            item_header = f"<b>[{item_category}]</b> {item_label} — <font color='{status_color}'><b>{status_text}</b></font>"
+            story.append(Paragraph(item_header, body_style))
+            
+            photo_data = getattr(res, 'photo_data', None)
+            if photo_data:
+                try:
+                    p_base64 = photo_data.split(",")[1] if "," in photo_data else photo_data
+                    p_bytes = base64.b64decode(p_base64)
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".jpg") as tf_item:
+                        tf_item.write(p_bytes)
+                        item_img_path = tf_item.name
+                        temp_files.append(item_img_path)
+                    story.append(Spacer(1, 4))
+                    story.append(RLImage(item_img_path, width=180, height=120))
+                    story.append(Spacer(1, 6))
+                except Exception as p_err:
+                    print(f"[PDF] Checklist item photo error: {p_err}")
+                    story.append(Paragraph("<i><font color='red'>Could not render photo evidence</font></i>", body_style))
+            else:
+                story.append(Paragraph("<font color='#a1a1aa'><i>No photo evidence attached.</i></font>", body_style))
+                story.append(Spacer(1, 4))
+    else:
+        story.append(Paragraph("<i>No individual checklist results recorded for this log.</i>", body_style))
+        
     story.append(Spacer(1, 10))
     
-    # Notes
-    story.append(Paragraph("Additional Notes & Recommendations", section_title))
-    notes = escape_xml(maintenance_log.notes) if maintenance_log.notes else "No additional notes."
+    # Notes & Recommendations
+    story.append(Paragraph("Inspector Notes & Operational Remarks", section_title))
+    notes = escape_xml(maintenance_log.notes) if getattr(maintenance_log, 'notes', None) else "No additional notes provided."
     story.append(Paragraph(notes, body_style))
+    
+    story.append(Spacer(1, 15))
+    story.append(Paragraph("Authorized digital maintenance certificate generated by WillyFastSolutions Fleet Telemetry System.", subtitle_style))
     
     doc.build(story)
     
+    # Clean up temporary files safely
     for tf in temp_files:
         try:
-            if os.path.exists(tf): os.remove(tf)
-        except:
+            if os.path.exists(tf):
+                os.remove(tf)
+        except Exception:
             pass
             
     return output_path

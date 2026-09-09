@@ -128,12 +128,14 @@ class HourLogResponse(BaseModel):
 class ChecklistResultCreate(BaseModel):
     checklist_item_id: str
     passed: bool
+    photo_data: Optional[str] = None
 
 class ChecklistResultResponse(BaseModel):
     id: str
     maintenance_log_id: str
     checklist_item_id: str
     passed: bool
+    photo_data: Optional[str] = None
     
     class Config:
         from_attributes = True
