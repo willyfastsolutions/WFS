@@ -156,7 +156,7 @@ def generate_detailed_maintenance_pdf(
     ]))
 
     # Machine photo
-    photo_base64 = machine.photo_base64 if hasattr(machine, 'photo_base64') else None
+    photo_base64 = machine.photo if hasattr(machine, 'photo') else None
     temp_image_path = None
     img_flowable = None
     if photo_base64:
