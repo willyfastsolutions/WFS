@@ -707,9 +707,37 @@ export default function MaintenancePortal() {
                                       : "bg-cyan-500/10 border-cyan-500/20 text-cyan-400"
                                   }`}>
                                     {item.category}
-                                  </span>
-                                </div>
-                              </label>
+                                    </span>
+                                    {!!checklistSelections[item.id] && (
+                                      <div className="mt-2 flex items-center gap-2">
+                                        <label className="cursor-pointer text-[10px] text-zinc-400 hover:text-purple-400 transition-colors flex items-center gap-1 border border-zinc-800 rounded px-2 py-1 bg-zinc-900">
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                                          {itemPhotos[item.id] ? "Photo Attached" : "Attach Photo"}
+                                          <input 
+                                            type="file" 
+                                            accept="image/*" 
+                                            capture="environment"
+                                            className="hidden" 
+                                            onChange={(e) => {
+                                              if (e.target.files && e.target.files[0]) {
+                                                handlePhotoUpload(item.id, e.target.files[0]);
+                                              }
+                                            }} 
+                                          />
+                                        </label>
+                                        {itemPhotos[item.id] && (
+                                          <button 
+                                            type="button" 
+                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setItemPhotos(p => { const np = {...p}; delete np[item.id]; return np; }); }}
+                                            className="text-rose-500 hover:text-rose-400 text-[10px]"
+                                          >
+                                            Remove
+                                          </button>
+                                        )}
+                                      </div>
+                                    )}
+                                  </div>
+                                </label>
                             ))}
                           </div>
                         </div>
@@ -847,7 +875,7 @@ export default function MaintenancePortal() {
                   >
                     All machines
                   </button>
-                  {machinery.map(m => (
+                  {machinery.filter(m => tableCompanyId === "all" || m.company_id === tableCompanyId).map(m => (
                     <button
                       key={m.id}
                       type="button"
@@ -962,6 +990,38 @@ export default function MaintenancePortal() {
                       </td>
                       <td className="py-4 px-2 text-right">
                         <button
+                            type="button"
+                            onClick={async () => {
+                              if (typeof window !== "undefined" && window.location.protocol !== "file:") {
+                                const token = sessionStorage.getItem("wfs_token") || "";
+                                try {
+                                  const res = await fetch(`${API_BASE_URL}/api/maintenance/${log.id}/report`, {
+                                    headers: { "Authorization": `Bearer ${token}` }
+                                  });
+                                  if (!res.ok) throw new Error("Failed to download report");
+                                  const blob = await res.blob();
+                                  const url = window.URL.createObjectURL(blob);
+                                  const a = document.createElement("a");
+                                  a.href = url;
+                                  a.download = `maintenance_report_${log.id}.pdf`;
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  window.URL.revokeObjectURL(url);
+                                  document.body.removeChild(a);
+                                } catch(e) {
+                                  console.error(e);
+                                  alert("Failed to download PDF report");
+                                }
+                              } else {
+                                alert("PDF download is not supported in offline mock mode.");
+                              }
+                            }}
+                            className="p-1.5 mr-2 rounded-lg border border-zinc-900 bg-zinc-950 text-purple-500 hover:bg-purple-500/10 hover:text-purple-400 transition-all cursor-pointer inline-flex items-center justify-center"
+                            title="Descargar Reporte PDF"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                          </button>
+                          <button
                           type="button"
                           onClick={() => handleDeleteLog(log.id)}
                           className="p-1.5 rounded-lg border border-zinc-900 bg-zinc-950 text-rose-500 hover:bg-rose-500/10 hover:text-rose-400 transition-all cursor-pointer inline-flex items-center justify-center"
