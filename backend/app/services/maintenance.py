@@ -36,11 +36,14 @@ def perform_maintenance(db: Session, schema: MaintenanceLogCreate, user_id: str)
     if schema.checklist_results:
         from app.models.models import MaintenanceChecklistResult
         for res in schema.checklist_results:
+            # Handle backward compatibility: older schemas might use item_id or checklist_item_id
+            c_id = getattr(res, 'checklist_item_id', getattr(res, 'item_id', None))
             db_res = MaintenanceChecklistResult(
                 id=str(uuid.uuid4()),
                 maintenance_log_id=db_log.id,
-                checklist_item_id=res.checklist_item_id,
-                passed=res.passed
+                checklist_item_id=c_id,
+                passed=res.passed,
+                photo_data=getattr(res, 'photo_data', None)
             )
             db.add(db_res)
             

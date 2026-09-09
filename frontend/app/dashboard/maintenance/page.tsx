@@ -33,6 +33,7 @@ export default function MaintenancePortal() {
   const [selectedMachineId, setSelectedMachineId] = useState("");
   const [hoursAtMaintenance, setHoursAtMaintenance] = useState<number>(0);
   const [notes, setNotes] = useState("");
+  const [itemPhotos, setItemPhotos] = useState<Record<string, string>>({});
   const [resetPhysicalHorometer, setResetPhysicalHorometer] = useState(false);
 
   // Dynamic Checklist States
@@ -48,7 +49,9 @@ export default function MaintenancePortal() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Table Filters State
+  const [tableCompanyId, setTableCompanyId] = useState<string>("all");
   const [tableMachineId, setTableMachineId] = useState<string>("all");
+  const [isTableCompanyDropdownOpen, setIsTableCompanyDropdownOpen] = useState(false);
   const [tableSearchQuery, setTableSearchQuery] = useState<string>("");
   const [isTableMachineDropdownOpen, setIsTableMachineDropdownOpen] = useState(false);
 
@@ -244,6 +247,33 @@ export default function MaintenancePortal() {
     setIsMachineDropdownOpen(false);
   };
 
+  const handlePhotoUpload = (itemId: string, file: File) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const MAX_WIDTH = 800;
+        const MAX_HEIGHT = 800;
+        let width = img.width;
+        let height = img.height;
+        if (width > height) {
+          if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+        } else {
+          if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+        }
+        canvas.width = width;
+        canvas.height = height;
+        ctx?.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.6);
+        setItemPhotos(prev => ({...prev, [itemId]: dataUrl}));
+      };
+      img.src = e.target?.result as string;
+    };
+    reader.readAsDataURL(file);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus(null);
@@ -357,6 +387,7 @@ export default function MaintenancePortal() {
       setSelectedMachineId("");
       setHoursAtMaintenance(0);
       setNotes("");
+    setItemPhotos({});
       setResetPhysicalHorometer(false);
       setChecklistSelections({});
 
@@ -749,7 +780,45 @@ export default function MaintenancePortal() {
           
           {/* Table Filters Panel */}
           <div className="flex flex-wrap items-center gap-3">
-            {/* Machine Filter Dropdown */}
+            {/* Company Filter Dropdown */}
+              {user?.role === "superadmin" && (
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsTableCompanyDropdownOpen(!isTableCompanyDropdownOpen)}
+                    className="flex h-8 items-center justify-between rounded-lg border border-zinc-900 bg-zinc-950 px-2.5 text-[10px] font-semibold text-zinc-400 hover:border-zinc-800 hover:text-zinc-200 transition-all cursor-pointer gap-1.5"
+                  >
+                    <span className="max-w-[120px] truncate">
+                      {tableCompanyId === "all"
+                        ? "All Companies"
+                        : companies.find(c => c.id === tableCompanyId)?.name || "Company"}
+                    </span>
+                    <ChevronDown className="h-3 w-3 text-zinc-550" />
+                  </button>
+                  
+                  {isTableCompanyDropdownOpen && (
+                    <div className="absolute right-0 top-full mt-2 w-48 rounded-xl border border-zinc-800 bg-zinc-950 p-1 shadow-xl z-50">
+                      <button
+                        onClick={() => { setTableCompanyId("all"); setIsTableCompanyDropdownOpen(false); }}
+                        className="w-full text-left px-3 py-2 text-[11px] font-medium text-zinc-300 hover:bg-zinc-900 hover:text-white rounded-lg transition-colors cursor-pointer"
+                      >
+                        All Companies
+                      </button>
+                      {companies.map(c => (
+                        <button
+                          key={c.id}
+                          onClick={() => { setTableCompanyId(c.id); setTableMachineId("all"); setIsTableCompanyDropdownOpen(false); }}
+                          className="w-full text-left px-3 py-2 text-[11px] font-medium text-zinc-400 hover:bg-zinc-900 hover:text-white rounded-lg transition-colors truncate cursor-pointer"
+                        >
+                          {c.name}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Machine Filter Dropdown */}
             <div className="relative">
               <button
                 type="button"

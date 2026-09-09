@@ -123,6 +123,7 @@ class MaintenanceChecklistResult(Base):
     maintenance_log_id = Column(String(36), ForeignKey("maintenance_logs.id", ondelete="CASCADE"), nullable=False)
     checklist_item_id = Column(String(36), ForeignKey("checklist_items.id", ondelete="CASCADE"), nullable=False)
     passed = Column(Boolean, default=False, nullable=False)
+    photo_data = Column(Text, nullable=True)
     
     maintenance_log = relationship("MaintenanceLog", back_populates="checklist_results")
     item = relationship("ChecklistItem", back_populates="results")
