@@ -695,7 +695,7 @@ export default function MaintenancePortal() {
                                   type="checkbox" 
                                   checked={!!checklistSelections[item.id]}
                                   onChange={(e) => setChecklistSelections(prev => ({ ...prev, [item.id]: e.target.checked }))}
-                                  className="h-4 w-4 mt-0.5 rounded border-zinc-800 bg-zinc-950 text-zinc-200 focus:ring-0 focus:ring-offset-0 focus:outline-none accent-zinc-200 flex-shrink-0"
+                                  className="h-4 w-4 mt-0.5 rounded border-emerald-700 bg-zinc-950 text-emerald-500 focus:ring-0 focus:ring-offset-0 focus:outline-none accent-emerald-500 flex-shrink-0 cursor-pointer"
                                 />
                                 <div>
                                   <span className="font-medium">{item.label}</span>
@@ -709,30 +709,51 @@ export default function MaintenancePortal() {
                                     {item.category}
                                     </span>
                                     {!!checklistSelections[item.id] && (
-                                      <div className="mt-2 flex items-center gap-2">
-                                        <label className="cursor-pointer text-[10px] text-zinc-400 hover:text-purple-400 transition-colors flex items-center gap-1 border border-zinc-800 rounded px-2 py-1 bg-zinc-900">
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
-                                          {itemPhotos[item.id] ? "Photo Attached" : "Attach Photo"}
-                                          <input 
-                                            type="file" 
-                                            accept="image/*" 
-                                            capture="environment"
-                                            className="hidden" 
-                                            onChange={(e) => {
-                                              if (e.target.files && e.target.files[0]) {
-                                                handlePhotoUpload(item.id, e.target.files[0]);
-                                              }
-                                            }} 
-                                          />
-                                        </label>
-                                        {itemPhotos[item.id] && (
-                                          <button 
-                                            type="button" 
-                                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setItemPhotos(p => { const np = {...p}; delete np[item.id]; return np; }); }}
-                                            className="text-rose-500 hover:text-rose-400 text-[10px]"
-                                          >
-                                            Remove
-                                          </button>
+                                      <div className="mt-2.5 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                                        {!itemPhotos[item.id] ? (
+                                          <>
+                                            <label className="cursor-pointer text-[10px] text-zinc-300 hover:text-emerald-400 transition-colors flex items-center gap-1.5 border border-zinc-700 hover:border-emerald-500/50 rounded-md px-2.5 py-1.5 bg-zinc-900">
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/></svg>
+                                              Tomar Foto
+                                              <input 
+                                                type="file" 
+                                                accept="image/*" 
+                                                capture="environment"
+                                                className="hidden" 
+                                                onChange={(e) => {
+                                                  if (e.target.files && e.target.files[0]) {
+                                                    handlePhotoUpload(item.id, e.target.files[0]);
+                                                  }
+                                                }} 
+                                              />
+                                            </label>
+                                            <label className="cursor-pointer text-[10px] text-zinc-400 hover:text-blue-400 transition-colors flex items-center gap-1.5 border border-zinc-800 hover:border-blue-500/50 rounded-md px-2.5 py-1.5 bg-zinc-950">
+                                              <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                                              Subir Archivo
+                                              <input 
+                                                type="file" 
+                                                accept="image/*" 
+                                                className="hidden" 
+                                                onChange={(e) => {
+                                                  if (e.target.files && e.target.files[0]) {
+                                                    handlePhotoUpload(item.id, e.target.files[0]);
+                                                  }
+                                                }} 
+                                              />
+                                            </label>
+                                          </>
+                                        ) : (
+                                          <div className="flex items-center gap-2 border border-emerald-500/30 bg-emerald-500/10 rounded-md px-2 py-1">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#34d399" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                                            <span className="text-[10px] text-emerald-400 font-medium">Foto Adjuntada</span>
+                                            <button 
+                                              type="button" 
+                                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setItemPhotos(p => { const np = {...p}; delete np[item.id]; return np; }); }}
+                                              className="text-rose-500 hover:text-rose-400 text-[10px] ml-2 font-semibold"
+                                            >
+                                              Quitar
+                                            </button>
+                                          </div>
                                         )}
                                       </div>
                                     )}
