@@ -277,6 +277,57 @@ export default function MaintenancePortal() {
     reader.readAsDataURL(file);
   };
 
+  
+  // WebRTC Camera Logic
+  useEffect(() => {
+    if (cameraActiveItemId) {
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+        .then(stream => {
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
+            videoRef.current.play();
+          }
+        })
+        .catch(err => {
+          console.error("Camera access denied:", err);
+          alert("Could not access camera. Please check permissions.");
+          setCameraActiveItemId(null);
+        });
+    } else {
+      if (videoRef.current && videoRef.current.srcObject) {
+        const stream = videoRef.current.srcObject as MediaStream;
+        stream.getTracks().forEach(track => track.stop());
+        videoRef.current.srcObject = null;
+      }
+    }
+  }, [cameraActiveItemId]);
+
+  const captureCameraPhoto = () => {
+    if (videoRef.current && canvasRef.current && cameraActiveItemId) {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      
+      const MAX_WIDTH = 800;
+      const MAX_HEIGHT = 800;
+      let width = video.videoWidth;
+      let height = video.videoHeight;
+      if (width > height) {
+        if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+      } else {
+        if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext("2d");
+      ctx?.drawImage(video, 0, 0, width, height);
+      
+      const dataUrl = canvas.toDataURL("image/jpeg", 0.6);
+      setItemPhotos(prev => ({...prev, [cameraActiveItemId]: dataUrl}));
+      setCameraActiveItemId(null);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setStatus(null);
