@@ -99,6 +99,9 @@ class MachineUpdate(BaseModel):
     serial_number: Optional[str] = None
     photo: Optional[str] = None
     company_id: Optional[str] = None
+    current_hours: Optional[float] = None
+    last_maintenance_hours: Optional[float] = None
+    maintenance_threshold_hours: Optional[float] = None
 
 class MachineHourUpdate(BaseModel):
     hours: float
@@ -158,6 +161,11 @@ class MaintenanceLogCreate(BaseModel):
     notes: Optional[str] = None
     reset_physical_horometer: bool = False
     checklist_results: Optional[List[ChecklistResultCreate]] = None
+
+class MaintenanceLogUpdate(BaseModel):
+    hours_at_maintenance: Optional[float] = None
+    notes: Optional[str] = None
+    performed_at: Optional[datetime] = None
 
 class MaintenanceLogResponse(BaseModel):
     id: str

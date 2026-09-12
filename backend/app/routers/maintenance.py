@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.core.database import get_db
 from app.models.models import Profile
-from app.schemas.schemas import MaintenanceLogResponse, MaintenanceLogCreate
+from app.schemas.schemas import MaintenanceLogResponse, MaintenanceLogCreate, MaintenanceLogUpdate
 from app.routers.auth import get_current_user
 from app.services import maintenance as maintenance_service
 from app.services import machinery as machinery_service
@@ -12,6 +12,7 @@ import os as sys_os
 from app.services.pdf_generator_detailed import generate_detailed_maintenance_pdf
 from app.services.email_worker import send_report_email
 from app.models.models import Company
+from app.services.audit import log_audit_action
 
 router = APIRouter(prefix="/maintenance", tags=["maintenance"])
 
@@ -83,6 +84,35 @@ def read_maintenance_logs(
         return maintenance_service.get_maintenance_logs(db, company_id=current_user.company_id)
     else:
         return maintenance_service.get_maintenance_logs(db)
+
+@router.put("/{id}", response_model=MaintenanceLogResponse)
+def update_maintenance_log_endpoint(
+    id: str,
+    payload: MaintenanceLogUpdate,
+    db: Session = Depends(get_db),
+    current_user: Profile = Depends(get_current_user)
+):
+    from app.models.models import MaintenanceLog, Machine
+    db_log = db.query(MaintenanceLog).filter(MaintenanceLog.id == id).first()
+    if not db_log:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Maintenance log not found.")
+        
+    db_machine = db.query(Machine).filter(Machine.id == db_log.machinery_id).first()
+    if not db_machine:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Machine not found.")
+        
+    if current_user.role != "superadmin" and str(db_machine.company_id) != str(current_user.company_id):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Forbidden: Access denied.")
+        
+    updated = maintenance_service.update_maintenance_log(db, id, payload)
+    log_audit_action(
+        db, 
+        action="MAINTENANCE_LOG_UPDATED", 
+        user_id=current_user.id, 
+        email=current_user.email, 
+        details={"log_id": id, "machine_id": db_machine.id, "hours_at_maintenance": updated.hours_at_maintenance}
+    )
+    return updated
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 def delete_maintenance_log(

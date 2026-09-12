@@ -55,6 +55,9 @@ export default function FleetOverview() {
   const [editSerial, setEditSerial] = useState("");
   const [editPhoto, setEditPhoto] = useState<string | null>(null);
   const [editCompanyId, setEditCompanyId] = useState("");
+  const [editCurrentHours, setEditCurrentHours] = useState<number>(0);
+  const [editLastHours, setEditLastHours] = useState<number>(0);
+  const [editThreshold, setEditThreshold] = useState<number>(250);
   
   // Edit Modal Webcam States
   const [isWebcamOpen, setIsWebcamOpen] = useState(false);
@@ -125,6 +128,9 @@ export default function FleetOverview() {
     setEditSerial(machine.serial_number);
     setEditPhoto(machine.photo || null);
     setEditCompanyId(machine.company_id);
+    setEditCurrentHours(machine.current_hours);
+    setEditLastHours(machine.last_maintenance_hours);
+    setEditThreshold(machine.maintenance_threshold_hours);
   };
 
   const handleEditSubmit = async (e: React.FormEvent) => {
@@ -151,7 +157,10 @@ export default function FleetOverview() {
         model: editModel,
         serial_number: editSerial,
         photo: editPhoto || null,
-        company_id: editCompanyId
+        company_id: editCompanyId,
+        current_hours: editCurrentHours,
+        last_maintenance_hours: editLastHours,
+        maintenance_threshold_hours: editThreshold
       };
 
       const sendUpdate = async (attempt: number): Promise<Response> => {
@@ -222,7 +231,10 @@ export default function FleetOverview() {
       model: editModel,
       serial_number: editSerial,
       photo: editPhoto || undefined,
-      company_id: editCompanyId
+      company_id: editCompanyId,
+      current_hours: editCurrentHours,
+      last_maintenance_hours: editLastHours,
+      maintenance_threshold_hours: editThreshold
     });
     if (success) {
       setEditModalMachine(null);
@@ -1179,6 +1191,57 @@ export default function FleetOverview() {
                   </select>
                 </div>
               )}
+
+              {/* Operational Horometers & Maintenance Telemetry */}
+              <div className="pt-3 border-t border-zinc-900 space-y-3">
+                <div className="text-[10px] uppercase font-bold text-zinc-400 tracking-wider flex items-center gap-1.5">
+                  <Clock className="h-3.5 w-3.5 text-zinc-500" /> Operational Horometer &amp; Maintenance Marks
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label htmlFor="edit-curr-hours" className="text-[10px] uppercase font-bold text-zinc-500">Current Total Hours</label>
+                    <input
+                      type="number"
+                      id="edit-curr-hours"
+                      step="0.1"
+                      required
+                      value={editCurrentHours}
+                      onChange={(e) => setEditCurrentHours(Number(e.target.value))}
+                      className="w-full h-10 px-3 rounded-lg border border-zinc-900 bg-zinc-900/30 text-sm text-zinc-200 focus:outline-none focus:border-zinc-800 transition-colors font-mono"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label htmlFor="edit-last-hours" className="text-[10px] uppercase font-bold text-zinc-500">Last Service Hours</label>
+                    <input
+                      type="number"
+                      id="edit-last-hours"
+                      step="0.1"
+                      required
+                      value={editLastHours}
+                      onChange={(e) => setEditLastHours(Number(e.target.value))}
+                      className="w-full h-10 px-3 rounded-lg border border-zinc-900 bg-zinc-900/30 text-sm text-zinc-200 focus:outline-none focus:border-zinc-800 transition-colors font-mono"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label htmlFor="edit-threshold" className="text-[10px] uppercase font-bold text-zinc-500">Maintenance Threshold (Cycle Hours)</label>
+                  <input
+                    type="number"
+                    id="edit-threshold"
+                    step="1"
+                    required
+                    value={editThreshold}
+                    onChange={(e) => setEditThreshold(Number(e.target.value))}
+                    className="w-full h-10 px-3 rounded-lg border border-zinc-900 bg-zinc-900/30 text-sm text-zinc-200 focus:outline-none focus:border-zinc-800 transition-colors font-mono"
+                  />
+                  <p className="text-[9px] text-zinc-600 leading-normal">
+                    Next PM alert at <strong className="text-zinc-400">{(editLastHours + editThreshold).toFixed(1)}h</strong> ({(editCurrentHours - editLastHours).toFixed(1)}h accrued since last service).
+                  </p>
+                </div>
+              </div>
 
               {/* Photo Upload / Webcam */}
               <div className="space-y-1.5">

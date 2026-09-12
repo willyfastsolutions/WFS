@@ -118,6 +118,12 @@ def update_machine(db: Session, machine_id: str, schema: MachineUpdate):
         db_machine.photo = schema.photo
     if schema.company_id is not None:
         db_machine.company_id = schema.company_id
+    if schema.current_hours is not None:
+        db_machine.current_hours = schema.current_hours
+    if schema.last_maintenance_hours is not None:
+        db_machine.last_maintenance_hours = schema.last_maintenance_hours
+    if schema.maintenance_threshold_hours is not None:
+        db_machine.maintenance_threshold_hours = schema.maintenance_threshold_hours
         
     db.commit()
     db.refresh(db_machine)

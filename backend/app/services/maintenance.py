@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session, selectinload
 from app.models.models import MaintenanceLog, Machine
-from app.schemas.schemas import MaintenanceLogCreate
+from app.schemas.schemas import MaintenanceLogCreate, MaintenanceLogUpdate
 import uuid
 
 def perform_maintenance(db: Session, schema: MaintenanceLogCreate, user_id: str):
@@ -125,3 +125,42 @@ def delete_maintenance(db: Session, log_id: str):
         
     db.commit()
     return True
+
+def update_maintenance_log(db: Session, log_id: str, schema: MaintenanceLogUpdate):
+    db_log = db.query(MaintenanceLog).options(selectinload(MaintenanceLog.checklist_results)).filter(MaintenanceLog.id == log_id).first()
+    if not db_log:
+        return None
+        
+    machine_id = db_log.machinery_id
+    db_machine = db.query(Machine).filter(Machine.id == machine_id).first()
+    
+    if schema.notes is not None:
+        db_log.notes = schema.notes
+    if schema.performed_at is not None:
+        db_log.performed_at = schema.performed_at
+        
+    if schema.hours_at_maintenance is not None:
+        new_hours = float(schema.hours_at_maintenance)
+        db_log.hours_at_maintenance = new_hours
+        
+        if db_machine:
+            # Check if this log is the latest maintenance record for this machine
+            latest_log = db.query(MaintenanceLog)\
+                .filter(MaintenanceLog.machinery_id == machine_id)\
+                .order_by(MaintenanceLog.performed_at.desc())\
+                .first()
+                
+            if latest_log and latest_log.id == db_log.id:
+                db_machine.last_maintenance_hours = new_hours
+                if db_machine.current_hours < new_hours:
+                    db_machine.current_hours = new_hours
+                    
+            # Recalculate warning flags
+            hours_since_pm = db_machine.current_hours - db_machine.last_maintenance_hours
+            if hours_since_pm < db_machine.maintenance_threshold_hours:
+                db_machine.warning_sent = False
+                
+    db.commit()
+    db.refresh(db_log)
+    return db_log
+

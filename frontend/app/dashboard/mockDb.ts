@@ -636,6 +636,39 @@ export const mockDb = {
     return true;
   },
 
+  updateMaintenanceLog: (id: string, fields: Partial<MaintenanceLog>): MaintenanceLog | null => {
+    mockDb.initialize();
+    const logs = getStorageItem<MaintenanceLog[]>('wfs_maintenance_logs', initialMaintenanceLogs);
+    const index = logs.findIndex(l => l.id === id);
+    if (index === -1) return null;
+    
+    const oldLog = logs[index];
+    const updatedLog: MaintenanceLog = {
+      ...oldLog,
+      ...fields
+    };
+    logs[index] = updatedLog;
+    setStorageItem('wfs_maintenance_logs', logs);
+    
+    // Recalculate machine's last maintenance hours if this log is the latest
+    if (fields.hours_at_maintenance !== undefined) {
+      const machinery = getStorageItem<Machine[]>('wfs_machinery', initialMachinery);
+      const machineIndex = machinery.findIndex(m => m.id === updatedLog.machinery_id);
+      if (machineIndex !== -1) {
+        const machineLogs = logs.filter(l => l.machinery_id === updatedLog.machinery_id);
+        machineLogs.sort((a, b) => new Date(b.performed_at).getTime() - new Date(a.performed_at).getTime());
+        if (machineLogs.length > 0 && machineLogs[0].id === id) {
+          machinery[machineIndex].last_maintenance_hours = fields.hours_at_maintenance;
+          if (machinery[machineIndex].current_hours < fields.hours_at_maintenance) {
+            machinery[machineIndex].current_hours = fields.hours_at_maintenance;
+          }
+          setStorageItem('wfs_machinery', machinery);
+        }
+      }
+    }
+    return updatedLog;
+  },
+
   getMaintenanceLogs: (companyId?: string | null): (MaintenanceLog & { machineName: string; machineSerial: string })[] => {
     mockDb.initialize();
     const logs = getStorageItem<MaintenanceLog[]>('wfs_maintenance_logs', initialMaintenanceLogs);

@@ -15,7 +15,9 @@ import {
   Info,
   Filter,
   Search,
-  Trash2
+  Trash2,
+  Edit,
+  X
 } from "lucide-react";
 import { Profile, Company, Machine, MaintenanceLog, ChecklistTemplate, ChecklistItem, mockDb } from "../mockDb";
 
@@ -57,6 +59,12 @@ export default function MaintenancePortal() {
   const [isTableCompanyDropdownOpen, setIsTableCompanyDropdownOpen] = useState(false);
   const [tableSearchQuery, setTableSearchQuery] = useState<string>("");
   const [isTableMachineDropdownOpen, setIsTableMachineDropdownOpen] = useState(false);
+  
+  // Edit Log Modal States
+  const [editingLog, setEditingLog] = useState<(MaintenanceLog & { machineName: string; machineSerial: string }) | null>(null);
+  const [editHours, setEditHours] = useState<number>(0);
+  const [editNotes, setEditNotes] = useState<string>("");
+  const [isEditSubmitting, setIsEditSubmitting] = useState<boolean>(false);
 
   const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
     ? `${window.location.protocol}//${window.location.hostname}:8000`
@@ -493,6 +501,60 @@ export default function MaintenancePortal() {
       console.error(err);
       setStatus({ type: "error", text: err.message || "Error deleting maintenance log." });
     }
+  };
+
+  const openEditLogModal = (log: MaintenanceLog & { machineName: string; machineSerial: string }) => {
+    setEditingLog(log);
+    setEditHours(log.hours_at_maintenance);
+    setEditNotes(log.notes || "");
+  };
+
+  const handleSaveEditLog = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingLog) return;
+    setIsEditSubmitting(true);
+    setStatus(null);
+
+    const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
+    const token = sessionStorage.getItem("wfs_token") || "";
+
+    if (!isOffline) {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/maintenance/${editingLog.id}`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`
+          },
+          body: JSON.stringify({
+            hours_at_maintenance: editHours,
+            notes: editNotes
+          })
+        });
+
+        if (res.status === 401) {
+          router.push("/login");
+          return;
+        }
+
+        if (!res.ok) {
+          const errData = await res.json();
+          throw new Error(errData.detail || "Failed to update maintenance log on server.");
+        }
+      } catch (err: any) {
+        console.warn("API update failed, updating local state:", err);
+      }
+    }
+
+    mockDb.updateMaintenanceLog(editingLog.id, {
+      hours_at_maintenance: editHours,
+      notes: editNotes
+    });
+
+    setStatus({ type: "success", text: "Maintenance record corrected successfully! Horometer & telemetry updated." });
+    setEditingLog(null);
+    setIsEditSubmitting(false);
+    refreshData();
   };
 
   // Find overdue machinery
@@ -1055,6 +1117,14 @@ export default function MaintenancePortal() {
                       </td>
                       <td className="py-4 px-2 text-right">
                         <button
+                          type="button"
+                          onClick={() => openEditLogModal(log)}
+                          className="p-1.5 mr-2 rounded-lg border border-zinc-900 bg-zinc-950 text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200 transition-all cursor-pointer inline-flex items-center justify-center"
+                          title="Edit maintenance hours & details"
+                        >
+                          <Edit className="h-3.5 w-3.5" />
+                        </button>
+                        <button
                             type="button"
                             onClick={async () => {
                               if (typeof window !== "undefined" && window.location.protocol !== "file:") {
@@ -1122,6 +1192,82 @@ export default function MaintenancePortal() {
                 Capture
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Maintenance Log Modal */}
+      {editingLog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-sm">
+          <div className="bg-zinc-950 border border-zinc-900 w-full max-w-md rounded-xl shadow-2xl p-6 space-y-4">
+            <div className="flex justify-between items-center border-b border-zinc-900 pb-3">
+              <div>
+                <h3 className="text-sm font-bold text-zinc-100 flex items-center gap-1.5">
+                  <Edit className="h-4 w-4 text-zinc-400" /> Correct Maintenance Record
+                </h3>
+                <p className="text-[11px] text-zinc-500 mt-0.5 font-mono">
+                  {editingLog.machineName} ({editingLog.machineSerial})
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setEditingLog(null)}
+                className="text-zinc-500 hover:text-zinc-300 transition-colors cursor-pointer"
+              >
+                <X className="h-4 w-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveEditLog} className="space-y-4">
+              <div className="space-y-1.5">
+                <label htmlFor="edit-maint-hours" className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">
+                  Corrected Hours at Maintenance
+                </label>
+                <input
+                  type="number"
+                  id="edit-maint-hours"
+                  step="0.1"
+                  required
+                  value={editHours}
+                  onChange={(e) => setEditHours(Number(e.target.value))}
+                  className="w-full h-10 px-3 rounded-lg border border-zinc-900 bg-zinc-900/30 text-sm text-zinc-200 focus:outline-none focus:border-zinc-800 transition-colors font-mono"
+                />
+                <p className="text-[9px] text-zinc-600 leading-normal">
+                  Recalculates the machine&apos;s last maintenance mark and resets overdue warning intervals automatically.
+                </p>
+              </div>
+
+              <div className="space-y-1.5">
+                <label htmlFor="edit-maint-notes" className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">
+                  Maintenance Notes
+                </label>
+                <textarea
+                  id="edit-maint-notes"
+                  rows={3}
+                  value={editNotes}
+                  onChange={(e) => setEditNotes(e.target.value)}
+                  placeholder="Additional observations or notes..."
+                  className="w-full p-3 rounded-lg border border-zinc-900 bg-zinc-900/30 text-xs text-zinc-200 focus:outline-none focus:border-zinc-800 transition-colors resize-none"
+                />
+              </div>
+
+              <div className="flex gap-2 justify-end pt-2 border-t border-zinc-900">
+                <button
+                  type="button"
+                  onClick={() => setEditingLog(null)}
+                  className="inline-flex h-9 items-center justify-center px-4 rounded-lg border border-zinc-900 bg-zinc-950 text-xs font-semibold text-zinc-500 hover:text-zinc-300 transition-all cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isEditSubmitting}
+                  className="inline-flex h-9 items-center justify-center px-4 rounded-lg bg-zinc-100 text-xs font-semibold text-zinc-950 hover:bg-zinc-200 disabled:opacity-50 transition-all shadow-md cursor-pointer"
+                >
+                  {isEditSubmitting ? "Saving..." : "Save Correction"}
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
