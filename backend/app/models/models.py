@@ -20,10 +20,10 @@ class Profile(Base):
     __tablename__ = "profiles"
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    company_id = Column(String(36), ForeignKey("companies.id", ondelete="SET NULL"), nullable=True)
+    company_id = Column(String(36), ForeignKey("companies.id", ondelete="SET NULL"), nullable=True, index=True)
     role = Column(String(50), nullable=False)  # 'superadmin' or 'company_admin'
     full_name = Column(String(255), nullable=True)
-    email = Column(String(255), unique=True, nullable=False)
+    email = Column(String(255), unique=True, nullable=False, index=True)
     password_hash = Column(String(255), nullable=False)
     must_change_password = Column(Boolean, default=False, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
@@ -34,7 +34,7 @@ class Machine(Base):
     __tablename__ = "machinery"
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    company_id = Column(String(36), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False)
+    company_id = Column(String(36), ForeignKey("companies.id", ondelete="CASCADE"), nullable=False, index=True)
     name = Column(String(255), nullable=False)
     type = Column(String(50), nullable=False)  # 'forklift', 'excavator', 'skid_steer_loader'
     brand = Column(String(100), nullable=True)
@@ -45,7 +45,7 @@ class Machine(Base):
     last_maintenance_hours = Column(Float, default=0.0, nullable=False)
     photo = Column(Text, nullable=True)
     warning_sent = Column(Boolean, default=False, nullable=False)
-    revoked = Column(Boolean, default=False, nullable=False)
+    revoked = Column(Boolean, default=False, nullable=False, index=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     
     company = relationship("Company", back_populates="machinery")
@@ -56,7 +56,7 @@ class HourLog(Base):
     __tablename__ = "hour_logs"
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    machinery_id = Column(String(36), ForeignKey("machinery.id", ondelete="CASCADE"), nullable=False)
+    machinery_id = Column(String(36), ForeignKey("machinery.id", ondelete="CASCADE"), nullable=False, index=True)
     hours = Column(Float, nullable=False)
     logged_by = Column(String(36), ForeignKey("profiles.id", ondelete="SET NULL"), nullable=True)
     logged_at = Column(DateTime, default=datetime.utcnow, nullable=False)
@@ -67,7 +67,7 @@ class MaintenanceLog(Base):
     __tablename__ = "maintenance_logs"
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    machinery_id = Column(String(36), ForeignKey("machinery.id", ondelete="CASCADE"), nullable=False)
+    machinery_id = Column(String(36), ForeignKey("machinery.id", ondelete="CASCADE"), nullable=False, index=True)
     performed_by = Column(String(36), ForeignKey("profiles.id", ondelete="SET NULL"), nullable=True)
     performed_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     hours_at_maintenance = Column(Float, nullable=False)
@@ -98,7 +98,7 @@ class ChecklistTemplate(Base):
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     name = Column(String(255), nullable=False)
     description = Column(Text, nullable=True)
-    company_id = Column(String(36), ForeignKey("companies.id", ondelete="SET NULL"), nullable=True)
+    company_id = Column(String(36), ForeignKey("companies.id", ondelete="SET NULL"), nullable=True, index=True)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     
     company = relationship("Company")
@@ -108,7 +108,7 @@ class ChecklistItem(Base):
     __tablename__ = "checklist_items"
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    template_id = Column(String(36), ForeignKey("checklist_templates.id", ondelete="CASCADE"), nullable=False)
+    template_id = Column(String(36), ForeignKey("checklist_templates.id", ondelete="CASCADE"), nullable=False, index=True)
     label = Column(String(255), nullable=False)
     category = Column(String(50), default="routine", nullable=False)  # 'routine', 'safety', 'specific'
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
@@ -120,8 +120,8 @@ class MaintenanceChecklistResult(Base):
     __tablename__ = "maintenance_checklist_results"
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    maintenance_log_id = Column(String(36), ForeignKey("maintenance_logs.id", ondelete="CASCADE"), nullable=False)
-    checklist_item_id = Column(String(36), ForeignKey("checklist_items.id", ondelete="CASCADE"), nullable=False)
+    maintenance_log_id = Column(String(36), ForeignKey("maintenance_logs.id", ondelete="CASCADE"), nullable=False, index=True)
+    checklist_item_id = Column(String(36), ForeignKey("checklist_items.id", ondelete="CASCADE"), nullable=False, index=True)
     passed = Column(Boolean, default=False, nullable=False)
     photo_data = Column(Text, nullable=True)
     
@@ -138,11 +138,11 @@ class AuditLog(Base):
     __tablename__ = "audit_logs"
     
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
-    user_id = Column(String(36), nullable=True)
+    user_id = Column(String(36), nullable=True, index=True)
     email = Column(String(255), nullable=True)
     action = Column(String(100), nullable=False)  # e.g. 'LOGIN_SUCCESS', 'RESET_PASSWORD'
     details = Column(Text, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False, index=True)
 
 class QuoteRequest(Base):
     __tablename__ = "quote_requests"

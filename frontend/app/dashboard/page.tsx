@@ -197,7 +197,7 @@ export default function FleetOverview() {
           refreshData();
           return;
         } else {
-          let detail = "Error al actualizar la máquina en el servidor.";
+          let detail = "Failed to update machinery on central server.";
           try {
             const errData = await response.json();
             if (errData?.detail) detail = errData.detail;
@@ -209,8 +209,8 @@ export default function FleetOverview() {
         console.error("API update machine failed:", err);
         const isAbort = err?.name === "AbortError";
         alert(isAbort 
-          ? "Tiempo de espera agotado: Conexión lenta en la tablet. Tus cambios no se perdieron, intenta guardar nuevamente."
-          : "Error de red: No se pudo conectar al servidor central. Verifica tu conexión e intenta guardar de nuevo."
+          ? "Connection timeout: Slow or unstable network detected. Your changes were preserved, please try saving again."
+          : "Network error: Could not reach central server. Please check your connection and try saving again."
         );
         return;
       }

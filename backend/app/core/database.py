@@ -10,12 +10,20 @@ engine_kwargs = {}
 if settings.DATABASE_URL.startswith("sqlite"):
     connect_args = {"check_same_thread": False}
 else:
-    # PostgreSQL / Neon Serverless connection resiliency
+    # PostgreSQL / Neon / Supabase connection resiliency & anti-drop keepalives
+    connect_args = {
+        "connect_timeout": 10,
+        "keepalives": 1,
+        "keepalives_idle": 30,
+        "keepalives_interval": 10,
+        "keepalives_count": 5
+    }
     engine_kwargs = {
         "pool_pre_ping": True,
         "pool_recycle": 300,
         "pool_size": 10,
-        "max_overflow": 20
+        "max_overflow": 20,
+        "pool_timeout": 30
     }
 
 engine = create_engine(

@@ -66,7 +66,7 @@ def send_alert_email(to_email: str, subject: str, body_text: str, attachment_pat
 def send_password_reset_email(to_email: str, token: str) -> bool:
     reset_url = f"https://willyfastsolutions.com/login/reset?token={token}"
     
-    subject = "Password Reset Request / Recuperación de Contraseña - WillyFastSolutions"
+    subject = "Password Reset Request - WillyFastSolutions"
     
     body_html = f"""<!DOCTYPE html>
 <html>
@@ -87,24 +87,19 @@ def send_password_reset_email(to_email: str, token: str) -> bool:
 <body>
   <div class="card">
     <div class="logo">WillyFastSolutions</div>
-    <div class="title">Password Recovery / Recuperación de Contraseña</div>
+    <div class="title">Password Reset Request</div>
     <p class="paragraph">
-      <strong>English:</strong> We received a request to reset your password. Click the button below to set a new password. This link is valid for 15 minutes.
-    </p>
-    <p class="paragraph">
-      <strong>Español:</strong> Hemos recibido una solicitud para restablecer tu contraseña. Haz clic en el botón de abajo para establecer una nueva contraseña. Este enlace es válido por 15 minutos.
+      We received a request to reset your password. Click the button below to set a new password. This secure link is valid for 15 minutes.
     </p>
     <div class="btn-container">
-      <a href="{reset_url}" class="btn" target="_blank">Reset Password / Restablecer Contraseña</a>
+      <a href="{reset_url}" class="btn" target="_blank">Reset Password</a>
     </div>
     <p class="link-text">
       If you cannot click the button, copy and paste this URL into your browser:<br>
-      Si no puedes hacer clic en el botón, copia y pega esta URL en tu navegador:<br>
       <span style="color: #a1a1aa;">{reset_url}</span>
     </p>
     <div class="footer">
-      This is an automated security message. If you did not request this change, you can safely ignore this email.<br>
-      Este es un mensaje de seguridad automático. Si no solicitaste este cambio, puedes ignorar este correo de forma segura.
+      This is an automated security message from WillyFastSolutions. If you did not request this change, you can safely ignore this email.
     </div>
   </div>
 </body>
@@ -115,7 +110,7 @@ def send_password_reset_email(to_email: str, token: str) -> bool:
 
 
 def send_welcome_email(to_email: str, full_name: str, temp_password: str, company_name: str) -> bool:
-    subject = f"Welcome to WillyFastSolutions / Bienvenido a WillyFastSolutions - {company_name}"
+    subject = f"Welcome to WillyFastSolutions - {company_name}"
     
     body_html = f"""<!DOCTYPE html>
 <html>
@@ -140,31 +135,26 @@ def send_welcome_email(to_email: str, full_name: str, temp_password: str, compan
 <body>
   <div class="card">
     <div class="logo">WillyFastSolutions</div>
-    <div class="title">Welcome, {full_name}! / \u00a1Bienvenido, {full_name}!</div>
+    <div class="title">Welcome, {full_name}!</div>
     <p class="paragraph">
-      <strong>English:</strong> Your administrator has created an account for you on WillyFastSolutions under the company <strong>{company_name}</strong>. Below are your temporary login credentials.
-    </p>
-    <p class="paragraph">
-      <strong>Espa\u00f1ol:</strong> Tu administrador ha creado una cuenta para ti en WillyFastSolutions bajo la empresa <strong>{company_name}</strong>. A continuaci\u00f3n encontrar\u00e1s tus credenciales temporales de acceso.
+      Your administrator has created an account for you on the WillyFastSolutions fleet management portal under <strong>{company_name}</strong>. Below are your temporary login credentials.
     </p>
     <div class="credentials">
       <div class="cred-label">Email</div>
       <div class="cred-value">{to_email}</div>
-      <div class="cred-label">Temporary Password / Contrase\u00f1a Temporal</div>
+      <div class="cred-label">Temporary Password</div>
       <div class="cred-value">{temp_password}</div>
     </div>
     <div class="warning">
       <p class="warning-text">
-        \u26a0\ufe0f You will be required to change this password on your first login.<br>
-        \u26a0\ufe0f Se te pedir\u00e1 cambiar esta contrase\u00f1a en tu primer inicio de sesi\u00f3n.
+        &#9888;&#65039; You will be required to change this temporary password upon your first sign in.
       </p>
     </div>
     <div class="btn-container">
-      <a href="https://willyfastsolutions.com/login" class="btn" target="_blank">Sign In / Iniciar Sesi\u00f3n</a>
+      <a href="https://willyfastsolutions.com/login" class="btn" target="_blank">Sign In to Dashboard</a>
     </div>
     <div class="footer">
-      This is an automated message from WillyFastSolutions. Do not share your credentials with anyone.<br>
-      Este es un mensaje autom\u00e1tico de WillyFastSolutions. No compartas tus credenciales con nadie.
+      This is an automated message from WillyFastSolutions. Do not share your credentials with anyone.
     </div>
   </div>
 </body>
@@ -174,7 +164,7 @@ def send_welcome_email(to_email: str, full_name: str, temp_password: str, compan
 
 
 def send_report_email(to_email: str, machine_name: str, company_name: str, attachment_path: str) -> bool:
-    subject = f"Machinery Report: {machine_name} / Reporte de Maquinaria: {machine_name} - {company_name}"
+    subject = f"Machinery Report: {machine_name} - {company_name}"
     
     body_html = f"""<!DOCTYPE html>
 <html>
@@ -195,22 +185,18 @@ def send_report_email(to_email: str, machine_name: str, company_name: str, attac
 <body>
   <div class="card">
     <div class="logo">WillyFastSolutions</div>
-    <div class="title">Machinery Report / Reporte de Maquinaria</div>
+    <div class="title">Machinery Maintenance Report</div>
     <p class="paragraph">
-      <strong>English:</strong> Please find attached the maintenance report for the machine listed below. This report was generated and sent by the WillyFastSolutions fleet management platform.
-    </p>
-    <p class="paragraph">
-      <strong>Espa\u00f1ol:</strong> Adjunto encontrar\u00e1s el reporte de mantenimiento para la m\u00e1quina que se indica abajo. Este reporte fue generado y enviado desde la plataforma de gesti\u00f3n de flotas WillyFastSolutions.
+      Please find attached the official maintenance report for the equipment listed below. This report was generated by the WillyFastSolutions fleet management platform.
     </p>
     <div class="info-box">
-      <div class="info-label">Machine / M\u00e1quina</div>
+      <div class="info-label">Equipment</div>
       <div class="info-value">{machine_name}</div>
-      <div class="info-label">Company / Empresa</div>
+      <div class="info-label">Company</div>
       <div class="info-value">{company_name}</div>
     </div>
     <div class="footer">
-      This is an automated message from WillyFastSolutions.<br>
-      Este es un mensaje autom\u00e1tico de WillyFastSolutions.
+      This is an automated report from WillyFastSolutions.
     </div>
   </div>
 </body>
@@ -220,7 +206,7 @@ def send_report_email(to_email: str, machine_name: str, company_name: str, attac
 
 def send_quote_request_email(full_name: str, email: str, company_name: str, message: str) -> bool:
     from datetime import datetime
-    subject = f"💼 New Quote Request / Nueva Solicitud de Cotización - {company_name}"
+    subject = f"New Quote Request - {company_name}"
     
     # Clean message to avoid HTML injection
     safe_message = message.replace("<", "&lt;").replace(">", "&gt;").replace("\n", "<br>")

@@ -298,7 +298,7 @@ export default function RegisterMachinery() {
             console.error("mockDb sync failed:", mockErr);
           }
 
-          setStatus({ type: "success", text: "¡Maquinaria registrada con éxito en el servidor central! Redirigiendo..." });
+          setStatus({ type: "success", text: "Asset registered successfully on central database! Redirecting to fleet inventory..." });
           
           setName("");
           setBrand("");
@@ -312,7 +312,7 @@ export default function RegisterMachinery() {
           }, 1500);
           return;
         } else {
-          let errDetail = "Error al registrar la máquina en la base de datos central.";
+          let errDetail = "Failed to register machinery on backend database.";
           try {
             const errData = await response.json();
             if (errData?.detail) errDetail = errData.detail;
@@ -322,13 +322,13 @@ export default function RegisterMachinery() {
           return;
         }
       } catch (err: any) {
-        console.error("Error de conexión al registrar maquinaria:", err);
+        console.error("Network connection error while registering machinery:", err);
         const isAbort = err?.name === "AbortError";
         setStatus({ 
           type: "error", 
           text: isAbort 
-            ? "Tiempo de espera agotado: La tablet tiene una conexión muy lenta o inestable. Tus datos se mantuvieron intactos. Por favor presiona 'Register Machinery' nuevamente."
-            : "Error de red: La tablet no pudo contactar el servidor central. Verifica la señal de internet y presiona 'Register Machinery' para reintentar sin perder tus datos."
+            ? "Connection timeout: Slow or unstable network detected on tablet. Your input was preserved. Please click 'Register Machinery' to retry."
+            : "Network error: Tablet could not reach the central server. Please check your internet connection and click 'Register Machinery' to retry without losing your data."
         });
         setIsSubmitting(false);
         return; // NEVER fall through to offline mockDb when online!
@@ -351,7 +351,7 @@ export default function RegisterMachinery() {
           photo: photo || undefined
         });
 
-        setStatus({ type: "success", text: "(Modo Local) Maquinaria registrada localmente. Redirigiendo..." });
+        setStatus({ type: "success", text: "(Demo Mode) Machinery registered locally. Redirecting..." });
         
         setName("");
         setBrand("");

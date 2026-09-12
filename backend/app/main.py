@@ -1,5 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from starlette.middleware.gzip import GZipMiddleware
 from app.core.database import engine, Base, SessionLocal
 from app.models.models import Company, Profile, Machine, QuoteRequest
 from app.services.auth import get_password_hash
@@ -7,10 +8,13 @@ from app.routers import auth, machinery, maintenance, companies, checklists, set
 from app.services.audit_worker import start_audit_daemon
 from sqlalchemy import text
 
-# Create SQLite Database Tables
+# Create Database Tables
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="WillyFastSolutions Telemetry Backend", version="1.0.0")
+
+# High-performance payload compression for mobile / weak internet
+app.add_middleware(GZipMiddleware, minimum_size=1000)
 
 # Configure CORS to allow direct frontend queries (localhost, production and offline file pages)
 allowed_origins = [
@@ -234,8 +238,27 @@ def run_migrations():
             print("[SEED] Seeded default scan_interval_seconds = 86400")
         if db.query(SystemSetting).filter(SystemSetting.key == "default_maintenance_threshold").count() == 0:
             db.add(SystemSetting(key="default_maintenance_threshold", value="250.0"))
-            print("[SEED] Seeded default default_maintenance_threshold = 250.0")
-            
+        # Optimize PostgreSQL queries with B-Tree indexes on foreign keys & search columns
+        indexes_to_create = [
+            ("idx_machinery_company_id", "machinery", "company_id"),
+            ("idx_machinery_revoked", "machinery", "revoked"),
+            ("idx_profiles_company_id", "profiles", "company_id"),
+            ("idx_profiles_email", "profiles", "email"),
+            ("idx_maintenance_logs_machinery_id", "maintenance_logs", "machinery_id"),
+            ("idx_hour_logs_machinery_id", "hour_logs", "machinery_id"),
+            ("idx_checklist_templates_company_id", "checklist_templates", "company_id"),
+            ("idx_checklist_items_template_id", "checklist_items", "template_id"),
+            ("idx_checklist_results_log_id", "maintenance_checklist_results", "maintenance_log_id"),
+            ("idx_audit_logs_user_id", "audit_logs", "user_id"),
+            ("idx_audit_logs_created_at", "audit_logs", "created_at"),
+        ]
+        for idx_name, tbl_name, col_name in indexes_to_create:
+            try:
+                db.execute(text(f"CREATE INDEX IF NOT EXISTS {idx_name} ON {tbl_name} ({col_name})"))
+                db.commit()
+            except Exception:
+                db.rollback()
+
         db.commit()
     except Exception as ex:
         print(f"[MIGRATION] Error running schema updates: {str(ex)}")
