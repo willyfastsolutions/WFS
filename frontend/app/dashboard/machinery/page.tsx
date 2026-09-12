@@ -14,6 +14,7 @@ import {
   Camera
 } from "lucide-react";
 import { Profile, Company, Machine, mockDb } from "../mockDb";
+import { compressImage } from "../imageUtils";
 
 export default function RegisterMachinery() {
   const router = useRouter();
@@ -64,7 +65,7 @@ export default function RegisterMachinery() {
     setIsCameraModalOpen(false);
   };
 
-  const capturePhoto = () => {
+  const capturePhoto = async () => {
     if (videoRef.current) {
       const video = videoRef.current;
       const canvas = document.createElement("canvas");
@@ -73,7 +74,13 @@ export default function RegisterMachinery() {
       const ctx = canvas.getContext("2d");
       if (ctx) {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        setPhoto(canvas.toDataURL("image/png"));
+        const raw = canvas.toDataURL("image/jpeg", 0.85);
+        try {
+          const compressed = await compressImage(raw, 1024, 1024, 0.75);
+          setPhoto(compressed);
+        } catch (err) {
+          setPhoto(raw);
+        }
       }
       stopCamera();
     }
@@ -215,32 +222,54 @@ export default function RegisterMachinery() {
       : "";
 
     if (!isOffline) {
-      try {
-        const token = sessionStorage.getItem("wfs_token");
-        if (!token) {
-          sessionStorage.removeItem("wfs_role");
-          sessionStorage.removeItem("wfs_session");
-          router.push("/login");
-          return;
+      const token = sessionStorage.getItem("wfs_token");
+      if (!token) {
+        sessionStorage.removeItem("wfs_role");
+        sessionStorage.removeItem("wfs_session");
+        router.push("/login");
+        return;
+      }
+
+      const payload = {
+        company_id: targetCompanyId,
+        name: name,
+        type: machineType,
+        brand: brand,
+        model: model,
+        serial_number: serial,
+        current_hours: hours,
+        maintenance_threshold_hours: maxHours,
+        photo: photo || null
+      };
+
+      // Resilient request with 20s timeout and 1 automatic retry on network failure
+      const sendRequest = async (attempt: number): Promise<Response> => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
+        try {
+          const res = await fetch(`${API_BASE_URL}/api/machinery/`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          return res;
+        } catch (fetchErr) {
+          clearTimeout(timeoutId);
+          if (attempt === 1) {
+            await new Promise(r => setTimeout(r, 1200));
+            return sendRequest(2);
+          }
+          throw fetchErr;
         }
-        const response = await fetch(`${API_BASE_URL}/api/machinery/`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            company_id: targetCompanyId,
-            name: name,
-            type: machineType,
-            brand: brand,
-            model: model,
-            serial_number: serial,
-            current_hours: hours,
-            maintenance_threshold_hours: maxHours,
-            photo: photo || null
-          })
-        });
+      };
+
+      try {
+        const response = await sendRequest(1);
 
         if (response.status === 401) {
           sessionStorage.removeItem("wfs_token");
@@ -251,7 +280,7 @@ export default function RegisterMachinery() {
         }
 
         if (response.ok) {
-          // Also sync to mockDb locally for dashboard offline view consistency
+          // Sync to mockDb locally for dashboard view consistency
           try {
             mockDb.addMachine({
               company_id: targetCompanyId,
@@ -269,9 +298,8 @@ export default function RegisterMachinery() {
             console.error("mockDb sync failed:", mockErr);
           }
 
-          setStatus({ type: "success", text: "Machine registered successfully! Redirecting to fleet inventory..." });
+          setStatus({ type: "success", text: "¡Maquinaria registrada con éxito en el servidor central! Redirigiendo..." });
           
-          // Reset form
           setName("");
           setBrand("");
           setModel("");
@@ -284,17 +312,30 @@ export default function RegisterMachinery() {
           }, 1500);
           return;
         } else {
-          const errData = await response.json();
-          setStatus({ type: "error", text: errData.detail || "Failed to register machine on backend database." });
+          let errDetail = "Error al registrar la máquina en la base de datos central.";
+          try {
+            const errData = await response.json();
+            if (errData?.detail) errDetail = errData.detail;
+          } catch (_) {}
+          setStatus({ type: "error", text: errDetail });
           setIsSubmitting(false);
           return;
         }
-      } catch (err) {
-        console.error("API error, falling back to mockDb:", err);
+      } catch (err: any) {
+        console.error("Error de conexión al registrar maquinaria:", err);
+        const isAbort = err?.name === "AbortError";
+        setStatus({ 
+          type: "error", 
+          text: isAbort 
+            ? "Tiempo de espera agotado: La tablet tiene una conexión muy lenta o inestable. Tus datos se mantuvieron intactos. Por favor presiona 'Register Machinery' nuevamente."
+            : "Error de red: La tablet no pudo contactar el servidor central. Verifica la señal de internet y presiona 'Register Machinery' para reintentar sin perder tus datos."
+        });
+        setIsSubmitting(false);
+        return; // NEVER fall through to offline mockDb when online!
       }
     }
 
-    // Offline / Fallback
+    // Offline Demo Mode (Strictly for file:// protocol)
     setTimeout(() => {
       try {
         mockDb.addMachine({
@@ -310,9 +351,8 @@ export default function RegisterMachinery() {
           photo: photo || undefined
         });
 
-        setStatus({ type: "success", text: "Machine registered successfully! Redirecting to fleet inventory..." });
+        setStatus({ type: "success", text: "(Modo Local) Maquinaria registrada localmente. Redirigiendo..." });
         
-        // Reset form
         setName("");
         setBrand("");
         setModel("");
@@ -328,12 +368,12 @@ export default function RegisterMachinery() {
           }
         }, 1500);
       } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : "Failed to save machine. Please verify data formats.";
+        const errorMsg = err instanceof Error ? err.message : "Failed to save machine.";
         setStatus({ type: "error", text: errorMsg });
       } finally {
         setIsSubmitting(false);
       }
-    }, 1000);
+    }, 500);
   };
 
   const machineTypes: { value: Machine["type"]; label: string; desc: string }[] = [
@@ -589,14 +629,20 @@ export default function RegisterMachinery() {
               ref={fileInputRef}
               accept="image/*"
               className="hidden"
-              onChange={(e) => {
+              onChange={async (e) => {
                 const file = e.target.files?.[0];
                 if (file) {
-                  const reader = new FileReader();
-                  reader.onload = (event) => {
-                    setPhoto(event.target?.result as string);
-                  };
-                  reader.readAsDataURL(file);
+                  try {
+                    const compressed = await compressImage(file, 1024, 1024, 0.75);
+                    setPhoto(compressed);
+                  } catch (err) {
+                    console.error("Image compression error, falling back:", err);
+                    const reader = new FileReader();
+                    reader.onload = (event) => {
+                      setPhoto(event.target?.result as string);
+                    };
+                    reader.readAsDataURL(file);
+                  }
                 }
               }}
             />

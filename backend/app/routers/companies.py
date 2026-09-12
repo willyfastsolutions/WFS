@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 from app.core.database import get_db
 from app.models.models import Machine, Profile, Company
 from app.schemas.schemas import CompanyResponse, CompanyCreate, AuthActionRequest, ProfileCreate, ProfileResponse, ProfileUpdate
@@ -291,11 +291,87 @@ def update_company_user(
     if payload.password:
         validate_password_strength(payload.password)
         db_profile.password_hash = get_password_hash(payload.password)
+
+    if payload.resend_invite:
+        company_name = "WillyFastSolutions"
+        if db_profile.company_id:
+            comp = db.query(Company).filter(Company.id == db_profile.company_id).first()
+            if comp:
+                company_name = comp.name
+        alphabet = string.ascii_letters + string.digits + "!@#$%"
+        temp_password = ''.join(secrets.choice(alphabet) for _ in range(12))
+        db_profile.password_hash = get_password_hash(temp_password)
+        db_profile.must_change_password = True
+        send_welcome_email(
+            to_email=db_profile.email,
+            full_name=db_profile.full_name or db_profile.email,
+            temp_password=temp_password,
+            company_name=company_name
+        )
+        log_audit_action(db, action="USER_INVITE_RESENT_ON_UPDATE", user_id=current_user.id, email=current_user.email, details={"target_user_id": user_id, "email": db_profile.email})
         
     db.commit()
     db.refresh(db_profile)
     log_audit_action(db, action="USER_UPDATED", user_id=current_user.id, email=current_user.email, details={"target_user_id": user_id, "email": db_profile.email})
     return db_profile
+
+@router.post("/users/{user_id}/resend-invite", status_code=status.HTTP_200_OK)
+@router.post("/{company_id}/users/{user_id}/resend-invite", status_code=status.HTTP_200_OK)
+def resend_user_invite(
+    user_id: str,
+    company_id: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user: Profile = Depends(get_current_user)
+):
+    if current_user.role != "superadmin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Forbidden: Only superadmins can resend user invitations"
+        )
+        
+    db_profile = db.query(Profile).filter(Profile.id == user_id).first()
+    if not db_profile:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+        
+    company_name = "WillyFastSolutions"
+    target_comp_id = company_id or db_profile.company_id
+    if target_comp_id:
+        comp = db.query(Company).filter(Company.id == target_comp_id).first()
+        if comp:
+            company_name = comp.name
+            
+    # Auto-generate fresh secure temporary password
+    alphabet = string.ascii_letters + string.digits + "!@#$%"
+    temp_password = ''.join(secrets.choice(alphabet) for _ in range(12))
+    
+    db_profile.password_hash = get_password_hash(temp_password)
+    db_profile.must_change_password = True
+    db.commit()
+    db.refresh(db_profile)
+    
+    # Send email
+    send_welcome_email(
+        to_email=db_profile.email,
+        full_name=db_profile.full_name or db_profile.email,
+        temp_password=temp_password,
+        company_name=company_name
+    )
+    
+    log_audit_action(
+        db, 
+        action="USER_INVITE_RESENT", 
+        user_id=current_user.id, 
+        email=current_user.email, 
+        details={"target_user_id": user_id, "target_email": db_profile.email}
+    )
+    
+    return {
+        "message": f"Invitation credentials successfully dispatched to {db_profile.email}",
+        "email": db_profile.email
+    }
 
 @router.delete("/users/{user_id}", status_code=status.HTTP_200_OK)
 def delete_company_user(

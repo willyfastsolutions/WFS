@@ -72,4 +72,7 @@ backend/*.db
 # Agents
 .agents/
 
+# Dist archives
+*.tar.gz
+
 

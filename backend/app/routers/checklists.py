@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from typing import List
 from app.core.database import get_db
 from app.models.models import Profile, ChecklistTemplate, ChecklistItem
@@ -17,12 +17,13 @@ def get_templates(
     db: Session = Depends(get_db),
     current_user: Profile = Depends(get_current_user)
 ):
-    # If superadmin, return all templates
+    # Eagerly load checklist items in a single query to prevent N+1 latency
+    query = db.query(ChecklistTemplate).options(selectinload(ChecklistTemplate.items))
     if current_user.role == "superadmin":
-        return db.query(ChecklistTemplate).all()
+        return query.all()
     
     # If company admin, return global templates (company_id is null) or company-specific templates
-    return db.query(ChecklistTemplate).filter(
+    return query.filter(
         (ChecklistTemplate.company_id == current_user.company_id) | 
         (ChecklistTemplate.company_id == None)
     ).all()

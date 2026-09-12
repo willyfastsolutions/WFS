@@ -59,6 +59,7 @@ class ProfileUpdate(BaseModel):
     role: str
     full_name: Optional[str] = None
     password: Optional[str] = None
+    resend_invite: Optional[bool] = False
 
 class ProfileResponse(ProfileBase):
     id: str

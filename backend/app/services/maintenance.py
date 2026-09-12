@@ -1,4 +1,4 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from app.models.models import MaintenanceLog, Machine
 from app.schemas.schemas import MaintenanceLogCreate
 import uuid
@@ -81,7 +81,7 @@ def perform_maintenance(db: Session, schema: MaintenanceLogCreate, user_id: str)
     return db_log
 
 def get_maintenance_logs(db: Session, company_id: str = None):
-    query = db.query(MaintenanceLog).join(Machine)
+    query = db.query(MaintenanceLog).options(selectinload(MaintenanceLog.checklist_results)).join(Machine)
     if company_id:
         query = query.filter(Machine.company_id == company_id)
     # Return sorted by performance date descending

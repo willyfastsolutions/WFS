@@ -18,7 +18,8 @@ import {
   X,
   Users,
   Edit,
-  Search
+  Search,
+  Mail
 } from "lucide-react";
 import { Profile, Company, Machine, mockDb } from "../mockDb";
 
@@ -73,11 +74,15 @@ export default function B2BCompanies() {
   const [userPassword, setUserPassword] = useState("");
   const [userError, setUserError] = useState<string | null>(null);
   const [isUserSubmitting, setIsUserSubmitting] = useState(false);
+  const [resendingUserId, setResendingUserId] = useState<string | null>(null);
+  const [userSuccessMessage, setUserSuccessMessage] = useState<string | null>(null);
+  const [resendInviteOnEdit, setResendInviteOnEdit] = useState(false);
 
   const openUsersModal = async (company: Company) => {
     setUsersModalCompany(company);
     setUserFormMode("list");
     setUserError(null);
+    setUserSuccessMessage(null);
     setShowUsersModal(true);
     await fetchCompanyUsers(company.id);
   };
@@ -168,7 +173,8 @@ export default function B2BCompanies() {
               full_name: userFullName.trim(),
               email: userEmail.trim().toLowerCase(),
               password: userPassword || undefined,
-              role: userRole
+              role: userRole,
+              resend_invite: resendInviteOnEdit
             })
           });
         }
@@ -182,11 +188,17 @@ export default function B2BCompanies() {
         }
 
         if (response.ok) {
+          if (resendInviteOnEdit) {
+            setUserSuccessMessage(`User updated and invitation email dispatched to ${userEmail.trim().toLowerCase()}!`);
+          } else {
+            setUserSuccessMessage("User updated successfully!");
+          }
           setUserFullName("");
           setUserEmail("");
           setUserPassword("");
           setUserRole("company_admin");
           setSelectedUser(null);
+          setResendInviteOnEdit(false);
           setUserFormMode("list");
           await fetchCompanyUsers(usersModalCompany.id);
           setIsUserSubmitting(false);
@@ -287,6 +299,54 @@ export default function B2BCompanies() {
     fetchCompanyUsers(usersModalCompany.id);
   };
 
+  const handleResendInvite = async (targetUser: Profile) => {
+    if (!usersModalCompany) return;
+    setResendingUserId(targetUser.id);
+    setUserSuccessMessage(null);
+    setUserError(null);
+
+    const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
+    const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+      ? `${window.location.protocol}//${window.location.hostname}:8000`
+      : "";
+
+    if (!isOffline) {
+      try {
+        const token = sessionStorage.getItem("wfs_token");
+        const response = await fetch(`${API_BASE_URL}/api/companies/users/${targetUser.id}/resend-invite`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${token}`
+          }
+        });
+        if (response.status === 401) {
+          sessionStorage.removeItem("wfs_token");
+          sessionStorage.removeItem("wfs_role");
+          sessionStorage.removeItem("wfs_session");
+          router.push("/login");
+          return;
+        }
+        if (response.ok) {
+          const data = await response.json();
+          setUserSuccessMessage(data.message || `Credentials email successfully resent to ${targetUser.email}`);
+        } else {
+          const errData = await response.json();
+          setUserError(errData.detail || "Failed to resend credentials email.");
+        }
+      } catch (err) {
+        setUserError("Server communication error while resending credentials.");
+      } finally {
+        setResendingUserId(null);
+      }
+    } else {
+      // Mock fallback
+      setTimeout(() => {
+        setUserSuccessMessage(`(Offline Mode) Credentials reset for ${targetUser.email}`);
+        setResendingUserId(null);
+      }, 500);
+    }
+  };
+
   const startCreateUser = () => {
     setUserFullName("");
     setUserEmail("");
@@ -294,6 +354,8 @@ export default function B2BCompanies() {
     setUserRole("company_admin");
     setSelectedUser(null);
     setUserError(null);
+    setUserSuccessMessage(null);
+    setResendInviteOnEdit(false);
     setUserFormMode("create");
   };
 
@@ -304,6 +366,8 @@ export default function B2BCompanies() {
     setUserRole(targetUser.role);
     setUserPassword("");
     setUserError(null);
+    setUserSuccessMessage(null);
+    setResendInviteOnEdit(false);
     setUserFormMode("edit");
   };
 
@@ -937,6 +1001,19 @@ export default function B2BCompanies() {
 
             {/* Modal Body */}
             <div className="overflow-y-auto py-4 flex-1 space-y-4">
+              {userSuccessMessage && (
+                <div className="p-3 border border-emerald-500/20 bg-emerald-500/10 rounded-lg text-xs text-emerald-400 flex items-center justify-between">
+                  <span>{userSuccessMessage}</span>
+                  <button onClick={() => setUserSuccessMessage(null)} className="text-emerald-500 hover:text-emerald-300 font-bold ml-2">&times;</button>
+                </div>
+              )}
+              {userError && (
+                <div className="p-3 border border-rose-500/20 bg-rose-500/10 rounded-lg text-xs text-rose-400 flex items-center justify-between">
+                  <span>{userError}</span>
+                  <button onClick={() => setUserError(null)} className="text-rose-500 hover:text-rose-300 font-bold ml-2">&times;</button>
+                </div>
+              )}
+
               {userFormMode === "list" ? (
                 <div className="space-y-4">
                   <div className="flex justify-between items-center">
@@ -981,6 +1058,18 @@ export default function B2BCompanies() {
                               </td>
                               <td className="py-3 px-3 text-right">
                                 <div className="inline-flex items-center gap-1.5">
+                                  <button
+                                    onClick={() => handleResendInvite(item)}
+                                    disabled={resendingUserId === item.id}
+                                    title="Resend Welcome Email & Credentials"
+                                    className="p-1 rounded border border-cyan-950/30 bg-cyan-950/10 text-cyan-400 hover:bg-cyan-950/20 cursor-pointer disabled:opacity-50"
+                                  >
+                                    {resendingUserId === item.id ? (
+                                      <Loader2 className="h-3 w-3 animate-spin" />
+                                    ) : (
+                                      <Mail className="h-3 w-3" />
+                                    )}
+                                  </button>
                                   <button
                                     onClick={() => startEditUser(item)}
                                     title="Edit User"
@@ -1065,22 +1154,37 @@ export default function B2BCompanies() {
                     </div>
 
                     {userFormMode === "edit" && (
-                      <div className="space-y-1.5">
-                        <label htmlFor="user-pass" className="text-[10px] uppercase font-bold text-zinc-500">
-                          New Password (Leave blank to keep current)
-                        </label>
-                        <div className="relative">
-                          <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-700" />
-                          <input
-                            type="password"
-                            id="user-pass"
-                            placeholder="••••••••"
-                            value={userPassword}
-                            onChange={(e) => setUserPassword(e.target.value)}
-                            className="w-full h-10 pl-9 pr-3 rounded-lg border border-zinc-900 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-800 focus:outline-none focus:border-zinc-850 transition-colors font-mono"
-                          />
+                      <>
+                        <div className="space-y-1.5">
+                          <label htmlFor="user-pass" className="text-[10px] uppercase font-bold text-zinc-500">
+                            New Password (Leave blank to keep current)
+                          </label>
+                          <div className="relative">
+                            <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-700" />
+                            <input
+                              type="password"
+                              id="user-pass"
+                              placeholder="••••••••"
+                              value={userPassword}
+                              onChange={(e) => setUserPassword(e.target.value)}
+                              className="w-full h-10 pl-9 pr-3 rounded-lg border border-zinc-900 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-800 focus:outline-none focus:border-zinc-850 transition-colors font-mono"
+                            />
+                          </div>
                         </div>
-                      </div>
+
+                        <div className="flex items-start gap-2.5 p-3 rounded-lg border border-cyan-900/30 bg-cyan-950/10 text-cyan-400">
+                          <input
+                            type="checkbox"
+                            id="resend-invite-checkbox"
+                            checked={resendInviteOnEdit}
+                            onChange={(e) => setResendInviteOnEdit(e.target.checked)}
+                            className="mt-0.5 h-4 w-4 rounded border-zinc-800 bg-zinc-950 text-cyan-500 focus:ring-0 cursor-pointer"
+                          />
+                          <label htmlFor="resend-invite-checkbox" className="text-xs leading-relaxed cursor-pointer select-none">
+                            <strong>Resend Welcome Credentials:</strong> Automatically generate a new temporary password and email it to this address.
+                          </label>
+                        </div>
+                      </>
                     )}
 
                     {userFormMode === "create" && (

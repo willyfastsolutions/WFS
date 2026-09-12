@@ -22,6 +22,7 @@ import {
   X
 } from "lucide-react";
 import { Profile, Company, Machine, mockDb } from "./mockDb";
+import { compressImage } from "./imageUtils";
 
 export default function FleetOverview() {
   const router = useRouter();
@@ -87,7 +88,7 @@ export default function FleetOverview() {
     setIsWebcamOpen(false);
   };
 
-  const captureWebcamPhoto = () => {
+  const captureWebcamPhoto = async () => {
     if (editVideoRef.current) {
       const video = editVideoRef.current;
       const canvas = document.createElement("canvas");
@@ -96,7 +97,13 @@ export default function FleetOverview() {
       const ctx = canvas.getContext("2d");
       if (ctx) {
         ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        setEditPhoto(canvas.toDataURL("image/png"));
+        const raw = canvas.toDataURL("image/jpeg", 0.85);
+        try {
+          const compressed = await compressImage(raw, 1024, 1024, 0.75);
+          setEditPhoto(compressed);
+        } catch (err) {
+          setEditPhoto(raw);
+        }
       }
       stopWebcam();
     }
@@ -130,23 +137,50 @@ export default function FleetOverview() {
       : "";
 
     if (!isOffline) {
+      const token = sessionStorage.getItem("wfs_token");
+      if (!token) {
+        sessionStorage.removeItem("wfs_role");
+        sessionStorage.removeItem("wfs_session");
+        router.push("/login");
+        return;
+      }
+
+      const payload = {
+        name: editName,
+        brand: editBrand,
+        model: editModel,
+        serial_number: editSerial,
+        photo: editPhoto || null,
+        company_id: editCompanyId
+      };
+
+      const sendUpdate = async (attempt: number): Promise<Response> => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
+        try {
+          const res = await fetch(`${API_BASE_URL}/api/machinery/${editModalMachine.id}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(payload),
+            signal: controller.signal
+          });
+          clearTimeout(timeoutId);
+          return res;
+        } catch (fetchErr) {
+          clearTimeout(timeoutId);
+          if (attempt === 1) {
+            await new Promise(r => setTimeout(r, 1200));
+            return sendUpdate(2);
+          }
+          throw fetchErr;
+        }
+      };
+
       try {
-        const token = sessionStorage.getItem("wfs_token");
-        const response = await fetch(`${API_BASE_URL}/api/machinery/${editModalMachine.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-          },
-          body: JSON.stringify({
-            name: editName,
-            brand: editBrand,
-            model: editModel,
-            serial_number: editSerial,
-            photo: editPhoto || null,
-            company_id: editCompanyId
-          }),
-        });
+        const response = await sendUpdate(1);
 
         if (response.status === 401) {
           sessionStorage.removeItem("wfs_token");
@@ -163,12 +197,22 @@ export default function FleetOverview() {
           refreshData();
           return;
         } else {
-          const errData = await response.json();
-          alert(errData.detail || "Failed to save updates to database.");
+          let detail = "Error al actualizar la máquina en el servidor.";
+          try {
+            const errData = await response.json();
+            if (errData?.detail) detail = errData.detail;
+          } catch (_) {}
+          alert(detail);
           return;
         }
-      } catch (err) {
-        console.error("API update machine failed, using mock fallback:", err);
+      } catch (err: any) {
+        console.error("API update machine failed:", err);
+        const isAbort = err?.name === "AbortError";
+        alert(isAbort 
+          ? "Tiempo de espera agotado: Conexión lenta en la tablet. Tus cambios no se perdieron, intenta guardar nuevamente."
+          : "Error de red: No se pudo conectar al servidor central. Verifica tu conexión e intenta guardar de nuevo."
+        );
+        return;
       }
     }
 
@@ -1180,14 +1224,20 @@ export default function FleetOverview() {
                   ref={editFileInputRef}
                   accept="image/*"
                   className="hidden"
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const file = e.target.files?.[0];
                     if (file) {
-                      const reader = new FileReader();
-                      reader.onload = (event) => {
-                        setEditPhoto(event.target?.result as string);
-                      };
-                      reader.readAsDataURL(file);
+                      try {
+                        const compressed = await compressImage(file, 1024, 1024, 0.75);
+                        setEditPhoto(compressed);
+                      } catch (err) {
+                        console.error("Image compression error, falling back:", err);
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          setEditPhoto(event.target?.result as string);
+                        };
+                        reader.readAsDataURL(file);
+                      }
                     }
                   }}
                 />
