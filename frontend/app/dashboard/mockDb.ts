@@ -407,15 +407,28 @@ export const mockDb = {
     return companies.find(c => c.id === id) || null;
   },
 
-  addCompany: (name: string, maintenance_threshold?: number): Company => {
+  addCompany: (param: string | Company, maintenance_threshold?: number): Company => {
     mockDb.initialize();
     const companies = getStorageItem<Company[]>('wfs_companies', initialCompanies);
-    const newCompany: Company = {
-      id: 'comp_' + Math.random().toString(36).substr(2, 9),
-      name: name,
-      maintenance_threshold: maintenance_threshold
-    };
-    companies.push(newCompany);
+    let newCompany: Company;
+    if (typeof param === 'object' && param !== null) {
+      newCompany = {
+        ...param,
+        id: param.id || 'comp_' + Math.random().toString(36).substr(2, 9)
+      };
+    } else {
+      newCompany = {
+        id: 'comp_' + Math.random().toString(36).substr(2, 9),
+        name: param,
+        maintenance_threshold: maintenance_threshold
+      };
+    }
+    const existsIndex = companies.findIndex(c => c.id === newCompany.id);
+    if (existsIndex !== -1) {
+      companies[existsIndex] = newCompany;
+    } else {
+      companies.push(newCompany);
+    }
     setStorageItem('wfs_companies', companies);
     return newCompany;
   },
@@ -462,15 +475,29 @@ export const mockDb = {
 
   addMachine: (machine: Omit<Machine, 'id' | 'created_at'>): Machine => {
     mockDb.initialize();
-    const settings = mockDb.getSystemSettings();
-    const threshold = settings.default_maintenance_threshold;
+    
+    // Priority 1: Target company configured threshold
+    const comp = mockDb.getCompanyById(machine.company_id);
+    let threshold = (comp && comp.maintenance_threshold && comp.maintenance_threshold > 0) 
+      ? comp.maintenance_threshold 
+      : null;
 
-    // Support real machinery with high initial hours (no threshold block)
+    // Priority 2: Machine provided threshold
+    if (!threshold && machine.maintenance_threshold_hours && machine.maintenance_threshold_hours > 0) {
+      threshold = machine.maintenance_threshold_hours;
+    }
+
+    // Priority 3: System default threshold setting
+    if (!threshold) {
+      const settings = mockDb.getSystemSettings();
+      threshold = settings.default_maintenance_threshold || 250.0;
+    }
+
     const machinery = getStorageItem<Machine[]>('wfs_machinery', initialMachinery);
     const newMachine: Machine = {
       ...machine,
       id: 'mac_' + Math.random().toString(36).substr(2, 9),
-      maintenance_threshold_hours: threshold, // override with dynamic threshold
+      maintenance_threshold_hours: threshold,
       created_at: new Date().toISOString()
     };
     machinery.push(newMachine);

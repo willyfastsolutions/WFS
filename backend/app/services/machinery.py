@@ -15,18 +15,30 @@ def get_machine_by_id(db: Session, machine_id: str):
     return db.query(Machine).filter(Machine.id == machine_id).first()
 
 def add_machine(db: Session, schema: MachineCreate):
-    # Fetch default threshold from system settings
-    from app.models.models import SystemSetting
-    default_threshold = 250.0
-    setting = db.query(SystemSetting).filter(SystemSetting.key == "default_maintenance_threshold").first()
-    if setting:
-        try:
-            default_threshold = float(setting.value)
-        except Exception:
-            pass
-
-    # Removed initial hours check to support real machinery registration with high initial hours (e.g. 1234.0h)
+    from app.models.models import SystemSetting, Company
+    
+    # Priority 1: Check target company's configured maintenance threshold
+    target_threshold = None
+    if schema.company_id:
+        company = db.query(Company).filter(Company.id == schema.company_id).first()
+        if company and company.maintenance_threshold is not None and float(company.maintenance_threshold) > 0:
+            target_threshold = float(company.maintenance_threshold)
+            
+    # Priority 2: Check schema provided threshold if passed specifically
+    if target_threshold is None and schema.maintenance_threshold_hours is not None and float(schema.maintenance_threshold_hours) > 0:
+        target_threshold = float(schema.maintenance_threshold_hours)
         
+    # Priority 3: Fallback to system setting or default 250.0
+    if target_threshold is None:
+        default_threshold = 250.0
+        setting = db.query(SystemSetting).filter(SystemSetting.key == "default_maintenance_threshold").first()
+        if setting:
+            try:
+                default_threshold = float(setting.value)
+            except Exception:
+                pass
+        target_threshold = default_threshold
+
     db_machine = Machine(
         id=str(uuid.uuid4()),
         company_id=schema.company_id,
@@ -36,7 +48,7 @@ def add_machine(db: Session, schema: MachineCreate):
         model=schema.model,
         serial_number=schema.serial_number,
         current_hours=schema.current_hours,
-        maintenance_threshold_hours=default_threshold,
+        maintenance_threshold_hours=target_threshold,
         last_maintenance_hours=schema.current_hours,
         photo=schema.photo
     )

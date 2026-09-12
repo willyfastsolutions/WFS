@@ -90,6 +90,7 @@ class MachineCreate(BaseModel):
     current_hours: float = 0.0
     company_id: str  # Target B2B company
     photo: Optional[str] = None
+    maintenance_threshold_hours: Optional[float] = None
 
 class MachineUpdate(BaseModel):
     name: str

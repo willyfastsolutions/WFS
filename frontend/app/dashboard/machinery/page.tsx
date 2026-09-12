@@ -143,7 +143,12 @@ export default function RegisterMachinery() {
               const data = await response.json() as Company[];
               setCompanies(data);
               mockDb.setCompanies(data);
-              if (data.length > 0) setTargetCompanyId(data[0].id);
+              if (data.length > 0) {
+                setTargetCompanyId(data[0].id);
+                if (data[0].maintenance_threshold && data[0].maintenance_threshold > 0) {
+                  setMaxHours(data[0].maintenance_threshold);
+                }
+              }
               return;
             }
           } catch (err) {
@@ -153,7 +158,12 @@ export default function RegisterMachinery() {
         
         const comps = mockDb.getCompanies();
         setCompanies(comps);
-        if (comps.length > 0) setTargetCompanyId(comps[0].id);
+        if (comps.length > 0) {
+          setTargetCompanyId(comps[0].id);
+          if (comps[0].maintenance_threshold && comps[0].maintenance_threshold > 0) {
+            setMaxHours(comps[0].maintenance_threshold);
+          }
+        }
       } else {
         const compId = profile.company_id || "";
         setTargetCompanyId(compId);
@@ -180,6 +190,9 @@ export default function RegisterMachinery() {
             .then(data => {
               if (data && data.name) {
                 setCompanyName(data.name);
+                if (data.maintenance_threshold && data.maintenance_threshold > 0) {
+                  setMaxHours(data.maintenance_threshold);
+                }
                 try {
                   // Sincronizar localmente en mockDb para consistencia
                   mockDb.addCompany(data);
@@ -530,7 +543,12 @@ export default function RegisterMachinery() {
 
             {/* Target Company (Selectable for Superadmin, locked for Company Admin) */}
             <div className="space-y-1.5 relative">
-              <label className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider">Assign to B2B Company</label>
+              <label className="text-[10px] uppercase font-bold text-zinc-500 tracking-wider flex items-center justify-between">
+                <span>Assign to B2B Company</span>
+                <span className="text-[10px] text-zinc-400 font-mono font-normal">
+                  PM Threshold: <strong className="text-zinc-200">{maxHours} hrs</strong>
+                </span>
+              </label>
               
               {user?.role === "superadmin" ? (
                 <>
@@ -555,22 +573,38 @@ export default function RegisterMachinery() {
                           onClick={() => {
                             setTargetCompanyId(comp.id);
                             setIsCompanyDropdownOpen(false);
+                            if (comp.maintenance_threshold && comp.maintenance_threshold > 0) {
+                              setMaxHours(comp.maintenance_threshold);
+                            } else {
+                              const settings = mockDb.getSystemSettings();
+                              setMaxHours(settings.default_maintenance_threshold || 250);
+                            }
                           }}
                           className={`flex w-full items-center justify-between px-3 py-2 text-left rounded-md hover:bg-zinc-900 transition-colors cursor-pointer text-xs font-semibold ${
                             targetCompanyId === comp.id ? "bg-zinc-900/60 text-zinc-100" : "text-zinc-400"
                           }`}
                         >
-                          {comp.name}
-                          {targetCompanyId === comp.id && <Check className="h-3.5 w-3.5 text-zinc-200" />}
+                          <span>{comp.name}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[10px] text-zinc-500 font-mono">
+                              {comp.maintenance_threshold ? `${comp.maintenance_threshold}h` : "250h"}
+                            </span>
+                            {targetCompanyId === comp.id && <Check className="h-3.5 w-3.5 text-zinc-200" />}
+                          </div>
                         </button>
                       ))}
                     </div>
                   )}
                 </>
               ) : (
-                <div className="flex h-10 w-full items-center rounded-lg border border-zinc-900 bg-zinc-900/40 px-3 text-xs text-zinc-500 font-semibold select-none">
-                  <Building className="h-3.5 w-3.5 text-zinc-600 mr-2" />
-                  {companyName || "Your Company"} (Locked Tenant)
+                <div className="flex h-10 w-full items-center justify-between rounded-lg border border-zinc-900 bg-zinc-900/40 px-3 text-xs text-zinc-500 font-semibold select-none">
+                  <div className="flex items-center">
+                    <Building className="h-3.5 w-3.5 text-zinc-600 mr-2" />
+                    {companyName || "Your Company"} (Locked Tenant)
+                  </div>
+                  <span className="text-[10px] text-zinc-400 font-mono font-normal">
+                    {maxHours} hrs
+                  </span>
                 </div>
               )}
             </div>

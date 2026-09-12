@@ -48,10 +48,23 @@ def create_company(
             detail="A B2B company with this name is already registered."
         )
         
+    # Determine maintenance threshold: user-specified or platform system setting
+    threshold = company.maintenance_threshold
+    if threshold is None or threshold <= 0:
+        from app.models.models import SystemSetting
+        setting = db.query(SystemSetting).filter(SystemSetting.key == "default_maintenance_threshold").first()
+        if setting:
+            try:
+                threshold = float(setting.value)
+            except Exception:
+                threshold = 250.0
+        else:
+            threshold = 250.0
+
     db_company = Company(
         id=str(uuid.uuid4()),
         name=company.name,
-        maintenance_threshold=company.maintenance_threshold,
+        maintenance_threshold=threshold,
         active=True
     )
     db.add(db_company)
