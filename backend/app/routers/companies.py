@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.core.database import get_db
-from app.models.models import Machine, Profile, Company
+from app.models.models import Machine, Profile, Company, ChecklistTemplate
 from app.schemas.schemas import CompanyResponse, CompanyCreate, AuthActionRequest, ProfileCreate, ProfileResponse, ProfileUpdate
 from app.routers.auth import get_current_user, validate_password_strength
 from app.services.auth import verify_password, get_password_hash
@@ -182,7 +182,12 @@ def delete_company(
             detail="B2B Company not found"
         )
         
-    # Delete from database (Cascades automatically to machines, users, etc.)
+    # Clean up custom checklist templates belonging specifically to this company
+    custom_templates = db.query(ChecklistTemplate).filter(ChecklistTemplate.company_id == company_id).all()
+    for tmpl in custom_templates:
+        db.delete(tmpl)
+        
+    # Delete company from database (Cascades automatically to machines, users, logs, photos, etc.)
     company_name = db_company.name
     db.delete(db_company)
     db.commit()
