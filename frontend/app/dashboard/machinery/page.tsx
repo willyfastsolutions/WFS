@@ -217,6 +217,12 @@ export default function RegisterMachinery() {
     if (!isOffline) {
       try {
         const token = sessionStorage.getItem("wfs_token");
+        if (!token) {
+          sessionStorage.removeItem("wfs_role");
+          sessionStorage.removeItem("wfs_session");
+          router.push("/login");
+          return;
+        }
         const response = await fetch(`${API_BASE_URL}/api/machinery/`, {
           method: "POST",
           headers: {
@@ -322,7 +328,8 @@ export default function RegisterMachinery() {
           }
         }, 1500);
       } catch (err) {
-        setStatus({ type: "error", text: "Failed to save machine. Please verify data formats." });
+        const errorMsg = err instanceof Error ? err.message : "Failed to save machine. Please verify data formats.";
+        setStatus({ type: "error", text: errorMsg });
       } finally {
         setIsSubmitting(false);
       }

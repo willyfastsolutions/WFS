@@ -465,10 +465,7 @@ export const mockDb = {
     const settings = mockDb.getSystemSettings();
     const threshold = settings.default_maintenance_threshold;
 
-    if (machine.current_hours > threshold) {
-      throw new Error(`Initial hours cannot exceed ${threshold} hours.`);
-    }
-
+    // Support real machinery with high initial hours (no threshold block)
     const machinery = getStorageItem<Machine[]>('wfs_machinery', initialMachinery);
     const newMachine: Machine = {
       ...machine,
