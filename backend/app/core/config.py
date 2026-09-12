@@ -8,6 +8,11 @@ load_dotenv(dotenv_path)
 class Settings:
     def __init__(self):
         self.DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./willyfast.db")
+        if self.DATABASE_URL.startswith("sqlite:///./"):
+            backend_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+            db_name = self.DATABASE_URL.replace("sqlite:///./", "")
+            abs_db_path = os.path.abspath(os.path.join(backend_dir, db_name)).replace("\\", "/")
+            self.DATABASE_URL = f"sqlite:///{abs_db_path}"
         
         # Enforce SECRET_KEY in production (non-SQLite database), fallback with warning in dev
         _secret = os.getenv("SECRET_KEY")

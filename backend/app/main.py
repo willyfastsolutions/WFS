@@ -21,8 +21,10 @@ allowed_origins = [
     "https://willyfastsolutions.com",
     "https://www.willyfastsolutions.com",
     "http://localhost:3000",
+    "http://localhost:5000",
     "http://localhost:5173",
     "http://127.0.0.1:3000",
+    "http://127.0.0.1:5000",
     "http://127.0.0.1:5173",
 ]
 
@@ -173,63 +175,87 @@ def seed_database():
 def run_migrations():
     db = SessionLocal()
     try:
+        from sqlalchemy import inspect
+        inspector = inspect(db.get_bind())
+        existing_tables = inspector.get_table_names()
+
         # Create table system_settings if not exists
-        db.execute(text("CREATE TABLE IF NOT EXISTS system_settings (key VARCHAR(50) PRIMARY KEY, value VARCHAR(255) NOT NULL)"))
+        if "system_settings" not in existing_tables:
+            db.execute(text("CREATE TABLE IF NOT EXISTS system_settings (key VARCHAR(50) PRIMARY KEY, value VARCHAR(255) NOT NULL)"))
+            db.commit()
+            print("[MIGRATION] Ensured system_settings table exists.")
         
         # Create table audit_logs if not exists
-        db.execute(text("""
-            CREATE TABLE IF NOT EXISTS audit_logs (
-                id VARCHAR(36) PRIMARY KEY,
-                user_id VARCHAR(36),
-                email VARCHAR(255),
-                action VARCHAR(100) NOT NULL,
-                details TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-            )
-        """))
-        print("[MIGRATION] Ensured audit_logs table exists.")
+        if "audit_logs" not in existing_tables:
+            db.execute(text("""
+                CREATE TABLE IF NOT EXISTS audit_logs (
+                    id VARCHAR(36) PRIMARY KEY,
+                    user_id VARCHAR(36),
+                    email VARCHAR(255),
+                    action VARCHAR(100) NOT NULL,
+                    details TEXT,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+                )
+            """))
+            db.commit()
+            print("[MIGRATION] Ensured audit_logs table exists.")
 
         # Create table quote_requests if not exists
-        db.execute(text("""
-            CREATE TABLE IF NOT EXISTS quote_requests (
-                id VARCHAR(36) PRIMARY KEY,
-                full_name VARCHAR(255) NOT NULL,
-                email VARCHAR(255) NOT NULL,
-                company_name VARCHAR(255) NOT NULL,
-                message TEXT NOT NULL,
-                ip_address VARCHAR(45) NOT NULL,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
-            )
-        """))
-        print("[MIGRATION] Ensured quote_requests table exists.")
+        if "quote_requests" not in existing_tables:
+            db.execute(text("""
+                CREATE TABLE IF NOT EXISTS quote_requests (
+                    id VARCHAR(36) PRIMARY KEY,
+                    full_name VARCHAR(255) NOT NULL,
+                    email VARCHAR(255) NOT NULL,
+                    company_name VARCHAR(255) NOT NULL,
+                    message TEXT NOT NULL,
+                    ip_address VARCHAR(45) NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+                )
+            """))
+            db.commit()
+            print("[MIGRATION] Ensured quote_requests table exists.")
         
-        # Check if warning_sent column exists
-        cursor = db.execute(text("PRAGMA table_info(machinery)"))
-        columns = [row[1] for row in cursor.fetchall()]
-        if "warning_sent" not in columns:
-            db.execute(text("ALTER TABLE machinery ADD COLUMN warning_sent BOOLEAN DEFAULT 0 NOT NULL"))
-            print("[MIGRATION] Added warning_sent column to machinery table.")
-        if "revoked" not in columns:
-            db.execute(text("ALTER TABLE machinery ADD COLUMN revoked BOOLEAN DEFAULT 0 NOT NULL"))
-            print("[MIGRATION] Added revoked column to machinery table.")
+        # Check if warning_sent and revoked columns exist in machinery
+        inspector = inspect(db.get_bind())
+        if "machinery" in inspector.get_table_names():
+            machinery_cols = [c['name'] for c in inspector.get_columns('machinery')]
+            if "warning_sent" not in machinery_cols:
+                try:
+                    db.execute(text("ALTER TABLE machinery ADD COLUMN warning_sent BOOLEAN DEFAULT 0 NOT NULL"))
+                    db.commit()
+                    print("[MIGRATION] Added warning_sent column to machinery table.")
+                except Exception:
+                    db.rollback()
+            if "revoked" not in machinery_cols:
+                try:
+                    db.execute(text("ALTER TABLE machinery ADD COLUMN revoked BOOLEAN DEFAULT 0 NOT NULL"))
+                    db.commit()
+                    print("[MIGRATION] Added revoked column to machinery table.")
+                except Exception:
+                    db.rollback()
 
         # Check if must_change_password column exists in profiles
-        cursor2 = db.execute(text("PRAGMA table_info(profiles)"))
-        profile_columns = [row[1] for row in cursor2.fetchall()]
-        if "must_change_password" not in profile_columns:
-            try:
-                db.execute(text("ALTER TABLE profiles ADD COLUMN must_change_password BOOLEAN DEFAULT 0 NOT NULL"))
-                print("[MIGRATION] Added must_change_password column to profiles table.")
-            except Exception:
-                db.rollback()
+        if "profiles" in inspector.get_table_names():
+            profile_cols = [c['name'] for c in inspector.get_columns('profiles')]
+            if "must_change_password" not in profile_cols:
+                try:
+                    db.execute(text("ALTER TABLE profiles ADD COLUMN must_change_password BOOLEAN DEFAULT 0 NOT NULL"))
+                    db.commit()
+                    print("[MIGRATION] Added must_change_password column to profiles table.")
+                except Exception:
+                    db.rollback()
 
-        # Add maintenance_threshold column to companies table
-        try:
-            db.execute(text("ALTER TABLE companies ADD COLUMN maintenance_threshold FLOAT"))
-            db.commit()
-            print("[MIGRATION] Added maintenance_threshold column to companies table.")
-        except Exception:
-            db.rollback()
+        # Add maintenance_threshold column to companies table if not present
+        if "companies" in inspector.get_table_names():
+            company_cols = [c['name'] for c in inspector.get_columns('companies')]
+            if "maintenance_threshold" not in company_cols:
+                try:
+                    db.execute(text("ALTER TABLE companies ADD COLUMN maintenance_threshold FLOAT"))
+                    db.commit()
+                    print("[MIGRATION] Added maintenance_threshold column to companies table.")
+                except Exception:
+                    db.rollback()
             
         # Seed default configs if not present
         from app.models.models import SystemSetting
