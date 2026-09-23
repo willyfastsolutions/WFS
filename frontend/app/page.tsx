@@ -126,7 +126,7 @@ const INITIAL_REVIEWS: ReviewItem[] = [
 ];
 
 export default function Home() {
-  const [lang, setLang] = useState<"en" | "es">("es");
+  const [lang, setLang] = useState<"en" | "es">("en");
   const [activeTab, setActiveTab] = useState<MachineType>("forklift");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formSubmitted, setFormSubmitted] = useState(false);
@@ -386,7 +386,9 @@ export default function Home() {
                 <Star className="h-3 w-3 fill-amber-400" />
               </div>
               <span className="font-bold text-zinc-100 text-[11px]">5.0</span>
-              <span className="text-zinc-400 text-[11px] underline">6 Opiniones Google</span>
+              <span className="text-zinc-400 text-[11px] underline">
+                {lang === "es" ? "6 Opiniones Google" : "6 Google Reviews"}
+              </span>
             </a>
           </div>
 
@@ -553,7 +555,7 @@ export default function Home() {
                 id="btn-hero-whatsapp" 
                 className="w-full sm:w-auto inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-emerald-500/40 bg-zinc-950 px-6 text-sm font-semibold text-emerald-400 transition-all hover:bg-emerald-500/10 hover:border-emerald-400"
               >
-                <MessageCircle className="h-4 w-4" /> WhatsApp Directo
+                <MessageCircle className="h-4 w-4" /> {lang === "es" ? "WhatsApp Directo" : "Direct WhatsApp"}
               </a>
               <a 
                 href="#services" 
