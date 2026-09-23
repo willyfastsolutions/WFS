@@ -1,6 +1,6 @@
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Float, Boolean, DateTime, ForeignKey, Text
+from sqlalchemy import Column, String, Float, Integer, Boolean, DateTime, ForeignKey, Text
 from sqlalchemy.orm import relationship
 from app.core.database import Base
 
@@ -153,5 +153,18 @@ class QuoteRequest(Base):
     company_name = Column(String(255), nullable=False)
     message = Column(Text, nullable=False)
     ip_address = Column(String(45), nullable=False)
+    created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
+
+class PublicReview(Base):
+    __tablename__ = "public_reviews"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    author_name = Column(String(255), nullable=False)
+    company_name = Column(String(255), nullable=True)
+    rating = Column(Integer, default=5, nullable=False)  # 1 to 5
+    comment = Column(Text, nullable=False)
+    service_type = Column(String(100), default="Forklift Maintenance", nullable=False)
+    location = Column(String(150), default="Queens, NY", nullable=True)
+    approved = Column(Boolean, default=True, nullable=False)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
 

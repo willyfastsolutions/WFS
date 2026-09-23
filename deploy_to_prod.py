@@ -81,6 +81,7 @@ def deploy_to_vps():
         ("backend/app/routers/maintenance.py", "/var/www/willyfastsolutions/backend/app/routers/maintenance.py"),
         ("backend/app/routers/settings.py", "/var/www/willyfastsolutions/backend/app/routers/settings.py"),
         ("backend/app/routers/quotes.py", "/var/www/willyfastsolutions/backend/app/routers/quotes.py"),
+        ("backend/app/routers/reviews.py", "/var/www/willyfastsolutions/backend/app/routers/reviews.py"),
         ("backend/app/schemas/schemas.py", "/var/www/willyfastsolutions/backend/app/schemas/schemas.py"),
         ("backend/app/services/machinery.py", "/var/www/willyfastsolutions/backend/app/services/machinery.py"),
         ("backend/app/services/maintenance.py", "/var/www/willyfastsolutions/backend/app/services/maintenance.py"),

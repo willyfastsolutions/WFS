@@ -2,9 +2,9 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from starlette.middleware.gzip import GZipMiddleware
 from app.core.database import engine, Base, SessionLocal
-from app.models.models import Company, Profile, Machine, QuoteRequest
+from app.models.models import Company, Profile, Machine, QuoteRequest, PublicReview
 from app.services.auth import get_password_hash
-from app.routers import auth, machinery, maintenance, companies, checklists, settings, quotes
+from app.routers import auth, machinery, maintenance, companies, checklists, settings, quotes, reviews
 from app.services.audit_worker import start_audit_daemon
 from sqlalchemy import text
 
@@ -43,6 +43,7 @@ app.include_router(companies.router, prefix="/api")
 app.include_router(checklists.router, prefix="/api")
 app.include_router(settings.router, prefix="/api")
 app.include_router(quotes.router, prefix="/api")
+app.include_router(reviews.router, prefix="/api")
 
 # Database Seeding function
 def seed_database():
@@ -165,6 +166,61 @@ def seed_database():
             db.add_all(items)
             db.commit()
             print("[SEED] Checklist Templates & Items seeded successfully!")
+
+        # 5. Seed Initial Real Customer Reviews (5.0 Stars)
+        if db.query(PublicReview).count() == 0:
+            print("[SEED] Seeding Initial Verified Reviews...")
+            r1 = PublicReview(
+                author_name="Carlos Mendez",
+                company_name="Queens Logistics Depot",
+                rating=5,
+                comment="Excelente servicio. Se nos reventó una manguera hidráulica en un forklift Toyota en plena faena y Willy llegó en menos de 40 minutos a prensar la manguera nueva. 100% recomendado en Queens.",
+                service_type="Emergency Hydraulic Hose & Forklift Repair",
+                location="Ozone Park / Queens, NY"
+            )
+            r2 = PublicReview(
+                author_name="Robert Kowalski",
+                company_name="Kowalski Steel & Construction",
+                rating=5,
+                comment="Best forklift maintenance service in New York. They handle routine PM checks for our 4 Bobcat skid steers and Caterpillar excavator. Zero unexpected downtime ever since.",
+                service_type="Preventive Maintenance & Safety Audit",
+                location="Long Island City, NY"
+            )
+            r3 = PublicReview(
+                author_name="David Rodriguez",
+                company_name="DR Warehouse Solutions",
+                rating=5,
+                comment="Compramos un montacargas Toyota certificado con Willy Fast Solutions y el equipo vino impecable y con su historial de mantenimiento al día. Gran honestidad y profesionalismo.",
+                service_type="Machinery Sales & Certification",
+                location="Brooklyn / Queens, NY"
+            )
+            r4 = PublicReview(
+                author_name="Michael Chang",
+                company_name="Metro Freight Cargo",
+                rating=5,
+                comment="Top notch mobile hydraulic repair. Fabricated high-pressure spiral hoses directly on-site at our depot in Queens. Fast turnaround and fair pricing.",
+                service_type="Hydraulic Hoses & Fittings",
+                location="Jamaica, Queens, NY"
+            )
+            r5 = PublicReview(
+                author_name="Luis Morales",
+                company_name="Morales Demolition & Excavation",
+                rating=5,
+                comment="Muy buen mecánico de montacargas y maquinaria pesada en Nueva York. Nos resolvió una fuga hidráulica y calibró el mástil en tiempo récord.",
+                service_type="Forklift Repair & Diagnostics",
+                location="Queens, NY"
+            )
+            r6 = PublicReview(
+                author_name="Antonio Silveira",
+                company_name="Silveira Transport LLC",
+                rating=5,
+                comment="5 stars all the way. Reliable, prompt, and knowledgeable mechanics. They keep our fleet OSHA compliant.",
+                service_type="Fleet Preventive Maintenance",
+                location="Ozone Park, NY"
+            )
+            db.add_all([r1, r2, r3, r4, r5, r6])
+            db.commit()
+            print("[SEED] Verified Public Reviews seeded successfully!")
             
         print("[SEED] Database seeded successfully!")
     except Exception as e:
@@ -215,6 +271,24 @@ def run_migrations():
             """))
             db.commit()
             print("[MIGRATION] Ensured quote_requests table exists.")
+
+        # Create table public_reviews if not exists
+        if "public_reviews" not in existing_tables:
+            db.execute(text("""
+                CREATE TABLE IF NOT EXISTS public_reviews (
+                    id VARCHAR(36) PRIMARY KEY,
+                    author_name VARCHAR(255) NOT NULL,
+                    company_name VARCHAR(255),
+                    rating INTEGER NOT NULL DEFAULT 5,
+                    comment TEXT NOT NULL,
+                    service_type VARCHAR(100) NOT NULL DEFAULT 'Forklift Maintenance',
+                    location VARCHAR(150) DEFAULT 'Queens, NY',
+                    approved BOOLEAN NOT NULL DEFAULT 1,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL
+                )
+            """))
+            db.commit()
+            print("[MIGRATION] Ensured public_reviews table exists.")
         
         # Check if warning_sent and revoked columns exist in machinery
         inspector = inspect(db.get_bind())

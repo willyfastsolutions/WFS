@@ -58,7 +58,8 @@ TABLES = [
     "maintenance_logs",
     "maintenance_checklist_results",
     "audit_logs",
-    "quote_requests"
+    "quote_requests",
+    "public_reviews"
 ]
 
 print("[SYNC] Replicating data from Production to Local SQLite...")

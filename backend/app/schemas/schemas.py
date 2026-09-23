@@ -254,5 +254,27 @@ class QuoteRequestResponse(BaseModel):
     class Config:
         from_attributes = True
 
+# Public Review Schemas
+class ReviewBase(BaseModel):
+    author_name: str
+    company_name: Optional[str] = None
+    rating: int = 5
+    comment: str
+    service_type: str = "Forklift Maintenance"
+    location: Optional[str] = "Queens, NY"
 
+class ReviewCreate(ReviewBase):
+    pass
 
+class ReviewResponse(ReviewBase):
+    id: str
+    approved: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+class ReviewSummaryResponse(BaseModel):
+    average_rating: float
+    total_reviews: int
+    reviews: List[ReviewResponse]
