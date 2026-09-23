@@ -13,11 +13,17 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Willy Fast Solutions Corp | Forklift Service, Hydraulic Hoses & Machinery in Queens, NY",
-  description: "Servicio de montacargas, reparación de mangueras hidráulicas y maquinaria pesada en Queens, NY. Top-rated forklift maintenance, hydraulic hose repair, and machinery sales in New York. Call +1 (718) 404-2038.",
+  title: "Willy Fast Solutions Corp | Forklift Service, Tires & Hydraulic Hoses in Queens, NY",
+  description: "Servicio y llantas para montacargas, reparación de mangueras hidráulicas y maquinaria pesada en Queens, NY. Top-rated forklift tires, mobile pressing, hydraulic hose repair, and maintenance in New York. Call +1 (718) 404-2038.",
   keywords: [
     "forklift service queens new york",
     "servicio de forklift queens new york",
+    "llantas para montacargas new york",
+    "forklift tires queens ny",
+    "solid forklift tires replacement",
+    "cushion tires forklift queens",
+    "mobile forklift tire pressing ny",
+    "llantas solidas para montacargas queens",
     "mantenimiento de montacargas new york",
     "reparacion de montacargas queens",
     "forklift repair queens ny",
@@ -168,6 +174,14 @@ export default function RootLayout({
             "@type": "Service",
             "name": "Forklift & Heavy Equipment Sales & Rental",
             "description": "Certified pre-owned and new forklifts, skid steer loaders, and hydraulic attachments with telemetry warranties."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "New Forklift Tires, Mobile Pressing & Installation Service",
+            "description": "Solid pneumatic tires, cushion smooth/traction tires, non-marking warehouse tires, and on-site mobile hydraulic tire pressing in Queens, Brooklyn, and NY."
           }
         },
         {

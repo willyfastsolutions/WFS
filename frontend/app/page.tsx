@@ -30,7 +30,9 @@ import {
   ShoppingCart,
   ExternalLink,
   Globe,
-  Sparkles
+  Sparkles,
+  CircleDot,
+  ChevronDown
 } from "lucide-react";
 
 type MachineType = "forklift" | "excavator" | "skid_steer";
@@ -111,6 +113,15 @@ const INITIAL_REVIEWS: ReviewItem[] = [
     comment: "5 stars all the way. Reliable, prompt, and knowledgeable mechanics. They keep our fleet OSHA compliant.",
     service_type: "Fleet Preventive Maintenance",
     location: "Ozone Park, NY"
+  },
+  {
+    id: "rev-7",
+    author_name: "Jorge Benitez",
+    company_name: "Benitez Food Distribution Inc.",
+    rating: 5,
+    comment: "Excelente servicio de cambio de llantas sólidas para nuestros montacargas Crown. Llegaron con su prensa hidráulica móvil y prensaron las 4 llantas directamente en nuestro almacén en Queens. Cero tiempo muerto y llantas que no dejan huella.",
+    service_type: "Forklift Tires & Mobile Pressing",
+    location: "Maspeth / Queens, NY"
   }
 ];
 
@@ -137,6 +148,7 @@ export default function Home() {
   const [reviewLocation, setReviewLocation] = useState("Queens, NY");
   const [isReviewSubmitting, setIsReviewSubmitting] = useState(false);
   const [reviewSuccess, setReviewSuccess] = useState(false);
+  const [isReviewDropdownOpen, setIsReviewDropdownOpen] = useState(false);
 
   useEffect(() => {
     // Preload WebP images for instant tab transitions
@@ -435,6 +447,7 @@ export default function Home() {
           <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-zinc-400">
             <a href="#services" className="hover:text-zinc-100 transition-colors">{lang === "es" ? "Servicios" : "Services"}</a>
             <a href="#forklifts" className="hover:text-zinc-100 transition-colors">{lang === "es" ? "Montacargas" : "Forklifts"}</a>
+            <a href="#forklift-tires" className="hover:text-zinc-100 transition-colors">{lang === "es" ? "Llantas" : "Tires"}</a>
             <a href="#hydraulic-hoses" className="hover:text-zinc-100 transition-colors">{lang === "es" ? "Mangueras Hidráulicas" : "Hydraulic Hoses"}</a>
             <a href="#machinery-sales" className="hover:text-zinc-100 transition-colors">{lang === "es" ? "Venta Maquinaria" : "Equipment Sales"}</a>
             <a href="#reviews" className="hover:text-zinc-100 transition-colors flex items-center gap-1">
@@ -761,25 +774,25 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             
             {/* Service 1: Forklift Repair & Maintenance */}
-            <div id="forklifts" className="border border-zinc-900 bg-zinc-900/20 rounded-2xl p-6 sm:p-8 flex flex-col justify-between hover:border-zinc-800 transition-all group">
+            <div id="forklifts" className="border border-zinc-900 bg-zinc-900/20 rounded-2xl p-6 flex flex-col justify-between hover:border-zinc-800 transition-all group">
               <div className="space-y-4">
                 <div className="inline-flex p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-emerald-400 group-hover:scale-105 transition-transform">
                   <Wrench className="h-6 w-6" />
                 </div>
-                <h3 className="text-xl font-bold text-zinc-100">
-                  {lang === "es" ? "Servicio & Reparación de Montacargas" : "Forklift Repair & Preventive Maintenance"}
+                <h3 className="text-lg font-bold text-zinc-100">
+                  {lang === "es" ? "Mantenimiento de Montacargas" : "Forklift Repair & Maintenance"}
                 </h3>
-                <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+                <p className="text-xs text-zinc-400 leading-relaxed">
                   {lang === "es"
-                    ? "Mantenimiento preventivo y correctivo para montacargas Toyota, Hyster, Yale, Crown, Cat, Clark y Komatsu. Mástiles, cilindros hidráulicos, frenos, baterías y afinación de motor."
-                    : "Comprehensive on-site mobile repair and scheduled PM for Toyota, Hyster, Yale, Crown, Cat, and Clark forklifts. Mast hydraulics, brakes, electric batteries, and OSHA checks."}
+                    ? "Mantenimiento preventivo y correctivo para montacargas Toyota, Hyster, Yale, Crown, Cat y Clark. Mástiles, cilindros hidráulicos, frenos, baterías y afinación de motor."
+                    : "On-site mobile repair and scheduled PM for Toyota, Hyster, Yale, Crown, Cat, and Clark forklifts. Mast hydraulics, brakes, electric batteries, and OSHA checks."}
                 </p>
                 <ul className="space-y-2 text-xs text-zinc-300 pt-2 border-t border-zinc-900">
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Diagnóstico móvil computarizado</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Cambio de filtros y aceites hidráulicos</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Filtros y fluidos hidráulicos</li>
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Inspección y certificación OSHA</li>
                 </ul>
               </div>
@@ -787,74 +800,113 @@ export default function Home() {
               <div className="mt-6 pt-4 border-t border-zinc-900 flex flex-col gap-2">
                 <a 
                   href="tel:+17184042038" 
-                  className="w-full inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-zinc-100 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-colors"
+                  className="w-full inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-zinc-100 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-colors"
                 >
-                  <Phone className="h-3.5 w-3.5" /> {lang === "es" ? "Solicitar Mecánico" : "Request Forklift Mechanic"}
+                  <Phone className="h-3.5 w-3.5" /> {lang === "es" ? "Solicitar Mecánico" : "Request Mechanic"}
                 </a>
                 <a 
                   href="https://wa.me/17184042038?text=Hola,%20necesito%20servicio%20de%20reparaci%C3%B3n%20para%20un%20montacargas" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="w-full inline-flex h-9 items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-emerald-400 transition-colors"
+                  className="w-full inline-flex h-8 items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-emerald-400 transition-colors"
                 >
                   <MessageCircle className="h-3.5 w-3.5" /> Cotizar por WhatsApp
                 </a>
               </div>
             </div>
 
-            {/* Service 2: Hydraulic Hoses & Fittings */}
-            <div id="hydraulic-hoses" className="border-2 border-emerald-500/40 bg-zinc-900/40 rounded-2xl p-6 sm:p-8 flex flex-col justify-between shadow-xl relative overflow-hidden group">
-              <div className="absolute top-0 right-0 bg-emerald-500 text-zinc-950 text-[10px] font-extrabold px-3 py-1 rounded-bl-lg uppercase tracking-wider">
-                {lang === "es" ? "Servicio de Emergencia" : "Same-Day Emergency"}
+            {/* Service 2: New Forklift Tires & Mobile Pressing */}
+            <div id="forklift-tires" className="border border-zinc-900 bg-zinc-900/20 rounded-2xl p-6 flex flex-col justify-between hover:border-zinc-800 transition-all group">
+              <div className="space-y-4">
+                <div className="inline-flex p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-amber-400 group-hover:scale-105 transition-transform">
+                  <CircleDot className="h-6 w-6" />
+                </div>
+                <h3 className="text-lg font-bold text-zinc-100">
+                  {lang === "es" ? "Llantas Nuevas & Prensado Móvil" : "Forklift Tires & Mobile Pressing"}
+                </h3>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  {lang === "es"
+                    ? "Venta e instalación de llantas sólidas rudomáticas (Solid Pneumatic), cushion y que no dejan huella (Non-Marking). Taller móvil con prensa hidráulica industrial directo en tu bodega en Queens y todo NY."
+                    : "Sales and on-site mobile pressing for solid pneumatic, smooth/traction cushion, and non-marking forklift tires. Direct installation at your facility across NYC."}
+                </p>
+                <ul className="space-y-2 text-xs text-zinc-300 pt-2 border-t border-zinc-900">
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Llantas sólidas y cushion uso rudo</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Non-Marking (bodegas y alimentos)</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Prensa hidráulica móvil a domicilio</li>
+                </ul>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-zinc-900 flex flex-col gap-2">
+                <a 
+                  href="tel:+17184042038" 
+                  className="w-full inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-zinc-100 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-colors"
+                >
+                  <Phone className="h-3.5 w-3.5" /> {lang === "es" ? "Cotizar Llantas" : "Quote Forklift Tires"}
+                </a>
+                <a 
+                  href="https://wa.me/17184042038?text=Hola,%20necesito%20cotizar%20llantas%20nuevas%20para%20un%20montacargas%20en%20Queens" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-full inline-flex h-8 items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-emerald-400 transition-colors"
+                >
+                  <MessageCircle className="h-3.5 w-3.5" /> Consultar Medidas
+                </a>
+              </div>
+            </div>
+
+            {/* Service 3: Hydraulic Hoses & Fittings */}
+            <div id="hydraulic-hoses" className="border-2 border-emerald-500/40 bg-zinc-900/40 rounded-2xl p-6 flex flex-col justify-between shadow-xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 bg-emerald-500 text-zinc-950 text-[9px] font-extrabold px-2.5 py-0.5 rounded-bl-lg uppercase tracking-wider">
+                {lang === "es" ? "Emergencias" : "Emergency"}
               </div>
 
               <div className="space-y-4">
                 <div className="inline-flex p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 group-hover:scale-105 transition-transform">
                   <Truck className="h-6 w-6" />
                 </div>
-                <h3 className="text-xl font-bold text-zinc-100">
-                  {lang === "es" ? "Mangueras Hidráulicas para Maquinaria Pesada" : "Custom Hydraulic Hoses & Mobile Replacement"}
+                <h3 className="text-lg font-bold text-zinc-100">
+                  {lang === "es" ? "Mangueras Hidráulicas" : "Custom Hydraulic Hoses"}
                 </h3>
-                <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed">
+                <p className="text-xs text-zinc-300 leading-relaxed">
                   {lang === "es"
-                    ? "Fabricación y prensado en el sitio de mangueras hidráulicas de alta y extrema presión (2 y 4 mallas espirales hasta 6,000 PSI). Conexiones JIC, NPT, ORFS, Flange y métricas para excavadoras y bobcats."
-                    : "On-site custom hydraulic hose assemblies and crimping up to 6,000 PSI (2-wire, 4-wire spiral). JIC, NPT, ORFS, Code 61/62 flange fittings for excavators, loaders, and dump trucks."}
+                    ? "Fabricación y prensado móvil en el sitio de mangueras hidráulicas de alta y extrema presión (2 y 4 mallas espirales hasta 6,000 PSI). Conexiones JIC, NPT, ORFS y bridas para maquinaria pesada."
+                    : "On-site custom hydraulic hose assemblies and crimping up to 6,000 PSI (2-wire, 4-wire spiral). JIC, NPT, ORFS, Code 61/62 flange fittings for excavators, loaders, and trucks."}
                 </p>
                 <ul className="space-y-2 text-xs text-zinc-300 pt-2 border-t border-zinc-800">
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Taller móvil llega en &lt;45 min en Queens</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Mangueras y acoples de máxima durabilidad</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Evita horas de maquinaria parada en obra</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Mangueras y acoples de alta durabilidad</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Evita horas de maquinaria parada</li>
                 </ul>
               </div>
 
               <div className="mt-6 pt-4 border-t border-zinc-800 flex flex-col gap-2">
                 <a 
                   href="tel:+17184042038" 
-                  className="w-full inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-emerald-500 text-xs font-bold text-black hover:bg-emerald-400 transition-colors shadow-md"
+                  className="w-full inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-emerald-500 text-xs font-bold text-black hover:bg-emerald-400 transition-colors shadow-md"
                 >
-                  <Phone className="h-3.5 w-3.5" /> {lang === "es" ? "Pedir Manguera Urgente" : "Call Rush Hose Dispatch"}
+                  <Phone className="h-3.5 w-3.5" /> {lang === "es" ? "Pedir Manguera Urgente" : "Call Rush Dispatch"}
                 </a>
                 <a 
                   href="https://wa.me/17184042038?text=Hola,%20se%20me%20revent%C3%B3%20una%20manguera%20hidr%C3%A1ulica%20y%20necesito%20una%20nueva" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="w-full inline-flex h-9 items-center justify-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 transition-colors font-medium"
+                  className="w-full inline-flex h-8 items-center justify-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 transition-colors font-medium"
                 >
                   <MessageCircle className="h-3.5 w-3.5" /> Enviar foto de la manguera
                 </a>
               </div>
             </div>
 
-            {/* Service 3: Machinery Sales & Rentals */}
-            <div id="machinery-sales" className="border border-zinc-900 bg-zinc-900/20 rounded-2xl p-6 sm:p-8 flex flex-col justify-between hover:border-zinc-800 transition-all group">
+            {/* Service 4: Machinery Sales & Rentals */}
+            <div id="machinery-sales" className="border border-zinc-900 bg-zinc-900/20 rounded-2xl p-6 flex flex-col justify-between hover:border-zinc-800 transition-all group">
               <div className="space-y-4">
                 <div className="inline-flex p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-emerald-400 group-hover:scale-105 transition-transform">
                   <ShoppingCart className="h-6 w-6" />
                 </div>
-                <h3 className="text-xl font-bold text-zinc-100">
-                  {lang === "es" ? "Venta & Alquiler de Montacargas" : "Forklift & Equipment Sales & Rental"}
+                <h3 className="text-lg font-bold text-zinc-100">
+                  {lang === "es" ? "Venta & Alquiler de Equipos" : "Forklift Sales & Rentals"}
                 </h3>
-                <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
+                <p className="text-xs text-zinc-400 leading-relaxed">
                   {lang === "es"
                     ? "Venta de montacargas nuevos y usados certificados con garantía mecánica. Equipos eléctricos, propano y diesel inspeccionados con telemetría lista para operar."
                     : "Certified pre-owned and reconditioned forklifts with full mechanical warranty. Electric, LPG, and diesel warehouse equipment ready for immediate delivery across NY & NJ."}
@@ -869,15 +921,15 @@ export default function Home() {
               <div className="mt-6 pt-4 border-t border-zinc-900 flex flex-col gap-2">
                 <button 
                   onClick={() => handleSelectPackage("Machinery Purchase / Rental Quotation")}
-                  className="w-full inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-zinc-100 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-colors cursor-pointer"
+                  className="w-full inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-zinc-100 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-colors cursor-pointer"
                 >
-                  <ShoppingCart className="h-3.5 w-3.5" /> {lang === "es" ? "Ver Equipos Disponibles" : "Request Machinery Catalog"}
+                  <ShoppingCart className="h-3.5 w-3.5" /> {lang === "es" ? "Ver Equipos" : "View Inventory"}
                 </button>
                 <a 
                   href="https://wa.me/17184042038?text=Hola,%20quisiera%20saber%20qu%C3%A9%20montacargas%20tienen%20disponibles%20para%20la%20venta%20o%20renta" 
                   target="_blank" 
                   rel="noopener noreferrer" 
-                  className="w-full inline-flex h-9 items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-emerald-400 transition-colors"
+                  className="w-full inline-flex h-8 items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-emerald-400 transition-colors"
                 >
                   <MessageCircle className="h-3.5 w-3.5" /> Consultar inventario
                 </a>
@@ -2001,21 +2053,63 @@ export default function Home() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="space-y-1">
+                    <div className="space-y-1 relative">
                       <label className="text-[11px] font-medium text-zinc-400">
                         {lang === "es" ? "Servicio Recibido" : "Service Received"}
                       </label>
-                      <select 
-                        value={reviewService}
-                        onChange={(e) => setReviewService(e.target.value)}
-                        className="w-full h-9 px-2 rounded-lg border border-zinc-800 bg-zinc-900/50 text-xs text-zinc-200 focus:outline-none focus:border-zinc-700"
+                      <button
+                        type="button"
+                        onClick={() => setIsReviewDropdownOpen(!isReviewDropdownOpen)}
+                        className="w-full h-9 px-3 rounded-lg border border-zinc-800 bg-zinc-900/70 text-xs text-zinc-200 flex items-center justify-between hover:border-zinc-700 transition-colors cursor-pointer"
                       >
-                        <option value="Forklift Maintenance">Reparación / Mantenimiento Montacargas</option>
-                        <option value="Hydraulic Hoses & Fittings">Fabricación / Reemplazo Mangueras Hidráulicas</option>
-                        <option value="Machinery Sales & Rental">Venta / Renta de Maquinaria</option>
-                        <option value="Emergency Mobile Repair">Servicio Mecánico Móvil de Emergencia</option>
-                        <option value="OSHA Safety Checklist">Inspección de Seguridad OSHA</option>
-                      </select>
+                        <span className="truncate">
+                          {reviewService === "Forklift Maintenance" && (lang === "es" ? "Mantenimiento Montacargas" : "Forklift Maintenance")}
+                          {reviewService === "Forklift Tires & Mobile Pressing" && (lang === "es" ? "Llantas & Prensado Móvil" : "Tires & Mobile Pressing")}
+                          {reviewService === "Hydraulic Hoses & Fittings" && (lang === "es" ? "Mangueras Hidráulicas" : "Hydraulic Hoses")}
+                          {reviewService === "Machinery Sales & Rental" && (lang === "es" ? "Venta / Renta Equipos" : "Machinery Sales & Rental")}
+                          {reviewService === "Emergency Mobile Repair" && (lang === "es" ? "Servicio Mecánico Móvil" : "Emergency Field Repair")}
+                          {reviewService === "OSHA Safety Checklist" && (lang === "es" ? "Inspección de Seguridad OSHA" : "OSHA Safety Checklist")}
+                        </span>
+                        <ChevronDown className={`h-3.5 w-3.5 text-zinc-400 transition-transform ${isReviewDropdownOpen ? "rotate-180" : ""}`} />
+                      </button>
+
+                      <AnimatePresence>
+                        {isReviewDropdownOpen && (
+                          <motion.div
+                            initial={{ opacity: 0, y: -5 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -5 }}
+                            transition={{ duration: 0.15 }}
+                            className="absolute left-0 right-0 top-full mt-1 z-30 rounded-lg border border-zinc-800 bg-zinc-950 p-1 shadow-2xl space-y-0.5"
+                          >
+                            {[
+                              { value: "Forklift Maintenance", labelEs: "Mantenimiento Montacargas", labelEn: "Forklift Maintenance" },
+                              { value: "Forklift Tires & Mobile Pressing", labelEs: "Llantas & Prensado Móvil", labelEn: "Tires & Mobile Pressing" },
+                              { value: "Hydraulic Hoses & Fittings", labelEs: "Mangueras Hidráulicas", labelEn: "Hydraulic Hoses & Fittings" },
+                              { value: "Machinery Sales & Rental", labelEs: "Venta / Renta Equipos", labelEn: "Machinery Sales & Rental" },
+                              { value: "Emergency Mobile Repair", labelEs: "Servicio Mecánico Móvil", labelEn: "Emergency Field Repair" },
+                              { value: "OSHA Safety Checklist", labelEs: "Inspección Seguridad OSHA", labelEn: "OSHA Safety Checklist" },
+                            ].map((opt) => (
+                              <button
+                                key={opt.value}
+                                type="button"
+                                onClick={() => {
+                                  setReviewService(opt.value);
+                                  setIsReviewDropdownOpen(false);
+                                }}
+                                className={`w-full text-left px-2.5 py-1.5 rounded text-xs transition-colors cursor-pointer flex items-center justify-between ${
+                                  reviewService === opt.value
+                                    ? "bg-zinc-800 text-zinc-100 font-semibold"
+                                    : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"
+                                }`}
+                              >
+                                <span>{lang === "es" ? opt.labelEs : opt.labelEn}</span>
+                                {reviewService === opt.value && <CheckCircle2 className="h-3 w-3 text-emerald-400" />}
+                              </button>
+                            ))}
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
                     <div className="space-y-1">
                       <label className="text-[11px] font-medium text-zinc-400">

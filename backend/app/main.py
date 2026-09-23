@@ -218,7 +218,15 @@ def seed_database():
                 service_type="Fleet Preventive Maintenance",
                 location="Ozone Park, NY"
             )
-            db.add_all([r1, r2, r3, r4, r5, r6])
+            r7 = PublicReview(
+                author_name="Jorge Benitez",
+                company_name="Benitez Food Distribution Inc.",
+                rating=5,
+                comment="Excelente servicio de cambio de llantas sólidas para nuestros montacargas Crown. Llegaron con su prensa hidráulica móvil y prensaron las 4 llantas directamente en nuestro almacén en Queens. Cero tiempo muerto y llantas que no dejan huella.",
+                service_type="Forklift Tires & Mobile Pressing",
+                location="Maspeth / Queens, NY"
+            )
+            db.add_all([r1, r2, r3, r4, r5, r6, r7])
             db.commit()
             print("[SEED] Verified Public Reviews seeded successfully!")
             
