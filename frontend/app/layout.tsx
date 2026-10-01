@@ -76,6 +76,9 @@ export const metadata: Metadata = {
     description: "Forklift maintenance, custom hydraulic hoses, and machinery sales in Queens, NY. Call +1 (718) 404-2038.",
     images: ["https://willyfastsolutions.com/logo/logo.png"],
   },
+  verification: {
+    google: "o_MuPfOQ3MKH-t19KYiqfoTUAiH-kNBs6SBU22BkCow",
+  },
 };
 
 export default function RootLayout({
@@ -225,6 +228,7 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <head>
+        <meta name="google-site-verification" content="o_MuPfOQ3MKH-t19KYiqfoTUAiH-kNBs6SBU22BkCow" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
