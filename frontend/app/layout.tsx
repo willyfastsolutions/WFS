@@ -13,9 +13,26 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Willy Fast Solutions Corp | Forklift Service, Tires & Hydraulic Hoses in Queens, NY",
-  description: "Servicio y llantas para montacargas, reparación de mangueras hidráulicas y maquinaria pesada en Queens, NY. Top-rated forklift tires, mobile pressing, hydraulic hose repair, and maintenance in New York. Call +1 (718) 404-2038.",
+  title: "Willy Fast Solutions Corp | Forklift & Pallet Jack Sales, Retroexcavadoras & Hoses in Queens, NY",
+  description: "Venta y reparación de montacargas, venta de pallet jack, servicio de retroexcavadoras y mangueras hidráulicas en Queens, NY. Top forklift sales & repair, pallet jacks, backhoe service, and mobile hydraulic hoses in NYC. Call +1 (718) 404-2038.",
   keywords: [
+    "venta de pallet jack new york",
+    "pallet jack sales queens ny",
+    "reparacion de pallet jack queens",
+    "pallet jack repair new york",
+    "electric pallet jack repair",
+    "pallet jack manual y electrico",
+    "transpaletas electricas y manuales ny",
+    "venta de forklift new york",
+    "forklift sales queens ny",
+    "used forklifts for sale queens",
+    "venta de montacargas new york",
+    "venta de montacargas usados ny",
+    "servicio de retroexcavadoras queens",
+    "reparacion de retroexcavadoras new york",
+    "backhoe repair service new york",
+    "backhoe hydraulic hose repair ny",
+    "mangueras hidraulicas para retroexcavadoras",
     "forklift service queens new york",
     "servicio de forklift queens new york",
     "llantas para montacargas new york",
@@ -32,8 +49,6 @@ export const metadata: Metadata = {
     "mangueras hidraulicas queens ny",
     "hydraulic hoses heavy equipment new york",
     "emergency mobile hydraulic hose repair",
-    "venta de montacargas new york",
-    "used forklifts for sale queens",
     "Willy Fast Solutions Corp",
     "heavy machinery maintenance nyc"
   ],
@@ -55,8 +70,8 @@ export const metadata: Metadata = {
     "telephone": "+1-718-404-2038",
   },
   openGraph: {
-    title: "Willy Fast Solutions Corp | Forklift Service & Hydraulic Hoses in Queens, NY",
-    description: "Servicio de montacargas, mangueras hidráulicas para maquinaria pesada y venta de equipos en Queens, NY. Rated 5.0 ★★★★★ on Google. Call +1 (718) 404-2038.",
+    title: "Willy Fast Solutions Corp | Forklift & Pallet Jack Sales, Retroexcavadoras & Hoses in Queens, NY",
+    description: "Venta y servicio de montacargas, pallet jacks, retroexcavadoras y mangueras hidráulicas en Queens, NY. Rated 5.0 ★★★★★ on Google. Call +1 (718) 404-2038.",
     url: "https://willyfastsolutions.com/",
     siteName: "Willy Fast Solutions Corp",
     images: [
@@ -72,8 +87,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Willy Fast Solutions Corp | Forklift Service & Hydraulic Hoses in Queens, NY",
-    description: "Forklift maintenance, custom hydraulic hoses, and machinery sales in Queens, NY. Call +1 (718) 404-2038.",
+    title: "Willy Fast Solutions Corp | Forklift & Pallet Jack Sales, Retroexcavadoras & Hoses in Queens, NY",
+    description: "Forklift sales & service, pallet jack repair, backhoe maintenance, and custom hydraulic hoses in Queens, NY. Call +1 (718) 404-2038.",
     images: ["https://willyfastsolutions.com/logo/logo.png"],
   },
   verification: {
@@ -167,16 +182,32 @@ export default function RootLayout({
           "@type": "Offer",
           "itemOffered": {
             "@type": "Service",
-            "name": "Custom Hydraulic Hose Fabrication & Emergency Replacement",
-            "description": "Mobile high-pressure hydraulic hose crimping and on-site fitting replacement for excavators, skid steers, forklifts, and heavy equipment."
+            "name": "Pallet Jack Sales & Mobile Hydraulic Repair (Manual & Electric)",
+            "description": "New and pre-owned pallet jack sales, manual hydraulic pallet truck repair, electric walkie stacker maintenance, hydraulic cylinder repacking, and wheel replacement in Queens and NYC."
           }
         },
         {
           "@type": "Offer",
           "itemOffered": {
             "@type": "Service",
-            "name": "Forklift & Heavy Equipment Sales & Rental",
-            "description": "Certified pre-owned and new forklifts, skid steer loaders, and hydraulic attachments with telemetry warranties."
+            "name": "Forklift Equipment Sales & Pre-Owned Certified Machinery",
+            "description": "Certified pre-owned and new forklifts (Toyota, Hyster, Cat, Crown), LPG, electric, and diesel warehouse machinery with mechanical warranty and telemetry readiness across NY & NJ."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Backhoe & Heavy Excavator Hydraulic Service & Mobile Maintenance (Retroexcavadoras)",
+            "description": "Mobile backhoe and excavator mechanical repair, high-pressure boom hose crimping, hydraulic cylinder rebuilds, and track tensioning for Caterpillar, Case, JCB, and John Deere in New York."
+          }
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Service",
+            "name": "Custom Hydraulic Hose Fabrication & Emergency Replacement",
+            "description": "Mobile high-pressure hydraulic hose crimping and on-site fitting replacement up to 6,000 PSI for backhoes, excavators, skid steers, forklifts, and heavy equipment."
           }
         },
         {
@@ -207,9 +238,23 @@ export default function RootLayout({
       },
       {
         "@type": "Review",
+        "author": { "@type": "Person", "name": "Manuel Ortiz" },
+        "datePublished": "2026-09-05",
+        "reviewBody": "Compramos 2 pallet jacks hidráulicos para nuestra bodega en Brooklyn y además nos repararon una transpaleta eléctrica Crown que no levantaba carga. Excelente precio y servicio en Queens.",
+        "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" }
+      },
+      {
+        "@type": "Review",
         "author": { "@type": "Person", "name": "Robert Kowalski" },
         "datePublished": "2026-08-18",
         "reviewBody": "Best forklift maintenance service in New York. They handle routine PM checks for our 4 Bobcat skid steers and Caterpillar excavator.",
+        "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" }
+      },
+      {
+        "@type": "Review",
+        "author": { "@type": "Person", "name": "Frank DeSantis" },
+        "datePublished": "2026-09-12",
+        "reviewBody": "Fast mobile repair on our Caterpillar backhoe in Queens. Replaced blown hydraulic boom hoses and rebuilt the bucket cylinder on-site. Back in action in less than 2 hours.",
         "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" }
       },
       {

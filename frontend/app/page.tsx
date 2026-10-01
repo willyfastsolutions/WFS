@@ -32,7 +32,8 @@ import {
   Globe,
   Sparkles,
   CircleDot,
-  ChevronDown
+  ChevronDown,
+  Package
 } from "lucide-react";
 
 type MachineType = "forklift" | "excavator" | "skid_steer";
@@ -122,6 +123,24 @@ const INITIAL_REVIEWS: ReviewItem[] = [
     comment: "Excelente servicio de cambio de llantas sólidas para nuestros montacargas Crown. Llegaron con su prensa hidráulica móvil y prensaron las 4 llantas directamente en nuestro almacén en Queens. Cero tiempo muerto y llantas que no dejan huella.",
     service_type: "Forklift Tires & Mobile Pressing",
     location: "Maspeth / Queens, NY"
+  },
+  {
+    id: "rev-8",
+    author_name: "Manuel Ortiz",
+    company_name: "Queens Cold Logistics Corp",
+    rating: 5,
+    comment: "Compramos 2 pallet jacks hidráulicos para nuestra bodega y además Willy nos reparó una transpaleta eléctrica Crown que no levantaba peso. Excelente precio, rapidez y servicio en Queens.",
+    service_type: "Pallet Jack Sales & Hydraulic Repair",
+    location: "Long Island City / Queens, NY"
+  },
+  {
+    id: "rev-9",
+    author_name: "Frank DeSantis",
+    company_name: "DeSantis Excavation & Paving",
+    rating: 5,
+    comment: "Fast mobile repair on our Caterpillar backhoe (retroexcavadora) in Queens. Replaced blown hydraulic boom hoses and rebuilt the bucket cylinder on-site in under 2 hours. Top notch mechanics.",
+    service_type: "Backhoe & Heavy Excavator Repair",
+    location: "Ozone Park, NY"
   }
 ];
 
@@ -195,7 +214,9 @@ export default function Home() {
     // Auto-fill the message textarea with the package name
     const textarea = document.getElementById("contact-message") as HTMLTextAreaElement;
     if (textarea) {
-      textarea.value = `Hello, I would like to request a quotation for the WillyFastSolutions "${packageName}" maintenance service package for my fleet.`;
+      textarea.value = lang === "es"
+        ? `Hola, me gustaría solicitar una cotización para "${packageName}" de WillyFastSolutions.`
+        : `Hello, I would like to request a quotation for the WillyFastSolutions "${packageName}" service for my fleet.`;
       textarea.focus();
     }
   };
@@ -316,23 +337,23 @@ export default function Home() {
 
   const machineryDetails: Record<MachineType, MachineDetail> = {
     forklift: {
-      title: "Industrial Forklifts",
-      subtitle: "Toyota / Hyster / Caterpillar",
+      title: "Forklifts & Pallet Jacks",
+      subtitle: "Toyota / Crown / Hyster / Cat / Pallet Trucks",
       image: "images/forklift.webp",
-      description: "High-frequency warehouse assets requiring strict load-safety compliance. WillyFastSolutions monitors mast hydraulics, lifting speed degradation, and tire wear intervals.",
-      criticalCheck: "Hydraulic pressure valves & mast tilt stability",
-      routineServices: ["Mast oil & cylinder lubrication", "Engine oil change & oil filter", "Air intake filter clean", "Brake fluid check"],
-      safetyChecks: ["Fork wear & thickness caliper measurement", "Working alarms & horn", "Lights (strobe & headlights)", "Battery acid level & terminal clean"],
+      description: "High-frequency warehouse assets including electric walkies, manual pallet jacks, and counterbalanced forklifts. WillyFastSolutions monitors hydraulic lift pressure, cylinder seals, wheel wear, and OSHA safety compliance.",
+      criticalCheck: "Hydraulic pressure valves, pallet lift cylinders & mast stability",
+      routineServices: ["Mast oil & hydraulic cylinder lubrication", "Pallet jack hydraulic seals & wheel roller check", "Engine oil change & air filter clean", "Brake & battery terminal service"],
+      safetyChecks: ["Fork wear & thickness caliper measurement", "Working alarms, horn & emergency stop button", "Lights (strobe & headlights)", "Battery acid level & charger connections"],
       operationalHours: "150.0 hrs"
     },
     excavator: {
-      title: "Heavy Excavators",
-      subtitle: "Caterpillar / Komatsu / John Deere",
+      title: "Excavators & Backhoes (Retroexcavadoras)",
+      subtitle: "Caterpillar / Case / JCB / John Deere / Komatsu",
       image: "images/excavator.webp",
-      description: "High-stress earthmoving machinery operating in abrasive dust conditions. WillyFastSolutions alerts for track tension wear, swing gear lubrication, and cooling radiator status.",
-      criticalCheck: "Hydraulic pump flow & boom swing gear grease",
-      routineServices: ["Swing drive fluid change", "Engine oil & hydraulic filters", "Air pre-cleaner cartridge", "Glow plug replacement"],
-      safetyChecks: ["Track tension alignment & links check", "Cabin rollover protection system (ROPS)", "Audible travel warning alarms", "Engine start ignition voltage"],
+      description: "High-stress earthmoving machinery and backhoe loaders (retroexcavadoras). WillyFastSolutions repairs hydraulic cylinders, boom hoses, track tension, bucket links, and swing gear assemblies on-site across NYC.",
+      criticalCheck: "Hydraulic pump pressure, boom hoses & swing gear grease",
+      routineServices: ["Boom & bucket cylinder seal maintenance", "High-pressure hydraulic filters & fluid change", "Air pre-cleaner cartridge blow-out", "Fuel water separator filter service"],
+      safetyChecks: ["Track tension alignment & stabilizer link check", "Cabin rollover protection system (ROPS)", "Audible reverse travel warning alarms", "Engine start ignition voltage & alternator check"],
       operationalHours: "480.0 hrs"
     },
     skid_steer: {
@@ -509,11 +530,11 @@ export default function Home() {
             >
               {lang === "es" ? (
                 <>
-                  Servicio de Montacargas, Mangueras Hidráulicas y Maquinaria en Queens, NY
+                  Venta y Servicio de Montacargas, Pallet Jacks, Retroexcavadoras y Mangueras en Queens, NY
                 </>
               ) : (
                 <>
-                  Forklift Service, Mobile Hydraulic Hoses & Heavy Machinery in Queens, NY
+                  Forklift & Pallet Jack Sales & Repair, Backhoes & Mobile Hydraulic Hoses in Queens, NY
                 </>
               )}
             </motion.h1>
@@ -526,11 +547,11 @@ export default function Home() {
             >
               {lang === "es" ? (
                 <>
-                  Mantenimiento preventivo y correctivo de montacargas, fabricación móvil de mangueras hidráulicas de alta presión en el sitio y venta de maquinaria certificada con telemetría en tiempo real. <strong>Servicio de emergencia 24/7 en Queens, Brooklyn, Bronx, Manhattan, Long Island y NJ.</strong>
+                  Venta y reparación de montacargas, venta y mantenimiento de pallet jacks, servicio hidráulico para retroexcavadoras y fabricación móvil de mangueras de alta presión hasta 6,000 PSI en el sitio. <strong>Servicio de emergencia 24/7 en Queens, Brooklyn, Bronx, Manhattan, Long Island y NJ.</strong>
                 </>
               ) : (
                 <>
-                  On-site mobile forklift repairs, rush hydraulic hose replacement, and certified heavy machinery sales backed by cloud telemetry. <strong>24/7 Emergency dispatch across Queens, Brooklyn, Long Island, and NYC metro.</strong>
+                  Certified forklift & pallet jack sales, on-site pallet truck and backhoe repairs, mobile high-pressure hydraulic hose crimping, and telemetry-backed maintenance. <strong>24/7 Emergency dispatch across Queens, Brooklyn, Long Island, and NYC metro.</strong>
                 </>
               )}
             </motion.p>
@@ -563,6 +584,45 @@ export default function Home() {
                 className="w-full sm:w-auto inline-flex h-11 items-center justify-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950 px-5 text-sm font-medium text-zinc-300 transition-all hover:bg-zinc-900 hover:text-zinc-100"
               >
                 {lang === "es" ? "Ver Servicios" : "Explore Services"} <ArrowRight className="h-3.5 w-3.5" />
+              </a>
+            </motion.div>
+
+            {/* Quick Specialties Badges */}
+            <motion.div 
+              initial={{ opacity: 0, y: 15 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.35 }}
+              className="flex flex-wrap items-center gap-2 pt-2 justify-center md:justify-start"
+            >
+              <a 
+                href="#retroexcavadoras" 
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-zinc-900/80 border border-zinc-800 text-zinc-300 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors"
+              >
+                <span>🚜</span> {lang === "es" ? "Retroexcavadoras (Backhoes)" : "Backhoe & Excavator Service"}
+              </a>
+              <a 
+                href="#machinery-sales" 
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-zinc-900/80 border border-zinc-800 text-zinc-300 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors"
+              >
+                <span>🛒</span> {lang === "es" ? "Venta de Forklifts" : "Forklift Sales (New/Used)"}
+              </a>
+              <a 
+                href="#pallet-jacks" 
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-zinc-900/80 border border-zinc-800 text-zinc-300 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors"
+              >
+                <span>📦</span> {lang === "es" ? "Venta & Reparación de Pallet Jacks" : "Pallet Jack Sales & Service"}
+              </a>
+              <a 
+                href="#hydraulic-hoses" 
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-zinc-900/80 border border-zinc-800 text-zinc-300 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors"
+              >
+                <span>⚡</span> {lang === "es" ? "Mangueras Hidráulicas 6,000 PSI" : "Hydraulic Hoses & Crimping"}
+              </a>
+              <a 
+                href="#forklift-tires" 
+                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-zinc-900/80 border border-zinc-800 text-zinc-300 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors"
+              >
+                <span>🛞</span> {lang === "es" ? "Llantas Sólidas & Prensa Móvil" : "Forklift Tires & Mobile Press"}
               </a>
             </motion.div>
           </div>
@@ -776,7 +836,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             
             {/* Service 1: Forklift Repair & Maintenance */}
             <div id="forklifts" className="border border-zinc-900 bg-zinc-900/20 rounded-2xl p-6 flex flex-col justify-between hover:border-zinc-800 transition-all group">
@@ -789,8 +849,8 @@ export default function Home() {
                 </h3>
                 <p className="text-xs text-zinc-400 leading-relaxed">
                   {lang === "es"
-                    ? "Mantenimiento preventivo y correctivo para montacargas Toyota, Hyster, Yale, Crown, Cat y Clark. Mástiles, cilindros hidráulicos, frenos, baterías y afinación de motor."
-                    : "On-site mobile repair and scheduled PM for Toyota, Hyster, Yale, Crown, Cat, and Clark forklifts. Mast hydraulics, brakes, electric batteries, and OSHA checks."}
+                    ? "Mantenimiento preventivo y correctivo para montacargas Toyota, Hyster, Yale, Crown, Cat y Clark. Mástiles, cilindros hidráulicos, frenos, baterías y afinación de motor a domicilio."
+                    : "On-site mobile repair and scheduled PM for Toyota, Hyster, Yale, Crown, Cat, and Clark forklifts. Mast hydraulics, brakes, electric batteries, and OSHA checks across NYC."}
                 </p>
                 <ul className="space-y-2 text-xs text-zinc-300 pt-2 border-t border-zinc-900">
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Diagnóstico móvil computarizado</li>
@@ -807,7 +867,7 @@ export default function Home() {
                   <Phone className="h-3.5 w-3.5" /> {lang === "es" ? "Solicitar Mecánico" : "Request Mechanic"}
                 </a>
                 <a 
-                  href="https://wa.me/17184042038?text=Hola,%20necesito%20servicio%20de%20reparaci%C3%B3n%20para%20un%20montacargas" 
+                  href="https://wa.me/17184042038?text=Hola,%20necesito%20servicio%20de%20reparaci%C3%B3n%20para%20un%20montacargas%20en%20Queens" 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="w-full inline-flex h-8 items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-emerald-400 transition-colors"
@@ -817,7 +877,167 @@ export default function Home() {
               </div>
             </div>
 
-            {/* Service 2: New Forklift Tires & Mobile Pressing */}
+            {/* Service 2: Pallet Jack Sales & Mobile Repair */}
+            <div id="pallet-jacks" className="border border-zinc-900 bg-zinc-900/20 rounded-2xl p-6 flex flex-col justify-between hover:border-zinc-800 transition-all group">
+              <div className="space-y-4">
+                <div className="inline-flex p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-amber-400 group-hover:scale-105 transition-transform">
+                  <Package className="h-6 w-6" />
+                </div>
+                <h3 className="text-lg font-bold text-zinc-100">
+                  {lang === "es" ? "Venta & Reparación de Pallet Jacks" : "Pallet Jack Sales & Service"}
+                </h3>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  {lang === "es"
+                    ? "Venta de pallet jacks nuevos y usados (manuales y eléctricos). Reparación inmediata de sellos de bombas hidráulicas, cambio de ruedas de poliuretano y mantenimiento en bodegas de Queens y todo NY."
+                    : "Sales of new and reconditioned manual & electric pallet jacks. On-site mobile repair for leaking hydraulic pump cylinders, polyurethane wheel replacement, and warehouse stacker service."}
+                </p>
+                <ul className="space-y-2 text-xs text-zinc-300 pt-2 border-t border-zinc-900">
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Venta de pallet jacks listos para entrega</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Reparación de gatos y pistones hidráulicos</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Ruedas y rodillos de repuesto a domicilio</li>
+                </ul>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-zinc-900 flex flex-col gap-2">
+                <a 
+                  href="tel:+17184042038" 
+                  className="w-full inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-zinc-100 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-colors"
+                >
+                  <Phone className="h-3.5 w-3.5" /> {lang === "es" ? "Cotizar Pallet Jacks" : "Quote Pallet Jacks"}
+                </a>
+                <a 
+                  href="https://wa.me/17184042038?text=Hola,%20quisiera%20cotizar%20la%20compra%20o%20reparaci%C3%B3n%20de%20un%20pallet%20jack%20en%20Queens" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-full inline-flex h-8 items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-emerald-400 transition-colors"
+                >
+                  <MessageCircle className="h-3.5 w-3.5" /> Consultar por WhatsApp
+                </a>
+              </div>
+            </div>
+
+            {/* Service 3: Forklift Equipment Sales (Certified Pre-Owned & New) */}
+            <div id="machinery-sales" className="border border-zinc-900 bg-zinc-900/20 rounded-2xl p-6 flex flex-col justify-between hover:border-zinc-800 transition-all group">
+              <div className="space-y-4">
+                <div className="inline-flex p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-emerald-400 group-hover:scale-105 transition-transform">
+                  <ShoppingCart className="h-6 w-6" />
+                </div>
+                <h3 className="text-lg font-bold text-zinc-100">
+                  {lang === "es" ? "Venta de Forklifts (Nuevos & Usados)" : "Forklift Equipment Sales"}
+                </h3>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  {lang === "es"
+                    ? "Venta de montacargas certificados con garantía mecánica. Equipos Toyota, Caterpillar, Crown, Hyster a propano (LPG), eléctricos y diesel con telemetría lista para operar en New York y Tri-State."
+                    : "Certified pre-owned and new forklifts (Toyota, Cat, Crown, Hyster) with mechanical warranty. Electric, LPG, and diesel warehouse machinery ready for immediate dispatch in NYC."}
+                </p>
+                <ul className="space-y-2 text-xs text-zinc-300 pt-2 border-t border-zinc-900">
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Montacargas Toyota, Caterpillar, Crown</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Inspección técnica y garantía mecánica</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Opciones de alquiler y financiamiento</li>
+                </ul>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-zinc-900 flex flex-col gap-2">
+                <button 
+                  onClick={() => handleSelectPackage("Forklift Purchase / Machinery Quotation")}
+                  className="w-full inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-zinc-100 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-colors cursor-pointer"
+                >
+                  <ShoppingCart className="h-3.5 w-3.5" /> {lang === "es" ? "Ver Equipos en Venta" : "View Forklifts For Sale"}
+                </button>
+                <a 
+                  href="https://wa.me/17184042038?text=Hola,%20quisiera%20saber%20qu%C3%A9%20montacargas%20tienen%20disponibles%20para%20la%20venta%20en%20New%20York" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-full inline-flex h-8 items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-emerald-400 transition-colors"
+                >
+                  <MessageCircle className="h-3.5 w-3.5" /> Consultar inventario
+                </a>
+              </div>
+            </div>
+
+            {/* Service 4: Backhoes & Heavy Excavators (Retroexcavadoras) */}
+            <div id="retroexcavadoras" className="border border-zinc-900 bg-zinc-900/20 rounded-2xl p-6 flex flex-col justify-between hover:border-zinc-800 transition-all group">
+              <div className="space-y-4">
+                <div className="inline-flex p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-emerald-400 group-hover:scale-105 transition-transform">
+                  <Activity className="h-6 w-6" />
+                </div>
+                <h3 className="text-lg font-bold text-zinc-100">
+                  {lang === "es" ? "Servicio de Retroexcavadoras" : "Backhoe & Excavator Service"}
+                </h3>
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  {lang === "es"
+                    ? "Mantenimiento y reparación móvil en obra para retroexcavadoras (Backhoes) y excavadoras Caterpillar, Case, JCB y John Deere. Reparación de cilindros hidráulicos de pluma, balde, fugas y tren de rodaje."
+                    : "On-site heavy backhoe and excavator mechanical repair for Caterpillar, Case, JCB, and John Deere. Boom and bucket cylinder rebuilds, high-pressure hydraulic leak repairs, and track servicing."}
+                </p>
+                <ul className="space-y-2 text-xs text-zinc-300 pt-2 border-t border-zinc-900">
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Reparación mecánica en obra (On-Site)</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Cilindros hidráulicos de pluma y balde</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Diagnóstico de motor diesel y presión</li>
+                </ul>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-zinc-900 flex flex-col gap-2">
+                <a 
+                  href="tel:+17184042038" 
+                  className="w-full inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-zinc-100 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-colors"
+                >
+                  <Phone className="h-3.5 w-3.5" /> {lang === "es" ? "Solicitar Mecánico en Obra" : "Request Field Mechanic"}
+                </a>
+                <a 
+                  href="https://wa.me/17184042038?text=Hola,%20necesito%20servicio%20t%C3%A9cnico%20para%20una%20retroexcavadora%20en%20Queens" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-full inline-flex h-8 items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-emerald-400 transition-colors"
+                >
+                  <MessageCircle className="h-3.5 w-3.5" /> Consultar por WhatsApp
+                </a>
+              </div>
+            </div>
+
+            {/* Service 5: Hydraulic Hoses & Fittings */}
+            <div id="hydraulic-hoses" className="border-2 border-emerald-500/40 bg-zinc-900/40 rounded-2xl p-6 flex flex-col justify-between shadow-xl relative overflow-hidden group">
+              <div className="absolute top-0 right-0 bg-emerald-500 text-zinc-950 text-[9px] font-extrabold px-2.5 py-0.5 rounded-bl-lg uppercase tracking-wider">
+                {lang === "es" ? "Emergencias" : "Emergency"}
+              </div>
+
+              <div className="space-y-4">
+                <div className="inline-flex p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 group-hover:scale-105 transition-transform">
+                  <Truck className="h-6 w-6" />
+                </div>
+                <h3 className="text-lg font-bold text-zinc-100">
+                  {lang === "es" ? "Mangueras Hidráulicas 6,000 PSI" : "Custom Hydraulic Hoses"}
+                </h3>
+                <p className="text-xs text-zinc-300 leading-relaxed">
+                  {lang === "es"
+                    ? "Fabricación y prensado móvil en el sitio de mangueras hidráulicas de alta y extrema presión (2 y 4 mallas espirales hasta 6,000 PSI). Conexiones JIC, NPT, ORFS y bridas para retroexcavadoras, montacargas y maquinaria pesada."
+                    : "On-site custom hydraulic hose assemblies and crimping up to 6,000 PSI (2-wire, 4-wire spiral). JIC, NPT, ORFS, Code 61/62 flange fittings for backhoes, excavators, and forklifts."}
+                </p>
+                <ul className="space-y-2 text-xs text-zinc-300 pt-2 border-t border-zinc-800">
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Taller móvil llega en &lt;45 min en Queens</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Mangueras para retroexcavadoras y montacargas</li>
+                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Evita horas de maquinaria parada</li>
+                </ul>
+              </div>
+
+              <div className="mt-6 pt-4 border-t border-zinc-800 flex flex-col gap-2">
+                <a 
+                  href="tel:+17184042038" 
+                  className="w-full inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-emerald-500 text-xs font-bold text-black hover:bg-emerald-400 transition-colors shadow-md"
+                >
+                  <Phone className="h-3.5 w-3.5" /> {lang === "es" ? "Pedir Manguera Urgente" : "Call Rush Dispatch"}
+                </a>
+                <a 
+                  href="https://wa.me/17184042038?text=Hola,%20se%20me%20revent%C3%B3%20una%20manguera%20hidr%C3%A1ulica%20y%20necesito%20una%20nueva%20en%20Queens" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="w-full inline-flex h-8 items-center justify-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 transition-colors font-medium"
+                >
+                  <MessageCircle className="h-3.5 w-3.5" /> Enviar foto de la manguera
+                </a>
+              </div>
+            </div>
+
+            {/* Service 6: New Forklift Tires & Mobile Pressing */}
             <div id="forklift-tires" className="border border-zinc-900 bg-zinc-900/20 rounded-2xl p-6 flex flex-col justify-between hover:border-zinc-800 transition-all group">
               <div className="space-y-4">
                 <div className="inline-flex p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-amber-400 group-hover:scale-105 transition-transform">
@@ -852,88 +1072,6 @@ export default function Home() {
                   className="w-full inline-flex h-8 items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-emerald-400 transition-colors"
                 >
                   <MessageCircle className="h-3.5 w-3.5" /> Consultar Medidas
-                </a>
-              </div>
-            </div>
-
-            {/* Service 3: Hydraulic Hoses & Fittings */}
-            <div id="hydraulic-hoses" className="border-2 border-emerald-500/40 bg-zinc-900/40 rounded-2xl p-6 flex flex-col justify-between shadow-xl relative overflow-hidden group">
-              <div className="absolute top-0 right-0 bg-emerald-500 text-zinc-950 text-[9px] font-extrabold px-2.5 py-0.5 rounded-bl-lg uppercase tracking-wider">
-                {lang === "es" ? "Emergencias" : "Emergency"}
-              </div>
-
-              <div className="space-y-4">
-                <div className="inline-flex p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 group-hover:scale-105 transition-transform">
-                  <Truck className="h-6 w-6" />
-                </div>
-                <h3 className="text-lg font-bold text-zinc-100">
-                  {lang === "es" ? "Mangueras Hidráulicas" : "Custom Hydraulic Hoses"}
-                </h3>
-                <p className="text-xs text-zinc-300 leading-relaxed">
-                  {lang === "es"
-                    ? "Fabricación y prensado móvil en el sitio de mangueras hidráulicas de alta y extrema presión (2 y 4 mallas espirales hasta 6,000 PSI). Conexiones JIC, NPT, ORFS y bridas para maquinaria pesada."
-                    : "On-site custom hydraulic hose assemblies and crimping up to 6,000 PSI (2-wire, 4-wire spiral). JIC, NPT, ORFS, Code 61/62 flange fittings for excavators, loaders, and trucks."}
-                </p>
-                <ul className="space-y-2 text-xs text-zinc-300 pt-2 border-t border-zinc-800">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Taller móvil llega en &lt;45 min en Queens</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Mangueras y acoples de alta durabilidad</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Evita horas de maquinaria parada</li>
-                </ul>
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-zinc-800 flex flex-col gap-2">
-                <a 
-                  href="tel:+17184042038" 
-                  className="w-full inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-emerald-500 text-xs font-bold text-black hover:bg-emerald-400 transition-colors shadow-md"
-                >
-                  <Phone className="h-3.5 w-3.5" /> {lang === "es" ? "Pedir Manguera Urgente" : "Call Rush Dispatch"}
-                </a>
-                <a 
-                  href="https://wa.me/17184042038?text=Hola,%20se%20me%20revent%C3%B3%20una%20manguera%20hidr%C3%A1ulica%20y%20necesito%20una%20nueva" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="w-full inline-flex h-8 items-center justify-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 transition-colors font-medium"
-                >
-                  <MessageCircle className="h-3.5 w-3.5" /> Enviar foto de la manguera
-                </a>
-              </div>
-            </div>
-
-            {/* Service 4: Machinery Sales & Rentals */}
-            <div id="machinery-sales" className="border border-zinc-900 bg-zinc-900/20 rounded-2xl p-6 flex flex-col justify-between hover:border-zinc-800 transition-all group">
-              <div className="space-y-4">
-                <div className="inline-flex p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-emerald-400 group-hover:scale-105 transition-transform">
-                  <ShoppingCart className="h-6 w-6" />
-                </div>
-                <h3 className="text-lg font-bold text-zinc-100">
-                  {lang === "es" ? "Venta & Alquiler de Equipos" : "Forklift Sales & Rentals"}
-                </h3>
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  {lang === "es"
-                    ? "Venta de montacargas nuevos y usados certificados con garantía mecánica. Equipos eléctricos, propano y diesel inspeccionados con telemetría lista para operar."
-                    : "Certified pre-owned and reconditioned forklifts with full mechanical warranty. Electric, LPG, and diesel warehouse equipment ready for immediate delivery across NY & NJ."}
-                </p>
-                <ul className="space-y-2 text-xs text-zinc-300 pt-2 border-t border-zinc-900">
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Montacargas Toyota, Caterpillar, Bobcat</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Historial telemático de horas auditado</li>
-                  <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Opciones de alquiler y financiamiento</li>
-                </ul>
-              </div>
-
-              <div className="mt-6 pt-4 border-t border-zinc-900 flex flex-col gap-2">
-                <button 
-                  onClick={() => handleSelectPackage("Machinery Purchase / Rental Quotation")}
-                  className="w-full inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-zinc-100 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-colors cursor-pointer"
-                >
-                  <ShoppingCart className="h-3.5 w-3.5" /> {lang === "es" ? "Ver Equipos" : "View Inventory"}
-                </button>
-                <a 
-                  href="https://wa.me/17184042038?text=Hola,%20quisiera%20saber%20qu%C3%A9%20montacargas%20tienen%20disponibles%20para%20la%20venta%20o%20renta" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="w-full inline-flex h-8 items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-emerald-400 transition-colors"
-                >
-                  <MessageCircle className="h-3.5 w-3.5" /> Consultar inventario
                 </a>
               </div>
             </div>
@@ -2066,6 +2204,9 @@ export default function Home() {
                       >
                         <span className="truncate">
                           {reviewService === "Forklift Maintenance" && (lang === "es" ? "Mantenimiento Montacargas" : "Forklift Maintenance")}
+                          {reviewService === "Pallet Jack Sales & Repair" && (lang === "es" ? "Venta & Reparación Pallet Jack" : "Pallet Jack Sales & Repair")}
+                          {reviewService === "Backhoe & Hydraulic Excavator Repair" && (lang === "es" ? "Servicio de Retroexcavadoras" : "Backhoe & Excavator Service")}
+                          {reviewService === "Forklift Equipment Sales" && (lang === "es" ? "Venta de Montacargas / Forklifts" : "Forklift Equipment Sales")}
                           {reviewService === "Forklift Tires & Mobile Pressing" && (lang === "es" ? "Llantas & Prensado Móvil" : "Tires & Mobile Pressing")}
                           {reviewService === "Hydraulic Hoses & Fittings" && (lang === "es" ? "Mangueras Hidráulicas" : "Hydraulic Hoses")}
                           {reviewService === "Machinery Sales & Rental" && (lang === "es" ? "Venta / Renta Equipos" : "Machinery Sales & Rental")}
@@ -2086,6 +2227,9 @@ export default function Home() {
                           >
                             {[
                               { value: "Forklift Maintenance", labelEs: "Mantenimiento Montacargas", labelEn: "Forklift Maintenance" },
+                              { value: "Pallet Jack Sales & Repair", labelEs: "Venta & Reparación Pallet Jack", labelEn: "Pallet Jack Sales & Repair" },
+                              { value: "Backhoe & Hydraulic Excavator Repair", labelEs: "Servicio de Retroexcavadoras", labelEn: "Backhoe & Excavator Service" },
+                              { value: "Forklift Equipment Sales", labelEs: "Venta de Forklifts", labelEn: "Forklift Equipment Sales" },
                               { value: "Forklift Tires & Mobile Pressing", labelEs: "Llantas & Prensado Móvil", labelEn: "Tires & Mobile Pressing" },
                               { value: "Hydraulic Hoses & Fittings", labelEs: "Mangueras Hidráulicas", labelEn: "Hydraulic Hoses & Fittings" },
                               { value: "Machinery Sales & Rental", labelEs: "Venta / Renta Equipos", labelEn: "Machinery Sales & Rental" },
