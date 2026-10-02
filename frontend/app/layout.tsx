@@ -13,23 +13,27 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Willy Fast Solutions Corp | Forklift & Pallet Jack Sales, Retroexcavadoras & Hoses in Queens, NY",
-  description: "Venta y reparación de montacargas, venta de pallet jack, servicio de retroexcavadoras y mangueras hidráulicas en Queens, NY. Top forklift sales & repair, pallet jacks, backhoe service, and mobile hydraulic hoses in NYC. Call +1 (718) 404-2038.",
+  title: "Forklift Repair & Pallet Jacks | Ozone Park, Queens NY - WFS",
+  description: "Forklift repair & sales, pallet jacks, retroexcavadoras & hydraulic hoses in Ozone Park & Queens, NY. Mobile 24/7 service. Call +1 (718) 404-2038.",
   keywords: [
+    "forklift repair ozone park ny",
+    "forklift repair queens ny",
+    "reparacion de montacargas queens",
+    "reparacion de montacargas ozone park ny",
     "venta de pallet jack new york",
     "pallet jack sales queens ny",
     "reparacion de pallet jack queens",
     "pallet jack repair new york",
-    "electric pallet jack repair",
+    "electric pallet jack repair ozone park",
     "pallet jack manual y electrico",
     "transpaletas electricas y manuales ny",
     "venta de forklift new york",
     "forklift sales queens ny",
     "used forklifts for sale queens",
     "venta de montacargas new york",
-    "venta de montacargas usados ny",
     "servicio de retroexcavadoras queens",
     "reparacion de retroexcavadoras new york",
+    "reparacion de retroexcavadoras ozone park ny",
     "backhoe repair service new york",
     "backhoe hydraulic hose repair ny",
     "mangueras hidraulicas para retroexcavadoras",
@@ -37,13 +41,9 @@ export const metadata: Metadata = {
     "servicio de forklift queens new york",
     "llantas para montacargas new york",
     "forklift tires queens ny",
-    "solid forklift tires replacement",
-    "cushion tires forklift queens",
     "mobile forklift tire pressing ny",
     "llantas solidas para montacargas queens",
     "mantenimiento de montacargas new york",
-    "reparacion de montacargas queens",
-    "forklift repair queens ny",
     "forklift maintenance ozone park ny",
     "venta de mangueras hidraulicas para maquinaria pesada",
     "mangueras hidraulicas queens ny",
@@ -64,14 +64,14 @@ export const metadata: Metadata = {
   },
   other: {
     "geo.region": "US-NY",
-    "geo.placename": "Queens, Ozone Park, New York",
+    "geo.placename": "Ozone Park, Queens, New York",
     "geo.position": "40.6865;-73.8443",
     "ICBM": "40.6865, -73.8443",
     "telephone": "+1-718-404-2038",
   },
   openGraph: {
-    title: "Willy Fast Solutions Corp | Forklift & Pallet Jack Sales, Retroexcavadoras & Hoses in Queens, NY",
-    description: "Venta y servicio de montacargas, pallet jacks, retroexcavadoras y mangueras hidráulicas en Queens, NY. Rated 5.0 ★★★★★ on Google. Call +1 (718) 404-2038.",
+    title: "Forklift Repair & Pallet Jacks | Ozone Park, Queens NY - WFS",
+    description: "Forklift repair & sales, pallet jacks, retroexcavadoras & hydraulic hoses in Ozone Park & Queens, NY. Rated 5.0 ★★★★★ on Google. Call +1 (718) 404-2038.",
     url: "https://willyfastsolutions.com/",
     siteName: "Willy Fast Solutions Corp",
     images: [
@@ -87,8 +87,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary",
-    title: "Willy Fast Solutions Corp | Forklift & Pallet Jack Sales, Retroexcavadoras & Hoses in Queens, NY",
-    description: "Forklift sales & service, pallet jack repair, backhoe maintenance, and custom hydraulic hoses in Queens, NY. Call +1 (718) 404-2038.",
+    title: "Forklift Repair & Pallet Jacks | Ozone Park, Queens NY - WFS",
+    description: "Forklift repair & sales, pallet jacks, retroexcavadoras & mobile hydraulic hoses in Ozone Park & Queens, NY. Call +1 (718) 404-2038.",
     images: ["https://willyfastsolutions.com/logo/logo.png"],
   },
   verification: {
@@ -130,8 +130,12 @@ export default function RootLayout({
     },
     "hasMap": "https://maps.google.com/?q=Willy+Fast+Solutions+Corp+97-20+102nd+St+Ozone+Park+NY+11416",
     "areaServed": [
-      { "@type": "City", "name": "Queens" },
       { "@type": "City", "name": "Ozone Park" },
+      { "@type": "City", "name": "South Ozone Park" },
+      { "@type": "City", "name": "Howard Beach" },
+      { "@type": "City", "name": "Woodhaven" },
+      { "@type": "City", "name": "Richmond Hill" },
+      { "@type": "City", "name": "Queens" },
       { "@type": "City", "name": "Brooklyn" },
       { "@type": "City", "name": "Long Island City" },
       { "@type": "City", "name": "Jamaica" },
@@ -175,7 +179,7 @@ export default function RootLayout({
           "itemOffered": {
             "@type": "Service",
             "name": "Forklift Preventive Maintenance & Mobile Repair Service",
-            "description": "On-site forklift repair, mast alignment, hydraulic check, brake service, battery maintenance, and OSHA inspections in Queens, Brooklyn, and NY."
+            "description": "On-site forklift repair, mast alignment, hydraulic check, brake service, battery maintenance, and OSHA inspections in Ozone Park, Queens, Brooklyn, and NY."
           }
         },
         {
@@ -183,7 +187,7 @@ export default function RootLayout({
           "itemOffered": {
             "@type": "Service",
             "name": "Pallet Jack Sales & Mobile Hydraulic Repair (Manual & Electric)",
-            "description": "New and pre-owned pallet jack sales, manual hydraulic pallet truck repair, electric walkie stacker maintenance, hydraulic cylinder repacking, and wheel replacement in Queens and NYC."
+            "description": "New and pre-owned pallet jack sales, manual hydraulic pallet truck repair, electric walkie stacker maintenance, hydraulic cylinder repacking, and wheel replacement in Ozone Park, Queens, and NYC."
           }
         },
         {
@@ -191,7 +195,7 @@ export default function RootLayout({
           "itemOffered": {
             "@type": "Service",
             "name": "Forklift Equipment Sales & Pre-Owned Certified Machinery",
-            "description": "Certified pre-owned and new forklifts (Toyota, Hyster, Cat, Crown), LPG, electric, and diesel warehouse machinery with mechanical warranty and telemetry readiness across NY & NJ."
+            "description": "Certified pre-owned and new forklifts (Toyota, Hyster, Cat, Crown), LPG, electric, and diesel warehouse machinery with mechanical warranty across Ozone Park, Queens, NY & NJ."
           }
         },
         {
@@ -199,7 +203,7 @@ export default function RootLayout({
           "itemOffered": {
             "@type": "Service",
             "name": "Backhoe & Heavy Excavator Hydraulic Service & Mobile Maintenance (Retroexcavadoras)",
-            "description": "Mobile backhoe and excavator mechanical repair, high-pressure boom hose crimping, hydraulic cylinder rebuilds, and track tensioning for Caterpillar, Case, JCB, and John Deere in New York."
+            "description": "Mobile backhoe and excavator mechanical repair, high-pressure boom hose crimping, hydraulic cylinder rebuilds, and track tensioning for Caterpillar, Case, JCB, and John Deere in Ozone Park, Queens, and New York."
           }
         },
         {
@@ -207,7 +211,7 @@ export default function RootLayout({
           "itemOffered": {
             "@type": "Service",
             "name": "Custom Hydraulic Hose Fabrication & Emergency Replacement",
-            "description": "Mobile high-pressure hydraulic hose crimping and on-site fitting replacement up to 6,000 PSI for backhoes, excavators, skid steers, forklifts, and heavy equipment."
+            "description": "Mobile high-pressure hydraulic hose crimping and on-site fitting replacement up to 6,000 PSI for backhoes, excavators, skid steers, and forklifts in Ozone Park, Queens, and NYC."
           }
         },
         {

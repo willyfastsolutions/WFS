@@ -530,11 +530,11 @@ export default function Home() {
             >
               {lang === "es" ? (
                 <>
-                  Venta y Servicio de Montacargas, Pallet Jacks, Retroexcavadoras y Mangueras en Queens, NY
+                  Reparación de Montacargas, Pallet Jacks y Retroexcavadoras en Ozone Park & Queens, NY
                 </>
               ) : (
                 <>
-                  Forklift & Pallet Jack Sales & Repair, Backhoes & Mobile Hydraulic Hoses in Queens, NY
+                  Forklift Repair, Pallet Jacks & Heavy Machinery in Ozone Park & Queens, NY
                 </>
               )}
             </motion.h1>
@@ -547,11 +547,11 @@ export default function Home() {
             >
               {lang === "es" ? (
                 <>
-                  Venta y reparación de montacargas, venta y mantenimiento de pallet jacks, servicio hidráulico para retroexcavadoras y fabricación móvil de mangueras de alta presión hasta 6,000 PSI en el sitio. <strong>Servicio de emergencia 24/7 en Queens, Brooklyn, Bronx, Manhattan, Long Island y NJ.</strong>
+                  Taller mecánico y servicio móvil 24/7 de montacargas, venta y reparación de pallet jacks, retroexcavadoras y prensado de mangueras hidráulicas hasta 6,000 PSI en el sitio. <strong>Atención inmediata en Ozone Park, Queens, Brooklyn y todo NY.</strong>
                 </>
               ) : (
                 <>
-                  Certified forklift & pallet jack sales, on-site pallet truck and backhoe repairs, mobile high-pressure hydraulic hose crimping, and telemetry-backed maintenance. <strong>24/7 Emergency dispatch across Queens, Brooklyn, Long Island, and NYC metro.</strong>
+                  Certified on-site forklift repair, pallet jack sales & service, backhoes, and mobile hydraulic hoses up to 6,000 PSI. <strong>24/7 Emergency dispatch across Ozone Park, Queens, Brooklyn, and NYC metro.</strong>
                 </>
               )}
             </motion.p>
@@ -789,15 +789,15 @@ export default function Home() {
               </h2>
               <p className="text-sm sm:text-base text-zinc-400 leading-relaxed">
                 {lang === "es"
-                  ? "Atendemos almacenes logísticos, plantas de reciclaje, depósitos, constructoras y talleres en Queens, Brooklyn, Bronx, Manhattan y Long Island. Si tu montacargas o excavadora se detiene, enviamos mecánicos especializados y nuestro taller móvil con prensadora de mangueras hidráulicas directamente a tu empresa."
-                  : "We support logistics warehouses, distribution centers, scrap yards, and construction sites across all 5 boroughs of New York and Long Island. When your forklift or excavator is down, our mobile field mechanics dispatch directly to your jobsite with full tooling and hydraulic hose crimping equipment."}
+                  ? "Atendemos almacenes logísticos, plantas de reciclaje, depósitos, constructoras y talleres en Ozone Park, South Ozone Park, Queens, Brooklyn, Bronx, Manhattan y Long Island. Si tu montacargas, pallet jack o excavadora se detiene, enviamos mecánicos especializados y nuestro taller móvil con prensadora de mangueras hidráulicas directamente a tu empresa."
+                  : "We support logistics warehouses, distribution centers, scrap yards, and construction sites in Ozone Park, South Ozone Park, Queens, Brooklyn, and NYC metro. When your forklift, pallet jack, or excavator is down, our mobile field mechanics dispatch directly to your jobsite with full tooling and hydraulic hose crimping equipment."}
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
                 <div className="p-4 rounded-xl border border-zinc-850 bg-zinc-950/60">
                   <div className="text-emerald-400 font-bold text-lg">&lt;45 Min</div>
                   <div className="text-xs text-zinc-400 font-medium mt-0.5">
-                    {lang === "es" ? "Tiempo Respuesta Queens" : "Queens Response Time"}
+                    {lang === "es" ? "Respuesta Ozone Park & Queens" : "Ozone Park & Queens Response"}
                   </div>
                 </div>
                 <div className="p-4 rounded-xl border border-zinc-850 bg-zinc-950/60">
@@ -845,12 +845,12 @@ export default function Home() {
                   <Wrench className="h-6 w-6" />
                 </div>
                 <h3 className="text-lg font-bold text-zinc-100">
-                  {lang === "es" ? "Mantenimiento de Montacargas" : "Forklift Repair & Maintenance"}
+                  {lang === "es" ? "Reparación y Mantenimiento de Montacargas" : "Forklift Repair & Maintenance (Ozone Park & Queens)"}
                 </h3>
                 <p className="text-xs text-zinc-400 leading-relaxed">
                   {lang === "es"
-                    ? "Mantenimiento preventivo y correctivo para montacargas Toyota, Hyster, Yale, Crown, Cat y Clark. Mástiles, cilindros hidráulicos, frenos, baterías y afinación de motor a domicilio."
-                    : "On-site mobile repair and scheduled PM for Toyota, Hyster, Yale, Crown, Cat, and Clark forklifts. Mast hydraulics, brakes, electric batteries, and OSHA checks across NYC."}
+                    ? "Taller móvil en Ozone Park y Queens para reparación de montacargas Toyota, Hyster, Yale, Crown, Cat y Clark. Mástiles, cilindros hidráulicos, frenos, baterías y afinación de motor a domicilio."
+                    : "On-site mobile forklift repair based in Ozone Park & Queens for Toyota, Hyster, Yale, Crown, Cat, and Clark. Hydraulic mast, brake repair, battery replacement, and OSHA inspections across NYC."}
                 </p>
                 <ul className="space-y-2 text-xs text-zinc-300 pt-2 border-t border-zinc-900">
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Diagnóstico móvil computarizado</li>
@@ -867,7 +867,7 @@ export default function Home() {
                   <Phone className="h-3.5 w-3.5" /> {lang === "es" ? "Solicitar Mecánico" : "Request Mechanic"}
                 </a>
                 <a 
-                  href="https://wa.me/17184042038?text=Hola,%20necesito%20servicio%20de%20reparaci%C3%B3n%20para%20un%20montacargas%20en%20Queens" 
+                  href="https://wa.me/17184042038?text=Hola,%20necesito%20servicio%20de%20reparaci%C3%B3n%20para%20un%20montacargas%20en%20Ozone%20Park%20o%20Queens" 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="w-full inline-flex h-8 items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-emerald-400 transition-colors"
@@ -884,12 +884,12 @@ export default function Home() {
                   <Package className="h-6 w-6" />
                 </div>
                 <h3 className="text-lg font-bold text-zinc-100">
-                  {lang === "es" ? "Venta & Reparación de Pallet Jacks" : "Pallet Jack Sales & Service"}
+                  {lang === "es" ? "Venta & Reparación de Pallet Jacks" : "Pallet Jack Sales & Mobile Repair"}
                 </h3>
                 <p className="text-xs text-zinc-400 leading-relaxed">
                   {lang === "es"
-                    ? "Venta de pallet jacks nuevos y usados (manuales y eléctricos). Reparación inmediata de sellos de bombas hidráulicas, cambio de ruedas de poliuretano y mantenimiento en bodegas de Queens y todo NY."
-                    : "Sales of new and reconditioned manual & electric pallet jacks. On-site mobile repair for leaking hydraulic pump cylinders, polyurethane wheel replacement, and warehouse stacker service."}
+                    ? "Venta y reparación de pallet jacks manuales y eléctricos en Ozone Park, Queens y NYC. Reparación inmediata de sellos de bombas hidráulicas, cambio de ruedas de poliuretano y mantenimiento a domicilio."
+                    : "Sales and mobile repair of manual & electric pallet jacks in Ozone Park, Queens, and NYC. Fast hydraulic pump rebuilding, polyurethane roller replacement, and warehouse stacker service."}
                 </p>
                 <ul className="space-y-2 text-xs text-zinc-300 pt-2 border-t border-zinc-900">
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Venta de pallet jacks listos para entrega</li>
@@ -906,7 +906,7 @@ export default function Home() {
                   <Phone className="h-3.5 w-3.5" /> {lang === "es" ? "Cotizar Pallet Jacks" : "Quote Pallet Jacks"}
                 </a>
                 <a 
-                  href="https://wa.me/17184042038?text=Hola,%20quisiera%20cotizar%20la%20compra%20o%20reparaci%C3%B3n%20de%20un%20pallet%20jack%20en%20Queens" 
+                  href="https://wa.me/17184042038?text=Hola,%20quisiera%20cotizar%20la%20compra%20o%20reparaci%C3%B3n%20de%20un%20pallet%20jack%20en%20Ozone%20Park%20o%20Queens" 
                   target="_blank" 
                   rel="noopener noreferrer" 
                   className="w-full inline-flex h-8 items-center justify-center gap-1.5 text-xs text-zinc-400 hover:text-emerald-400 transition-colors"
@@ -927,8 +927,8 @@ export default function Home() {
                 </h3>
                 <p className="text-xs text-zinc-400 leading-relaxed">
                   {lang === "es"
-                    ? "Venta de montacargas certificados con garantía mecánica. Equipos Toyota, Caterpillar, Crown, Hyster a propano (LPG), eléctricos y diesel con telemetría lista para operar en New York y Tri-State."
-                    : "Certified pre-owned and new forklifts (Toyota, Cat, Crown, Hyster) with mechanical warranty. Electric, LPG, and diesel warehouse machinery ready for immediate dispatch in NYC."}
+                    ? "Venta de montacargas certificados con garantía mecánica en Queens y Ozone Park. Equipos Toyota, Caterpillar, Crown, Hyster a propano (LPG), eléctricos y diesel con telemetría lista para operar en NY y NJ."
+                    : "Certified pre-owned and new forklifts (Toyota, Cat, Crown, Hyster) with mechanical warranty. Electric, LPG, and diesel warehouse machinery ready for immediate dispatch in Ozone Park & NYC."}
                 </p>
                 <ul className="space-y-2 text-xs text-zinc-300 pt-2 border-t border-zinc-900">
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Montacargas Toyota, Caterpillar, Crown</li>
@@ -962,12 +962,12 @@ export default function Home() {
                   <Activity className="h-6 w-6" />
                 </div>
                 <h3 className="text-lg font-bold text-zinc-100">
-                  {lang === "es" ? "Servicio de Retroexcavadoras" : "Backhoe & Excavator Service"}
+                  {lang === "es" ? "Servicio de Retroexcavadoras (Backhoes)" : "Backhoe & Excavator Mobile Repair"}
                 </h3>
                 <p className="text-xs text-zinc-400 leading-relaxed">
                   {lang === "es"
-                    ? "Mantenimiento y reparación móvil en obra para retroexcavadoras (Backhoes) y excavadoras Caterpillar, Case, JCB y John Deere. Reparación de cilindros hidráulicos de pluma, balde, fugas y tren de rodaje."
-                    : "On-site heavy backhoe and excavator mechanical repair for Caterpillar, Case, JCB, and John Deere. Boom and bucket cylinder rebuilds, high-pressure hydraulic leak repairs, and track servicing."}
+                    ? "Mantenimiento y reparación móvil en obra para retroexcavadoras (Backhoes) Caterpillar, Case, JCB y John Deere en Ozone Park, Queens y NY. Reparación de cilindros hidráulicos de pluma, balde, fugas y tren de rodaje."
+                    : "On-site heavy backhoe and excavator mechanical repair for Caterpillar, Case, JCB, and John Deere in Ozone Park, Queens, and NY. Boom and bucket cylinder rebuilds, high-pressure hydraulic leak repairs, and track servicing."}
                 </p>
                 <ul className="space-y-2 text-xs text-zinc-300 pt-2 border-t border-zinc-900">
                   <li className="flex items-center gap-2"><CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 shrink-0" /> Reparación mecánica en obra (On-Site)</li>
