@@ -47,7 +47,7 @@ interface MachineDetail {
 }
 
 export default function SoftwarePage() {
-  const [lang, setLang] = useState<"es" | "en">("es");
+  const [lang, setLang] = useState<"en" | "es">("en");
   const [simHours, setSimHours] = useState<number>(254.5);
   const [showReportModal, setShowReportModal] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<MachineType>("forklift");
@@ -183,7 +183,10 @@ export default function SoftwarePage() {
             </div>
 
             <a 
-              href="https://wa.me/17184042038?text=Hola%20Willy%20Fast%20Solutions,%20deseo%20informaci%C3%B3n%20sobre%20el%20Software%20de%20Telemetr%C3%ADa%20y%20Mantenimiento%20de%20Flotas" 
+              href={lang === "es"
+                ? "https://wa.me/17184042038?text=Hola%20Willy%20Fast%20Solutions,%20deseo%20informaci%C3%B3n%20sobre%20el%20Software%20de%20Telemetr%C3%ADa%20y%20Mantenimiento%20de%20Flotas"
+                : "https://wa.me/17184042038?text=Hello%20Willy%20Fast%20Solutions,%20I%20would%20like%20information%20about%20your%20Fleet%20Telemetry%20and%20Maintenance%20Software"
+              }
               target="_blank" 
               rel="noopener noreferrer" 
               className="inline-flex items-center gap-1 px-3 py-1 rounded bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold hover:bg-emerald-600/30 transition-colors"
