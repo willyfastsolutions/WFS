@@ -77,13 +77,23 @@ def record_maintenance(
 
 @router.get("/logs", response_model=List[MaintenanceLogResponse])
 def read_maintenance_logs(
+    company_id: Optional[str] = None,
+    machine_id: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    include_photos: bool = False,
     db: Session = Depends(get_db),
     current_user: Profile = Depends(get_current_user)
 ):
-    if current_user.role != "superadmin":
-        return maintenance_service.get_maintenance_logs(db, company_id=current_user.company_id)
-    else:
-        return maintenance_service.get_maintenance_logs(db)
+    target_company = current_user.company_id if current_user.role != "superadmin" else company_id
+    return maintenance_service.get_maintenance_logs(
+        db,
+        company_id=target_company,
+        machine_id=machine_id,
+        start_date=start_date,
+        end_date=end_date,
+        include_photos=include_photos
+    )
 
 @router.put("/{id}", response_model=MaintenanceLogResponse)
 def update_maintenance_log_endpoint(

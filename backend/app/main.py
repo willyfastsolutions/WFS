@@ -353,6 +353,7 @@ def run_migrations():
             ("idx_profiles_company_id", "profiles", "company_id"),
             ("idx_profiles_email", "profiles", "email"),
             ("idx_maintenance_logs_machinery_id", "maintenance_logs", "machinery_id"),
+            ("idx_maintenance_logs_performed_at", "maintenance_logs", "performed_at"),
             ("idx_hour_logs_machinery_id", "hour_logs", "machinery_id"),
             ("idx_checklist_templates_company_id", "checklist_templates", "company_id"),
             ("idx_checklist_items_template_id", "checklist_items", "template_id"),

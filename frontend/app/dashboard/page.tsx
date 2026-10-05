@@ -259,11 +259,25 @@ export default function FleetOverview() {
           try {
             const token = sessionStorage.getItem("wfs_token");
             
-            // 1. Fetch companies
-            if (profile.role === "superadmin") {
-              const compsResponse = await fetch(`${API_BASE_URL}/api/companies/`, {
-                headers: { "Authorization": `Bearer ${token}` }
-              });
+            let machineryUrl = `${API_BASE_URL}/api/machinery/`;
+            if (profile.role !== "superadmin") {
+              machineryUrl += `?company_id=${profile.company_id}`;
+            } else if (selectedCompanyId !== "all") {
+              machineryUrl += `?company_id=${selectedCompanyId}`;
+            }
+
+            const shouldFetchCompanies = profile.role === "superadmin" && companies.length === 0;
+            const compsPromise = shouldFetchCompanies
+              ? fetch(`${API_BASE_URL}/api/companies/`, { headers: { "Authorization": `Bearer ${token}` } })
+              : null;
+            const macsPromise = fetch(machineryUrl, { headers: { "Authorization": `Bearer ${token}` } });
+
+            const [compsResponse, macsResponse] = await Promise.all([
+              compsPromise ? compsPromise : Promise.resolve(null),
+              macsPromise
+            ]);
+
+            if (compsResponse) {
               if (compsResponse.status === 401) {
                 sessionStorage.removeItem("wfs_token");
                 sessionStorage.removeItem("wfs_role");
@@ -278,18 +292,6 @@ export default function FleetOverview() {
               }
             }
 
-            // 2. Fetch machinery
-            let machineryUrl = `${API_BASE_URL}/api/machinery/`;
-            if (profile.role !== "superadmin") {
-              machineryUrl += `?company_id=${profile.company_id}`;
-            } else if (selectedCompanyId !== "all") {
-              machineryUrl += `?company_id=${selectedCompanyId}`;
-            }
-            
-            const macsResponse = await fetch(machineryUrl, {
-              headers: { "Authorization": `Bearer ${token}` }
-            });
-            
             if (macsResponse.status === 401) {
               sessionStorage.removeItem("wfs_token");
               sessionStorage.removeItem("wfs_role");

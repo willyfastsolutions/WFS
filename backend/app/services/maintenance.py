@@ -1,6 +1,8 @@
-from sqlalchemy.orm import Session, selectinload
-from app.models.models import MaintenanceLog, Machine
+from sqlalchemy.orm import Session, selectinload, defer
+from app.models.models import MaintenanceLog, Machine, MaintenanceChecklistResult
 from app.schemas.schemas import MaintenanceLogCreate, MaintenanceLogUpdate
+from typing import Optional
+from datetime import datetime, date
 import uuid
 
 def perform_maintenance(db: Session, schema: MaintenanceLogCreate, user_id: str):
@@ -80,12 +82,57 @@ def perform_maintenance(db: Session, schema: MaintenanceLogCreate, user_id: str)
     db.refresh(db_log)
     return db_log
 
-def get_maintenance_logs(db: Session, company_id: str = None):
-    query = db.query(MaintenanceLog).options(selectinload(MaintenanceLog.checklist_results)).join(Machine)
+def get_maintenance_logs(
+    db: Session,
+    company_id: Optional[str] = None,
+    machine_id: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    include_photos: bool = False
+):
+    query = db.query(MaintenanceLog).join(Machine)
+    
     if company_id:
         query = query.filter(Machine.company_id == company_id)
-    # Return sorted by performance date descending
-    return query.order_by(MaintenanceLog.performed_at.desc()).all()
+        
+    if machine_id:
+        query = query.filter(MaintenanceLog.machinery_id == machine_id)
+        
+    if start_date:
+        try:
+            if "T" in start_date:
+                sd = datetime.fromisoformat(start_date.replace("Z", "+00:00"))
+            else:
+                sd = datetime.combine(date.fromisoformat(start_date), datetime.min.time())
+            query = query.filter(MaintenanceLog.performed_at >= sd)
+        except Exception as e:
+            print(f"[MAINTENANCE] Error parsing start_date '{start_date}': {e}")
+            
+    if end_date:
+        try:
+            if "T" in end_date:
+                ed = datetime.fromisoformat(end_date.replace("Z", "+00:00"))
+            else:
+                ed = datetime.combine(date.fromisoformat(end_date), datetime.max.time())
+            query = query.filter(MaintenanceLog.performed_at <= ed)
+        except Exception as e:
+            print(f"[MAINTENANCE] Error parsing end_date '{end_date}': {e}")
+            
+    if not include_photos:
+        query = query.options(
+            selectinload(MaintenanceLog.checklist_results).defer(MaintenanceChecklistResult.photo_data)
+        )
+    else:
+        query = query.options(selectinload(MaintenanceLog.checklist_results))
+        
+    logs = query.order_by(MaintenanceLog.performed_at.desc()).all()
+    
+    if not include_photos:
+        for log in logs:
+            for item in log.checklist_results:
+                item.photo_data = None
+                
+    return logs
 
 def delete_maintenance(db: Session, log_id: str):
     db_log = db.query(MaintenanceLog).filter(MaintenanceLog.id == log_id).first()

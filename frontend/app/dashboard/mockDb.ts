@@ -669,12 +669,12 @@ export const mockDb = {
     return updatedLog;
   },
 
-  getMaintenanceLogs: (companyId?: string | null): (MaintenanceLog & { machineName: string; machineSerial: string })[] => {
+  getMaintenanceLogs: (companyId?: string | null, startDate?: string | null, endDate?: string | null): (MaintenanceLog & { machineName: string; machineSerial: string })[] => {
     mockDb.initialize();
     const logs = getStorageItem<MaintenanceLog[]>('wfs_maintenance_logs', initialMaintenanceLogs);
     const machinery = getStorageItem<Machine[]>('wfs_machinery', initialMachinery);
     
-    const mappedLogs = logs.map(l => {
+    let mappedLogs = logs.map(l => {
       const machine = machinery.find(m => m.id === l.machinery_id);
       return {
         ...l,
@@ -685,8 +685,19 @@ export const mockDb = {
     });
 
     if (companyId) {
-      return mappedLogs.filter(l => l.machineCompanyId === companyId);
+      mappedLogs = mappedLogs.filter(l => l.machineCompanyId === companyId);
     }
+
+    if (startDate) {
+      const sTime = new Date(startDate).getTime();
+      mappedLogs = mappedLogs.filter(l => new Date(l.performed_at).getTime() >= sTime);
+    }
+
+    if (endDate) {
+      const eTime = new Date(endDate).getTime() + 86400000;
+      mappedLogs = mappedLogs.filter(l => new Date(l.performed_at).getTime() <= eTime);
+    }
+
     return mappedLogs;
   },
 

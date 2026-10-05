@@ -40,15 +40,16 @@ router = APIRouter(prefix="/machinery", tags=["machinery"])
 @router.get("/", response_model=List[MachineResponse])
 def read_machinery(
     company_id: Optional[str] = None,
+    include_photo: bool = True,
     db: Session = Depends(get_db),
     current_user: Profile = Depends(get_current_user)
 ):
     if current_user.role != "superadmin":
         # Enforce multi-tenancy for company admins, active machines only
-        return machinery_service.get_machinery(db, company_id=current_user.company_id, include_revoked=False)
+        return machinery_service.get_machinery(db, company_id=current_user.company_id, include_revoked=False, include_photo=include_photo)
     else:
         # Superadmin can query all, including revoked ones
-        return machinery_service.get_machinery(db, company_id=company_id, include_revoked=True)
+        return machinery_service.get_machinery(db, company_id=company_id, include_revoked=True, include_photo=include_photo)
 
 @router.post("/", response_model=MachineResponse, status_code=status.HTTP_201_CREATED)
 def create_machine(

@@ -17,7 +17,8 @@ import {
   Search,
   Trash2,
   Edit,
-  X
+  X,
+  Calendar
 } from "lucide-react";
 import { Profile, Company, Machine, MaintenanceLog, ChecklistTemplate, ChecklistItem, mockDb } from "../mockDb";
 
@@ -66,11 +67,122 @@ export default function MaintenancePortal() {
   const [editNotes, setEditNotes] = useState<string>("");
   const [isEditSubmitting, setIsEditSubmitting] = useState<boolean>(false);
 
+  // Date Range Filter States (Default: 8 days prior to current date)
+  const getInitialStartDate = () => {
+    const d = new Date();
+    d.setDate(d.getDate() - 8);
+    return d.toISOString().split("T")[0];
+  };
+  const getTodayDate = () => {
+    return new Date().toISOString().split("T")[0];
+  };
+
+  const [startDate, setStartDate] = useState<string>(getInitialStartDate());
+  const [endDate, setEndDate] = useState<string>(getTodayDate());
+  const [datePreset, setDatePreset] = useState<"8days" | "30days" | "all" | "custom">("8days");
+
   const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
     ? `${window.location.protocol}//${window.location.hostname}:8000`
     : "";
 
-  const refreshData = () => {
+  // Dedicated lightweight logs fetcher (avoids heavy photo downloads and waterfall queries)
+  const fetchLogs = async (sDate: string, eDate: string, compId: string, currentMachineryList?: Machine[]) => {
+    const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
+    const token = typeof window !== "undefined" ? sessionStorage.getItem("wfs_token") || "" : "";
+    const activeMacs = currentMachineryList && currentMachineryList.length > 0 ? currentMachineryList : machinery;
+
+    if (isOffline) {
+      const targetComp = compId === "all" ? null : compId;
+      const logs = mockDb.getMaintenanceLogs(targetComp, sDate, eDate);
+      logs.sort((a, b) => new Date(b.performed_at).getTime() - new Date(a.performed_at).getTime());
+      setHistoryLogs(logs);
+      return;
+    }
+
+    try {
+      let logsUrl = `${API_BASE_URL}/api/maintenance/logs?include_photos=false`;
+      if (sDate) logsUrl += `&start_date=${encodeURIComponent(sDate)}`;
+      if (eDate) logsUrl += `&end_date=${encodeURIComponent(eDate)}`;
+      if (compId !== "all") logsUrl += `&company_id=${encodeURIComponent(compId)}`;
+
+      const res = await fetch(logsUrl, {
+        headers: { "Authorization": `Bearer ${token}` }
+      });
+
+      if (res.ok) {
+        const logsData = await res.json() as MaintenanceLog[];
+        if (Array.isArray(logsData)) {
+          let filteredLogs = logsData;
+          if (compId !== "all") {
+            filteredLogs = logsData.filter(log => {
+              const machine = activeMacs.find(m => m.id === log.machinery_id);
+              return machine && machine.company_id === compId;
+            });
+          }
+          
+          const mappedLogs = filteredLogs.map(log => {
+            const machine = activeMacs.find(m => m.id === log.machinery_id);
+            return {
+              ...log,
+              machineName: machine ? machine.name : "Asset",
+              machineSerial: machine ? machine.serial_number : "N/A"
+            };
+          });
+          
+          mappedLogs.sort((a, b) => new Date(b.performed_at).getTime() - new Date(a.performed_at).getTime());
+          setHistoryLogs(mappedLogs);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn("Could not sync maintenance logs from real API, using fallback:", err);
+    }
+
+    // Fallback to local db if API fails
+    const targetComp = compId === "all" ? null : compId;
+    const logs = mockDb.getMaintenanceLogs(targetComp, sDate, eDate);
+    logs.sort((a, b) => new Date(b.performed_at).getTime() - new Date(a.performed_at).getTime());
+    setHistoryLogs(logs);
+  };
+
+  const applyDatePreset = (preset: "8days" | "30days" | "all") => {
+    setDatePreset(preset);
+    const today = getTodayDate();
+    let newStart = "";
+    let newEnd = "";
+    if (preset === "8days") {
+      const d = new Date();
+      d.setDate(d.getDate() - 8);
+      newStart = d.toISOString().split("T")[0];
+      newEnd = today;
+    } else if (preset === "30days") {
+      const d = new Date();
+      d.setDate(d.getDate() - 30);
+      newStart = d.toISOString().split("T")[0];
+      newEnd = today;
+    } else {
+      newStart = "";
+      newEnd = "";
+    }
+    setStartDate(newStart);
+    setEndDate(newEnd);
+    fetchLogs(newStart, newEnd, selectedCompanyId);
+  };
+
+  const handleStartDateChange = (val: string) => {
+    setStartDate(val);
+    setDatePreset("custom");
+    fetchLogs(val, endDate, selectedCompanyId);
+  };
+
+  const handleEndDateChange = (val: string) => {
+    setEndDate(val);
+    setDatePreset("custom");
+    fetchLogs(startDate, val, selectedCompanyId);
+  };
+
+  // Full Refresh Data: Fetches in PARALLEL without sequential waterfalls
+  const refreshData = async () => {
     if (typeof window !== "undefined") {
       const sessionStr = sessionStorage.getItem("wfs_session");
       if (sessionStr) {
@@ -83,85 +195,79 @@ export default function MaintenancePortal() {
         }
 
         const token = sessionStorage.getItem("wfs_token") || "";
+        const isOffline = window.location.protocol === "file:";
 
-        // Fallback: Fetch settings from local DB
+        // Immediate offline / mockDb load for instant rendering
         const comps = mockDb.getCompanies();
         const targetComp = selectedCompanyId === "all" ? null : selectedCompanyId;
         const macs = mockDb.getMachinery(targetComp);
-        const logs = mockDb.getMaintenanceLogs(targetComp);
+        const logs = mockDb.getMaintenanceLogs(targetComp, startDate, endDate);
         logs.sort((a, b) => new Date(b.performed_at).getTime() - new Date(a.performed_at).getTime());
 
-        if (window.location.protocol === "file:") {
+        if (isOffline) {
           setCompanies(comps);
           setMachinery(macs);
           setHistoryLogs(logs);
+          return;
         }
 
-        // Fetch actual settings from production API
-        if (window.location.protocol !== "file:") {
-          // Fetch companies
-          fetch(`${API_BASE_URL}/api/companies/`, {
-            headers: { "Authorization": `Bearer ${token}` }
-          })
-          .then(res => res.ok ? res.json() : [])
-          .then(data => {
-            if (Array.isArray(data)) setCompanies(data);
-          })
-          .catch(err => {
-            console.warn("Could not sync companies from real API, using fallback:", err);
-            setCompanies(comps);
-          });
+        // Production API: Parallel Fetch
+        try {
+          const compsPromise = companies.length === 0
+            ? fetch(`${API_BASE_URL}/api/companies/`, { headers: { "Authorization": `Bearer ${token}` } }).then(r => r.ok ? r.json() : [])
+            : Promise.resolve(companies);
 
-          // Fetch machinery
-          fetch(`${API_BASE_URL}/api/machinery/`, {
-            headers: { "Authorization": `Bearer ${token}` }
-          })
-          .then(res => res.ok ? res.json() : [])
-          .then(data => {
-            if (Array.isArray(data)) {
-              const filtered = selectedCompanyId === "all"
-                ? data
-                : data.filter(m => m.company_id === selectedCompanyId);
-              setMachinery(filtered);
+          let macsUrl = `${API_BASE_URL}/api/machinery/?include_photo=false`;
+          if (selectedCompanyId !== "all") macsUrl += `&company_id=${encodeURIComponent(selectedCompanyId)}`;
+          const macsPromise = fetch(macsUrl, { headers: { "Authorization": `Bearer ${token}` } }).then(r => r.ok ? r.json() : []);
 
-              // Now fetch logs as they depend on the machinery list to map names & serials
-              fetch(`${API_BASE_URL}/api/maintenance/logs`, {
-                headers: { "Authorization": `Bearer ${token}` }
-              })
-              .then(res => res.ok ? res.json() : [])
-              .then(logsData => {
-                if (Array.isArray(logsData)) {
-                  let filteredLogs = logsData;
-                  if (selectedCompanyId !== "all") {
-                    filteredLogs = logsData.filter(log => {
-                      const machine = data.find(m => m.id === log.machinery_id);
-                      return machine && machine.company_id === selectedCompanyId;
-                    });
-                  }
-                  
-                  const mappedLogs = filteredLogs.map(log => {
-                    const machine = data.find(m => m.id === log.machinery_id);
-                    return {
-                      ...log,
-                      machineName: machine ? machine.name : "Unknown Asset",
-                      machineSerial: machine ? machine.serial_number : "N/A"
-                    };
-                  });
-                  
-                  mappedLogs.sort((a, b) => new Date(b.performed_at).getTime() - new Date(a.performed_at).getTime());
-                  setHistoryLogs(mappedLogs);
-                }
-              })
-              .catch(err => {
-                console.warn("Could not sync maintenance logs from real API, using fallback:", err);
-                setHistoryLogs(logs);
+          let logsUrl = `${API_BASE_URL}/api/maintenance/logs?include_photos=false`;
+          if (startDate) logsUrl += `&start_date=${encodeURIComponent(startDate)}`;
+          if (endDate) logsUrl += `&end_date=${encodeURIComponent(endDate)}`;
+          if (selectedCompanyId !== "all") logsUrl += `&company_id=${encodeURIComponent(selectedCompanyId)}`;
+          const logsPromise = fetch(logsUrl, { headers: { "Authorization": `Bearer ${token}` } }).then(r => r.ok ? r.json() : []);
+
+          const [compsData, macsData, logsData] = await Promise.all([compsPromise, macsPromise, logsPromise]);
+
+          if (Array.isArray(compsData) && compsData.length > 0) {
+            setCompanies(compsData);
+          }
+
+          let resolvedMacs: Machine[] = macs;
+          if (Array.isArray(macsData)) {
+            const filteredMacs = selectedCompanyId === "all"
+              ? macsData
+              : macsData.filter((m: Machine) => m.company_id === selectedCompanyId);
+            setMachinery(filteredMacs);
+            resolvedMacs = filteredMacs;
+          }
+
+          if (Array.isArray(logsData)) {
+            let filteredLogs = logsData;
+            if (selectedCompanyId !== "all") {
+              filteredLogs = logsData.filter((log: MaintenanceLog) => {
+                const machine = resolvedMacs.find(m => m.id === log.machinery_id);
+                return machine && machine.company_id === selectedCompanyId;
               });
             }
-          })
-          .catch(err => {
-            console.warn("Could not sync machinery from real API, using fallback:", err);
-            setMachinery(macs);
-          });
+            
+            const mappedLogs = filteredLogs.map((log: MaintenanceLog) => {
+              const machine = resolvedMacs.find(m => m.id === log.machinery_id);
+              return {
+                ...log,
+                machineName: machine ? machine.name : "Asset",
+                machineSerial: machine ? machine.serial_number : "N/A"
+              };
+            });
+            
+            mappedLogs.sort((a, b) => new Date(b.performed_at).getTime() - new Date(a.performed_at).getTime());
+            setHistoryLogs(mappedLogs);
+          }
+        } catch (err) {
+          console.warn("Parallel fetch error, using local fallback:", err);
+          setCompanies(comps);
+          setMachinery(macs);
+          setHistoryLogs(logs);
         }
       }
     }
@@ -573,8 +679,22 @@ export default function MaintenancePortal() {
     : companies.find(c => c.id === selectedCompanyId)?.name || "All Companies";
 
   const filteredHistoryLogs = historyLogs.filter(log => {
+    if (tableCompanyId !== "all") {
+      const machine = machinery.find(m => m.id === log.machinery_id);
+      if (machine && machine.company_id !== tableCompanyId) {
+        return false;
+      }
+    }
     if (tableMachineId !== "all" && log.machinery_id !== tableMachineId) {
       return false;
+    }
+    if (startDate) {
+      const sTime = new Date(startDate).getTime();
+      if (new Date(log.performed_at).getTime() < sTime) return false;
+    }
+    if (endDate) {
+      const eTime = new Date(endDate).getTime() + 86400000;
+      if (new Date(log.performed_at).getTime() > eTime) return false;
     }
     if (tableSearchQuery) {
       const q = tableSearchQuery.toLowerCase();
@@ -934,7 +1054,67 @@ export default function MaintenancePortal() {
           </h3>
           
           {/* Table Filters Panel */}
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* Quick Date Presets */}
+            <div className="flex items-center gap-1 bg-zinc-950 border border-zinc-900 rounded-lg p-0.5">
+              <button
+                type="button"
+                onClick={() => applyDatePreset("8days")}
+                className={`px-2 py-1 rounded text-[10px] font-medium transition-colors cursor-pointer ${
+                  datePreset === "8days"
+                    ? "bg-zinc-800 text-zinc-100 font-semibold shadow-sm"
+                    : "text-zinc-400 hover:text-zinc-200"
+                }`}
+                title="Mostrar los últimos 8 días (Rango por defecto)"
+              >
+                Últimos 8 días
+              </button>
+              <button
+                type="button"
+                onClick={() => applyDatePreset("30days")}
+                className={`px-2 py-1 rounded text-[10px] font-medium transition-colors cursor-pointer ${
+                  datePreset === "30days"
+                    ? "bg-zinc-800 text-zinc-100 font-semibold shadow-sm"
+                    : "text-zinc-400 hover:text-zinc-200"
+                }`}
+                title="Mostrar los últimos 30 días"
+              >
+                30 días
+              </button>
+              <button
+                type="button"
+                onClick={() => applyDatePreset("all")}
+                className={`px-2 py-1 rounded text-[10px] font-medium transition-colors cursor-pointer ${
+                  datePreset === "all"
+                    ? "bg-zinc-800 text-zinc-100 font-semibold shadow-sm"
+                    : "text-zinc-400 hover:text-zinc-200"
+                }`}
+                title="Mostrar todo el historial"
+              >
+                Todo
+              </button>
+            </div>
+
+            {/* Custom Date Pickers */}
+            <div className="flex items-center gap-1 bg-zinc-950 border border-zinc-900 rounded-lg px-2 h-8">
+              <Calendar className="h-3 w-3 text-zinc-500 flex-shrink-0" />
+              <input
+                type="date"
+                value={startDate}
+                onChange={(e) => handleStartDateChange(e.target.value)}
+                className="bg-transparent text-[10px] text-zinc-300 font-mono focus:outline-none w-24 cursor-pointer"
+                title="Fecha de inicio"
+              />
+              <span className="text-[10px] text-zinc-600 font-bold px-0.5">→</span>
+              <input
+                type="date"
+                value={endDate}
+                onChange={(e) => handleEndDateChange(e.target.value)}
+                className="bg-transparent text-[10px] text-zinc-300 font-mono focus:outline-none w-24 cursor-pointer"
+                title="Fecha de fin"
+              />
+            </div>
+
             {/* Company Filter Dropdown */}
               {user?.role === "superadmin" && (
                 <div className="relative">

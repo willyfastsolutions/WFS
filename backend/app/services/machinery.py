@@ -1,15 +1,21 @@
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, defer
 from app.models.models import Machine, HourLog
 from app.schemas.schemas import MachineCreate, MachineUpdate
 import uuid
 
-def get_machinery(db: Session, company_id: str = None, include_revoked: bool = False):
+def get_machinery(db: Session, company_id: str = None, include_revoked: bool = False, include_photo: bool = True):
     query = db.query(Machine)
+    if not include_photo:
+        query = query.options(defer(Machine.photo))
     if not include_revoked:
         query = query.filter(Machine.revoked == False)
     if company_id:
         query = query.filter(Machine.company_id == company_id)
-    return query.all()
+    machines = query.all()
+    if not include_photo:
+        for m in machines:
+            m.photo = None
+    return machines
 
 def get_machine_by_id(db: Session, machine_id: str):
     return db.query(Machine).filter(Machine.id == machine_id).first()
