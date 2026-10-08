@@ -6,31 +6,35 @@ import { motion, AnimatePresence } from "framer-motion";
 import { 
   Wrench, 
   ShieldCheck, 
-  BellRing, 
-  Mail, 
-  CheckCircle2, 
-  Clock, 
-  Cpu, 
-  ArrowRight,
-  TrendingUp,
-  Loader2,
-  FileText,
-  UserCheck,
   Phone, 
   MapPin, 
   Star, 
   MessageCircle, 
   Truck, 
-  ShoppingCart, 
-  ExternalLink, 
-  Sparkles, 
-  CircleDot, 
-  ChevronDown, 
-  Package,
-  Zap,
-  Activity,
+  CheckCircle2, 
+  Clock, 
+  ArrowRight,
+  ArrowUpRight,
+  AlertTriangle,
+  ChevronDown,
+  ChevronRight,
+  Layers,
+  Settings,
+  Flame,
   Award,
-  ArrowUpRight
+  CircleDot,
+  FileText,
+  Mail,
+  Send,
+  Loader2,
+  Calendar,
+  Building2,
+  Cpu,
+  Search,
+  ExternalLink,
+  Zap,
+  Package,
+  RotateCw
 } from "lucide-react";
 
 interface ReviewItem {
@@ -50,7 +54,7 @@ const INITIAL_REVIEWS: ReviewItem[] = [
     author_name: "Carlos Mendez",
     company_name: "Queens Logistics Depot",
     rating: 5,
-    comment: "Excelente servicio. Se nos reventó una manguera hidráulica en un forklift Toyota en plena faena y Willy llegó en menos de 40 minutos a prensar la manguera nueva. 100% recomendado en Queens.",
+    comment: "Excelente servicio de emergencia. Se nos reventó una manguera hidráulica en un forklift Toyota en plena faena y Willy llegó en menos de 40 minutos a prensar la manguera nueva. Cero tiempo muerto y 100% recomendado en Queens.",
     service_type: "Emergency Hydraulic Hose & Forklift Repair",
     location: "Ozone Park / Queens, NY"
   },
@@ -59,8 +63,8 @@ const INITIAL_REVIEWS: ReviewItem[] = [
     author_name: "Robert Kowalski",
     company_name: "Kowalski Steel & Construction",
     rating: 5,
-    comment: "Best forklift maintenance service in New York. They handle routine PM checks for our 4 Bobcat skid steers and Caterpillar excavator. Zero unexpected downtime ever since.",
-    service_type: "Preventive Maintenance & Safety Audit",
+    comment: "Best forklift field service team in New York. They handle routine PM checks and heavy mechanical repairs for our 4 Bobcat skid steers and Caterpillar machines. Honest pricing and fast turnaround.",
+    service_type: "Preventive Maintenance & Safety Service",
     location: "Long Island City, NY"
   },
   {
@@ -68,7 +72,7 @@ const INITIAL_REVIEWS: ReviewItem[] = [
     author_name: "David Rodriguez",
     company_name: "DR Warehouse Solutions",
     rating: 5,
-    comment: "Compramos un montacargas Toyota certificado con Willy Fast Solutions y el equipo vino impecable y con su historial de mantenimiento al día. Gran honestidad y profesionalismo.",
+    comment: "Compramos un montacargas Toyota certificado con Willy Fast Solutions y el equipo vino impecable, con garantía y listo para trabajar. Gran honestidad y profesionalismo.",
     service_type: "Machinery Sales & Certification",
     location: "Brooklyn / Queens, NY"
   },
@@ -77,7 +81,7 @@ const INITIAL_REVIEWS: ReviewItem[] = [
     author_name: "Michael Chang",
     company_name: "Metro Freight Cargo",
     rating: 5,
-    comment: "Top notch mobile hydraulic repair. Fabricated high-pressure spiral hoses directly on-site at our depot in Queens. Fast turnaround and fair pricing.",
+    comment: "Top notch mobile hydraulic repair. Fabricated high-pressure spiral hoses directly on-site at our depot in Queens. Fast turnaround, quality crimping and fair pricing.",
     service_type: "Hydraulic Hoses & Fittings",
     location: "Jamaica, Queens, NY"
   },
@@ -86,7 +90,7 @@ const INITIAL_REVIEWS: ReviewItem[] = [
     author_name: "Luis Morales",
     company_name: "Morales Demolition & Excavation",
     rating: 5,
-    comment: "Muy buen mecánico de montacargas y maquinaria pesada en Nueva York. Nos resolvió una fuga hidráulica y calibró el mástil en tiempo récord.",
+    comment: "Muy buen mecánico de montacargas y maquinaria pesada en Nueva York. Nos resolvió una fuga hidráulica y calibró el mástil en tiempo récord directamente en nuestra bodega.",
     service_type: "Forklift Repair & Diagnostics",
     location: "Queens, NY"
   },
@@ -95,112 +99,71 @@ const INITIAL_REVIEWS: ReviewItem[] = [
     author_name: "Antonio Silveira",
     company_name: "Silveira Transport LLC",
     rating: 5,
-    comment: "5 stars all the way. Reliable, prompt, and knowledgeable mechanics. They keep our fleet OSHA compliant.",
-    service_type: "Fleet Preventive Maintenance",
-    location: "Ozone Park, NY"
-  },
-  {
-    id: "rev-7",
-    author_name: "Jorge Benitez",
-    company_name: "Benitez Food Distribution Inc.",
-    rating: 5,
-    comment: "Excelente servicio de cambio de llantas sólidas para nuestros montacargas Crown. Llegaron con su prensa hidráulica móvil y prensaron las 4 llantas directamente en nuestro almacén en Queens. Cero tiempo muerto y llantas que no dejan huella.",
+    comment: "5 stars all the way. Reliable, prompt, and knowledgeable mechanics. Their mobile tire pressing service saved us days of waiting for dealer service.",
     service_type: "Forklift Tires & Mobile Pressing",
-    location: "Maspeth / Queens, NY"
-  },
-  {
-    id: "rev-8",
-    author_name: "Manuel Ortiz",
-    company_name: "Queens Cold Logistics Corp",
-    rating: 5,
-    comment: "Compramos 2 pallet jacks hidráulicos para nuestra bodega y además Willy nos reparó una transpaleta eléctrica Crown que no levantaba peso. Excelente precio, rapidez y servicio en Queens.",
-    service_type: "Pallet Jack Sales & Hydraulic Repair",
-    location: "Long Island City / Queens, NY"
-  },
-  {
-    id: "rev-9",
-    author_name: "Frank DeSantis",
-    company_name: "DeSantis Excavation & Paving",
-    rating: 5,
-    comment: "Fast mobile repair on our Caterpillar backhoe (retroexcavadora) in Queens. Replaced blown hydraulic boom hoses and rebuilt the bucket cylinder on-site in under 2 hours. Top notch mechanics.",
-    service_type: "Backhoe & Heavy Excavator Repair",
     location: "Ozone Park, NY"
   }
 ];
 
-export default function Home() {
+export default function CorporateHomePage() {
   const [lang, setLang] = useState<"en" | "es">("en");
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formSubmitted, setFormSubmitted] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Reviews state
+  // Quote Form State
+  const [quoteCompany, setQuoteCompany] = useState("");
+  const [quoteName, setQuoteName] = useState("");
+  const [quotePhone, setQuotePhone] = useState("");
+  const [quoteEmail, setQuoteEmail] = useState("");
+  const [quoteServiceType, setQuoteServiceType] = useState("Forklift Repair");
+  const [quoteUrgency, setQuoteUrgency] = useState("Immediate Dispatch (Emergency)");
+  const [quoteMessage, setQuoteMessage] = useState("");
+  const [isSubmittingQuote, setIsSubmittingQuote] = useState(false);
+  const [quoteSuccess, setQuoteSuccess] = useState(false);
+  const [quoteError, setQuoteError] = useState<string | null>(null);
+
+  // Reviews State
   const [reviews, setReviews] = useState<ReviewItem[]>(INITIAL_REVIEWS);
-  const [reviewSummary, setReviewSummary] = useState({ average_rating: 5.0, total_reviews: 48 });
-  const [showReviewModal, setShowReviewModal] = useState(false);
-  const [reviewRating, setReviewRating] = useState(5);
-  const [reviewAuthor, setReviewAuthor] = useState("");
-  const [reviewCompany, setReviewCompany] = useState("");
-  const [reviewComment, setReviewComment] = useState("");
-  const [reviewService, setReviewService] = useState("Forklift Maintenance");
-  const [reviewLocation, setReviewLocation] = useState("Queens, NY");
-  const [isReviewSubmitting, setIsReviewSubmitting] = useState(false);
-  const [reviewSuccess, setReviewSuccess] = useState(false);
-  const [isReviewDropdownOpen, setIsReviewDropdownOpen] = useState(false);
+  const [reviewModalOpen, setReviewModalOpen] = useState(false);
+  const [newAuthor, setNewAuthor] = useState("");
+  const [newCompany, setNewCompany] = useState("");
+  const [newRating, setNewRating] = useState(5);
+  const [newService, setNewService] = useState("Forklift Repair");
+  const [newLocation, setNewLocation] = useState("Queens, NY");
+  const [newComment, setNewComment] = useState("");
+  const [isSubmittingReview, setIsSubmittingReview] = useState(false);
+  const [reviewSuccessMessage, setReviewSuccessMessage] = useState<string | null>(null);
 
+  // Load reviews from API
   useEffect(() => {
-    // Fetch verified reviews from API
-    const fetchReviews = async () => {
-      try {
-        const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
-        if (isOffline) return;
-        const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-          ? `${window.location.protocol}//${window.location.hostname}:8000`
-          : "";
-        const res = await fetch(`${API_BASE_URL}/api/reviews/`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.reviews && data.reviews.length > 0) {
+    const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
+    const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+      ? `${window.location.protocol}//${window.location.hostname}:8000`
+      : "";
+
+    if (!isOffline) {
+      fetch(`${API_BASE_URL}/api/reviews/public`)
+        .then(res => res.ok ? res.json() : null)
+        .then(data => {
+          if (data && Array.isArray(data.reviews) && data.reviews.length > 0) {
             setReviews(data.reviews);
-            setReviewSummary({ average_rating: data.average_rating, total_reviews: Math.max(data.total_reviews, 48) });
           }
-        }
-      } catch (err) {
-        console.warn("Could not load dynamic reviews, using verified fallback", err);
-      }
-    };
-    fetchReviews();
+        })
+        .catch(err => {
+          console.warn("Could not fetch public reviews, using defaults:", err);
+        });
+    }
   }, []);
 
-  const handleSelectService = (serviceName: string) => {
-    const contactSection = document.getElementById("contact");
-    if (contactSection) {
-      contactSection.scrollIntoView({ behavior: "smooth" });
-    }
-    
-    const textarea = document.getElementById("contact-message") as HTMLTextAreaElement;
-    if (textarea) {
-      textarea.value = lang === "es"
-        ? `Hola, me gustaría solicitar una cotización o información para: "${serviceName}" de Willy Fast Solutions.`
-        : `Hello, I would like to request a quotation or service information for: "${serviceName}" from Willy Fast Solutions.`;
-      textarea.focus();
-    }
-  };
-
-  const handleContactSubmit = async (e: React.FormEvent) => {
+  const handleQuoteSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    setFormError(null);
-    setFormSubmitted(false);
+    setIsSubmittingQuote(true);
+    setQuoteError(null);
 
-    const form = e.target as HTMLFormElement;
-    const formData = new FormData(form);
-    
     const payload = {
-      full_name: formData.get("name") as string,
-      email: formData.get("email") as string,
-      company_name: formData.get("company") as string,
-      message: formData.get("message") as string,
+      full_name: quoteName,
+      email: quoteEmail,
+      company_name: quoteCompany,
+      message: `[SERVICE: ${quoteServiceType}] [URGENCY: ${quoteUrgency}] [PHONE: ${quotePhone}] - ${quoteMessage}`
     };
 
     const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
@@ -210,60 +173,60 @@ export default function Home() {
 
     if (isOffline) {
       setTimeout(() => {
-        setIsSubmitting(false);
-        setFormSubmitted(true);
-        form.reset();
-        setTimeout(() => setFormSubmitted(false), 5000);
-      }, 1200);
+        setIsSubmittingQuote(false);
+        setQuoteSuccess(true);
+        setTimeout(() => setQuoteSuccess(false), 6000);
+      }, 1000);
       return;
     }
 
     try {
-      const response = await fetch(`${API_BASE_URL}/api/quotes`, {
+      const res = await fetch(`${API_BASE_URL}/api/quotes`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
       });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setIsSubmitting(false);
-        setFormSubmitted(true);
-        form.reset();
-        setTimeout(() => setFormSubmitted(false), 6000);
+      if (res.ok) {
+        setIsSubmittingQuote(false);
+        setQuoteSuccess(true);
+        setQuoteCompany("");
+        setQuoteName("");
+        setQuotePhone("");
+        setQuoteEmail("");
+        setQuoteMessage("");
+        setTimeout(() => setQuoteSuccess(false), 6000);
       } else {
-        setIsSubmitting(false);
-        setFormError(data.detail || "Something went wrong. Please try again later.");
+        const err = await res.json();
+        setIsSubmittingQuote(false);
+        setQuoteError(err.detail || "Error submitting request. Please call (718) 404-2038 directly.");
       }
     } catch (err) {
       console.error(err);
-      setIsSubmitting(false);
-      setFormError("Could not connect to the server. Please check your internet connection.");
+      setIsSubmittingQuote(false);
+      setQuoteError("Network connection error. Please call +1 (718) 404-2038 directly.");
     }
   };
 
-  const handleSubmitReview = async (e: React.FormEvent) => {
+  const handleReviewSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsReviewSubmitting(true);
-    try {
-      const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
-      const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-        ? `${window.location.protocol}//${window.location.hostname}:8000`
-        : "";
+    setIsSubmittingReview(true);
 
-      const payload = {
-        author_name: reviewAuthor.trim(),
-        company_name: reviewCompany.trim() || undefined,
-        rating: reviewRating,
-        comment: reviewComment.trim(),
-        service_type: reviewService,
-        location: reviewLocation
-      };
+    const payload = {
+      author_name: newAuthor.trim(),
+      company_name: newCompany.trim() || undefined,
+      rating: newRating,
+      comment: newComment.trim(),
+      service_type: newService,
+      location: newLocation
+    };
 
-      if (!isOffline) {
+    const isOffline = typeof window !== "undefined" && window.location.protocol === "file:";
+    const API_BASE_URL = typeof window !== "undefined" && (window.location.port === "3000" || window.location.port === "5000" || window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+      ? `${window.location.protocol}//${window.location.hostname}:8000`
+      : "";
+
+    if (!isOffline) {
+      try {
         const res = await fetch(`${API_BASE_URL}/api/reviews/`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -272,144 +235,109 @@ export default function Home() {
         if (res.ok) {
           const created = await res.json();
           setReviews([created, ...reviews]);
-          setReviewSummary(prev => ({
-            total_reviews: prev.total_reviews + 1,
-            average_rating: 5.0
-          }));
+          setReviewSuccessMessage(lang === "es" ? "¡Gracias! Tu reseña ha sido registrada exitosamente." : "Thank you! Your verified review has been submitted.");
+          setTimeout(() => {
+            setReviewModalOpen(false);
+            setReviewSuccessMessage(null);
+            setNewAuthor("");
+            setNewCompany("");
+            setNewComment("");
+          }, 2000);
         }
-      } else {
-        const localCreated: ReviewItem = {
-          ...payload,
-          id: `local-${Date.now()}`,
-          created_at: new Date().toISOString()
-        };
-        setReviews([localCreated, ...reviews]);
+      } catch (err) {
+        console.error(err);
       }
-
-      setReviewSuccess(true);
+    } else {
+      setReviews([{ ...payload, id: `rev-${Date.now()}` }, ...reviews]);
+      setReviewSuccessMessage("Thank you! Review saved locally.");
       setTimeout(() => {
-        setShowReviewModal(false);
-        setReviewSuccess(false);
-        setReviewAuthor("");
-        setReviewCompany("");
-        setReviewComment("");
-      }, 2500);
-    } catch (err) {
-      console.error("Error submitting review", err);
-    } finally {
-      setIsReviewSubmitting(false);
+        setReviewModalOpen(false);
+        setReviewSuccessMessage(null);
+      }, 2000);
     }
+    setIsSubmittingReview(false);
   };
 
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 font-sans antialiased selection:bg-zinc-800 selection:text-zinc-200 overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-sans selection:bg-amber-500 selection:text-slate-950">
       
-      {/* Emergency & Location Top Bar */}
-      <div className="bg-zinc-900/95 border-b border-zinc-800/80 px-4 py-2 text-xs text-zinc-300">
-        <div className="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-4 flex-wrap">
-            <a 
-              href="https://maps.google.com/?q=Willy+Fast+Solutions+Corp+97-20+102nd+St+Ozone Park+NY+11416" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="flex items-center gap-1.5 text-zinc-300 hover:text-emerald-400 transition-colors"
-            >
-              <MapPin className="h-3.5 w-3.5 text-rose-500 shrink-0" />
-              <span className="font-medium">97-20 102nd St, Ozone Park, NY 11416 (Queens)</span>
-            </a>
-            <span className="hidden sm:inline text-zinc-700">•</span>
+      {/* 1. TOP EMERGENCY RAPID DISPATCH BANNER (Deep Navy + Safety Amber) */}
+      <div className="bg-[#0B2545] text-white border-b border-blue-900/60 text-xs py-2 px-4 shadow-sm">
+        <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
+          <div className="flex items-center gap-2 text-center sm:text-left">
+            <span className="flex h-2.5 w-2.5 rounded-full bg-amber-400 animate-pulse" />
+            <span className="font-semibold text-amber-300">
+              {lang === "es" ? "DESPACHO MÓVIL 24/7 EN NUEVA YORK:" : "24/7 RAPID MOBILE FIELD SERVICE:"}
+            </span>
+            <span className="text-slate-200">
+              {lang === "es" 
+                ? "Taller móvil con prensa de mangueras hidráulicas y mecánicos en sitio en <45 min." 
+                : "On-site forklift mechanics & mobile hydraulic hose press in <45 min."}
+            </span>
+          </div>
+          
+          <div className="flex items-center gap-4 text-slate-200">
+            <span className="hidden md:inline text-slate-400">📍 97-20 102nd St, Ozone Park, Queens NY</span>
             <a 
               href="tel:+17184042038" 
-              className="flex items-center gap-1.5 font-bold text-zinc-100 hover:text-emerald-400 transition-colors"
+              className="font-bold text-amber-400 hover:text-amber-300 transition-colors flex items-center gap-1.5 bg-white/10 px-2.5 py-0.5 rounded border border-white/15"
             >
-              <Phone className="h-3.5 w-3.5 text-emerald-400 shrink-0" />
-              <span>+1 (718) 404-2038</span>
-            </a>
-            <span className="hidden sm:inline text-zinc-700">•</span>
-            <a 
-              href="#reviews" 
-              className="flex items-center gap-1.5 hover:opacity-90 transition-opacity"
-            >
-              <div className="flex text-amber-400">
-                <Star className="h-3 w-3 fill-amber-400" />
-                <Star className="h-3 w-3 fill-amber-400" />
-                <Star className="h-3 w-3 fill-amber-400" />
-                <Star className="h-3 w-3 fill-amber-400" />
-                <Star className="h-3 w-3 fill-amber-400" />
-              </div>
-              <span className="font-bold text-zinc-100 text-[11px]">5.0</span>
-              <span className="text-zinc-400 text-[11px] underline">
-                {lang === "es" ? "Google Reviews (48+)" : "Google Reviews (48+)"}
-              </span>
-            </a>
-          </div>
-
-          <div className="flex items-center gap-3">
-            {/* Language Switcher */}
-            <div className="inline-flex rounded-lg border border-zinc-800 bg-zinc-950 p-0.5 text-[11px]">
-              <button 
-                onClick={() => setLang("es")} 
-                className={`px-2 py-0.5 rounded font-semibold transition-colors cursor-pointer ${
-                  lang === "es" ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
-                }`}
-              >
-                ES
-              </button>
-              <button 
-                onClick={() => setLang("en")} 
-                className={`px-2 py-0.5 rounded font-semibold transition-colors cursor-pointer ${
-                  lang === "en" ? "bg-zinc-800 text-zinc-100" : "text-zinc-500 hover:text-zinc-300"
-                }`}
-              >
-                EN
-              </button>
-            </div>
-
-            <a 
-              href="https://wa.me/17184042038?text=Hola%20Willy%20Fast%20Solutions,%20necesito%20servicio%20de%20montacargas%20o%20mangueras%20hidr%C3%A1ulicas" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="inline-flex items-center gap-1 px-3 py-1 rounded bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 text-[11px] font-bold hover:bg-emerald-600/30 transition-colors"
-            >
-              <MessageCircle className="h-3.5 w-3.5" /> WhatsApp 24/7
+              <Phone className="h-3 w-3" /> +1 (718) 404-2038
             </a>
           </div>
         </div>
       </div>
 
-      {/* Navigation Header */}
-      <motion.header 
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="sticky top-0 z-50 backdrop-blur-md bg-zinc-950/85 border-b border-zinc-900 transition-all duration-300"
-      >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="bg-zinc-900 border border-zinc-800 p-1.5 rounded-lg shadow-sm flex items-center justify-center w-10 h-10 overflow-hidden">
-              <img src="logo/logo.png" alt="WillyFastSolutions Logo" className="w-full h-full object-cover filter brightness-110" />
-            </div>
-            <div>
-              <span className="font-bold text-lg tracking-tight bg-gradient-to-r from-zinc-100 to-zinc-400 bg-clip-text text-transparent block leading-none">
-                Willy Fast Solutions
-              </span>
-              <span className="text-[10px] text-zinc-500 font-medium block">Corp • Heavy Equipment & Hydraulics</span>
-            </div>
-          </div>
+      {/* 2. CORPORATE HEADER / NAVBAR (Clean White & Slate) */}
+      <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-4">
           
-          {/* Desktop Nav - Reorganized into 4 CLT Pillars + SaaS link */}
-          <nav className="hidden lg:flex items-center gap-6 text-sm font-medium text-zinc-400">
-            <a href="#services" className="hover:text-zinc-100 transition-colors">{lang === "es" ? "Servicios" : "Services"}</a>
-            <a href="#field-service" className="hover:text-zinc-100 transition-colors">{lang === "es" ? "Mecánica Móvil" : "Field Service"}</a>
-            <a href="#hydraulic-hoses" className="hover:text-zinc-100 transition-colors">{lang === "es" ? "Mangueras 6,000 PSI" : "Hydraulic Hoses"}</a>
-            <a href="#forklift-tires" className="hover:text-zinc-100 transition-colors">{lang === "es" ? "Llantas & Prensa" : "Tires & Pressing"}</a>
-            <a href="#machinery-sales" className="hover:text-zinc-100 transition-colors">{lang === "es" ? "Venta Equipos" : "Equipment Sales"}</a>
-            <a href="#reviews" className="hover:text-zinc-100 transition-colors flex items-center gap-1">
-              <span>{lang === "es" ? "Opiniones" : "Reviews"}</span>
-              <span className="text-amber-400 font-bold text-xs">★ 5.0</span>
+          {/* Logo & Corporate Name */}
+          <Link href="/" className="flex items-center gap-3 group">
+            <img 
+              src="logo/logo.png" 
+              alt="Willy Fast Solutions Corp Logo" 
+              className="h-12 w-auto object-contain transition-transform group-hover:scale-105"
+            />
+            <div className="flex flex-col">
+              <span className="text-lg font-black tracking-tight text-[#0B2545] leading-none">
+                WILLY FAST SOLUTIONS
+              </span>
+              <span className="text-[10px] font-bold text-amber-600 tracking-wider uppercase mt-1">
+                Corp • Commercial Lift Trucks & Heavy Equipment
+              </span>
+            </div>
+          </Link>
+
+          {/* Desktop Navigation Links */}
+          <nav className="hidden lg:flex items-center gap-6 text-sm font-semibold text-slate-700">
+            <a href="#services" className="hover:text-[#0B2545] transition-colors">
+              {lang === "es" ? "Servicios" : "Services"}
             </a>
-            
-            {/* Dedicated SaaS Route Badge in Header */}
+            <a href="#hydraulic-hoses" className="hover:text-[#0B2545] transition-colors">
+              {lang === "es" ? "Mangueras 6,000 PSI" : "Hydraulic Hoses"}
+            </a>
+            <a href="#pallet-jacks" className="hover:text-[#0B2545] transition-colors">
+              {lang === "es" ? "Pallet Jacks" : "Pallet Jacks"}
+            </a>
+            <a href="#tires-pressing" className="hover:text-[#0B2545] transition-colors">
+              {lang === "es" ? "Llantas & Prensa" : "Tires & Pressing"}
+            </a>
+            <a href="#equipment-sales" className="hover:text-[#0B2545] transition-colors">
+              {lang === "es" ? "Venta de Equipos" : "Equipment Sales"}
+            </a>
+            <a href="#reviews" className="hover:text-[#0B2545] transition-colors flex items-center gap-1">
+              <span>{lang === "es" ? "Reseñas" : "Reviews"}</span>
+              <span className="text-amber-500 font-bold text-xs">★ 5.0</span>
+            </a>
+            <a href="#contact" className="hover:text-[#0B2545] transition-colors">
+              {lang === "es" ? "Contacto" : "Contact"}
+            </a>
+          </nav>
+
+          {/* Right Header CTAs & Software Portal Button */}
+          <div className="hidden sm:flex items-center gap-3">
+            {/* Dedicated SaaS software division link (Clearly separated) */}
             <a 
               href="software/"
               onClick={(e) => {
@@ -418,23 +346,31 @@ export default function Home() {
                   window.location.href = "software/index.html";
                 }
               }}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 text-xs font-semibold hover:bg-emerald-500/20 transition-all shadow-sm"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50/70 text-[#0B2545] text-xs font-bold hover:bg-blue-100 hover:border-blue-300 transition-all shadow-sm"
+              title="Looking for our Fleet Telemetry and OSHA Software Division?"
             >
-              <Cpu className="h-3.5 w-3.5" />
-              <span>{lang === "es" ? "Software Flotas" : "Fleet Software"}</span>
+              <Cpu className="h-3.5 w-3.5 text-blue-700" />
+              <span>{lang === "es" ? "Software Telemetría" : "Fleet Software"}</span>
             </a>
 
-            <a href="#contact" className="hover:text-zinc-100 transition-colors">{lang === "es" ? "Contacto" : "Contact"}</a>
-          </nav>
-          
-          {/* Action CTAs + Client Login */}
-          <div className="flex items-center gap-3">
+            {/* Language Switcher */}
+            <button
+              onClick={() => setLang(lang === "en" ? "es" : "en")}
+              className="inline-flex items-center px-2.5 py-1 rounded border border-slate-300 bg-slate-100 text-xs font-bold text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+            >
+              {lang === "en" ? "🇺🇸 EN" : "🇪🇸 ES"}
+            </button>
+
+            {/* Direct Call Button (Safety Amber) */}
             <a 
               href="tel:+17184042038"
-              className="hidden sm:inline-flex h-9 items-center justify-center rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 text-xs font-bold text-emerald-400 transition-all hover:bg-emerald-500/20"
+              className="inline-flex items-center justify-center h-10 px-4 rounded-lg bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400 transition-all shadow-sm gap-2"
             >
-              <Phone className="h-3.5 w-3.5 mr-1.5" /> (718) 404-2038
+              <Phone className="h-3.5 w-3.5" />
+              <span>(718) 404-2038</span>
             </a>
+
+            {/* Client Portal Login */}
             <a 
               href="login/"
               onClick={(e) => {
@@ -443,359 +379,260 @@ export default function Home() {
                   window.location.href = "login/index.html";
                 }
               }}
-              id="btn-login" 
-              className="inline-flex h-9 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-950 px-4 text-sm font-medium text-zinc-300 transition-all hover:bg-zinc-900 hover:text-zinc-100 hover:border-zinc-700 shadow-sm cursor-pointer"
+              className="inline-flex items-center justify-center h-10 px-3 rounded-lg border border-slate-300 text-slate-700 font-semibold text-xs hover:bg-slate-100 transition-colors"
             >
-              {lang === "es" ? "Portal Clientes" : "Client Portal"}
+              {lang === "es" ? "Acceso Clientes" : "Client Login"}
             </a>
           </div>
-        </div>
-      </motion.header>
 
-      {/* Hero Section */}
-      <section id="home" className="relative py-16 md:py-24 overflow-hidden border-b border-zinc-900">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-zinc-900/40 via-zinc-950 to-zinc-950 -z-10" />
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center md:text-left flex flex-col md:flex-row items-center gap-12">
-          
-          {/* Left Column: Commercial Hook */}
-          <div className="flex-1 flex flex-col gap-6">
-            <motion.div 
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.5 }}
-              className="inline-flex self-center md:self-start items-center gap-2 px-3 py-1.5 rounded-full border border-zinc-800 bg-zinc-900/60 text-xs text-zinc-300"
-            >
-              <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span>📍 97-20 102nd St, Ozone Park • Queens, NY & Tri-State Area</span>
-            </motion.div>
-            
-            <motion.h1 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight bg-gradient-to-b from-zinc-50 to-zinc-300 bg-clip-text text-transparent"
-            >
-              {lang === "es" ? (
-                <>
-                  Reparación de Montacargas, Pallet Jacks y Retroexcavadoras en Queens, NY
-                </>
-              ) : (
-                <>
-                  Forklift Repair, Pallet Jacks & Heavy Machinery in Ozone Park & Queens, NY
-                </>
-              )}
-            </motion.h1>
-            
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-base sm:text-lg text-zinc-400 max-w-xl leading-relaxed"
-            >
-              {lang === "es" ? (
-                <>
-                  Taller mecánico y servicio móvil 24/7 en sitio. Venta y reparación de montacargas y pallet jacks, mantenimiento de retroexcavadoras, prensa móvil para llantas sólidas y prensado de mangueras hidráulicas hasta 6,000 PSI en &lt;45 min.
-                </>
-              ) : (
-                <>
-                  Certified on-site field mechanics and 24/7 emergency mobile service. Forklift and pallet jack repair & sales, backhoe service, solid tire mobile pressing, and on-site hydraulic hoses up to 6,000 PSI dispatched in &lt;45 min.
-                </>
-              )}
-            </motion.p>
-            
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-col sm:flex-row items-center gap-3 mt-2 justify-center md:justify-start flex-wrap"
-            >
-              <a 
-                href="tel:+17184042038" 
-                id="btn-hero-call" 
-                className="w-full sm:w-auto inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-emerald-500 px-6 text-sm font-bold text-black transition-all hover:bg-emerald-400 hover:scale-102 active:scale-95 shadow-[0_0_25px_rgba(16,185,129,0.3)]"
-              >
-                <Phone className="h-4 w-4" /> (718) 404-2038
-              </a>
-              <a 
-                href="https://wa.me/17184042038?text=Hola%20Willy%20Fast%20Solutions,%20necesito%20despacho%20urgente%20de%20mantenimiento%20o%20mangueras" 
-                target="_blank"
-                rel="noopener noreferrer" 
-                id="btn-hero-whatsapp" 
-                className="w-full sm:w-auto inline-flex h-11 items-center justify-center gap-2 rounded-lg border border-emerald-500/40 bg-zinc-950 px-6 text-sm font-semibold text-emerald-400 transition-all hover:bg-emerald-500/10 hover:border-emerald-400"
-              >
-                <MessageCircle className="h-4 w-4" /> {lang === "es" ? "WhatsApp Despacho Inmediato" : "Direct WhatsApp Dispatch"}
-              </a>
-              <a 
-                href="#services" 
-                id="btn-hero-services" 
-                className="w-full sm:w-auto inline-flex h-11 items-center justify-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950 px-5 text-sm font-medium text-zinc-300 transition-all hover:bg-zinc-900 hover:text-zinc-100"
-              >
-                {lang === "es" ? "Ver 4 Pilares de Servicios" : "View 4 Service Pillars"} <ArrowRight className="h-3.5 w-3.5" />
-              </a>
-            </motion.div>
-
-            {/* Quick Specialties Badges */}
-            <motion.div 
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.35 }}
-              className="flex flex-wrap items-center gap-2 pt-2 justify-center md:justify-start"
-            >
-              <a 
-                href="#field-service" 
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-zinc-900/80 border border-zinc-800 text-zinc-300 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors"
-              >
-                <span>🚜</span> {lang === "es" ? "Mecánica Móvil en Sitio" : "24/7 Field Repairs"}
-              </a>
-              <a 
-                href="#hydraulic-hoses" 
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-zinc-900/80 border border-zinc-800 text-zinc-300 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors"
-              >
-                <span>⚡</span> {lang === "es" ? "Mangueras 6,000 PSI en &lt;45 Min" : "Hydraulic Hoses up to 6,000 PSI"}
-              </a>
-              <a 
-                href="#forklift-tires" 
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-zinc-900/80 border border-zinc-800 text-zinc-300 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors"
-              >
-                <span>🛞</span> {lang === "es" ? "Llantas Sólidas & Prensa Móvil" : "Forklift Tires & Mobile Press"}
-              </a>
-              <a 
-                href="#machinery-sales" 
-                className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-zinc-900/80 border border-zinc-800 text-zinc-300 hover:border-emerald-500/50 hover:text-emerald-400 transition-colors"
-              >
-                <span>🛒</span> {lang === "es" ? "Venta Montacargas & Pallet Jacks" : "Equipment & Pallet Jack Sales"}
-              </a>
-            </motion.div>
-          </div>
-
-          {/* Right Column: High-Converting 24/7 Rapid Mobile Emergency Dispatch Card */}
-          <motion.div 
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="flex-1 w-full max-w-lg md:max-w-none"
+          {/* Mobile Menu Hamburger */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden p-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100"
+            aria-label="Toggle mobile menu"
           >
-            <div className="relative border border-emerald-500/30 bg-zinc-900/70 rounded-2xl p-6 sm:p-7 shadow-2xl backdrop-blur-md group hover:border-emerald-500/50 transition-all duration-300">
+            <Layers className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Mobile Dropdown Menu */}
+        {mobileMenuOpen && (
+          <div className="lg:hidden bg-white border-b border-slate-200 px-4 py-4 space-y-3 text-sm font-semibold">
+            <a 
+              href="#services" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-2 text-slate-700 hover:text-[#0B2545]"
+            >
+              {lang === "es" ? "Servicios Principales" : "Commercial Services"}
+            </a>
+            <a 
+              href="#hydraulic-hoses" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-2 text-slate-700 hover:text-[#0B2545]"
+            >
+              {lang === "es" ? "Mangueras Hidráulicas 6,000 PSI" : "Hydraulic Hoses (6,000 PSI)"}
+            </a>
+            <a 
+              href="#pallet-jacks" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-2 text-slate-700 hover:text-[#0B2545]"
+            >
+              {lang === "es" ? "Pallet Jacks (Venta & Taller)" : "Pallet Jacks (Sales & Service)"}
+            </a>
+            <a 
+              href="#tires-pressing" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-2 text-slate-700 hover:text-[#0B2545]"
+            >
+              {lang === "es" ? "Llantas & Prensa Móvil" : "Forklift Tires & Mobile Pressing"}
+            </a>
+            <a 
+              href="#equipment-sales" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-2 text-slate-700 hover:text-[#0B2545]"
+            >
+              {lang === "es" ? "Venta de Montacargas" : "Equipment Sales"}
+            </a>
+            <a 
+              href="#reviews" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-2 text-slate-700 hover:text-[#0B2545]"
+            >
+              {lang === "es" ? "Reseñas Verificadas (★ 5.0)" : "Verified Reviews (★ 5.0)"}
+            </a>
+            
+            <div className="pt-2 border-t border-slate-200 flex flex-col gap-2">
+              <a 
+                href="software/"
+                className="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-blue-50 text-[#0B2545] font-bold border border-blue-200"
+              >
+                <Cpu className="h-4 w-4 text-blue-700" />
+                <span>{lang === "es" ? "División Software Telemetría" : "Fleet Telemetry Software Division"}</span>
+              </a>
+              <a 
+                href="tel:+17184042038"
+                className="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-amber-500 text-slate-950 font-bold"
+              >
+                <Phone className="h-4 w-4" />
+                <span>{lang === "es" ? "Llamar Taller: (718) 404-2038" : "Call Dispatch: (718) 404-2038"}</span>
+              </a>
+              <div className="flex justify-between items-center pt-2">
+                <button
+                  onClick={() => setLang(lang === "en" ? "es" : "en")}
+                  className="px-3 py-1.5 rounded border border-slate-300 bg-slate-100 font-bold text-xs text-slate-700"
+                >
+                  {lang === "en" ? "Cambiar a Español" : "Switch to English"}
+                </button>
+                <a 
+                  href="login/"
+                  className="text-xs text-slate-600 font-semibold underline"
+                >
+                  {lang === "es" ? "Portal Clientes" : "Client Portal"}
+                </a>
+              </div>
+            </div>
+          </div>
+        )}
+      </header>
+
+      {/* 3. HERO SECTION (Classic Corporate Heavy Equipment B2B) */}
+      <section className="relative bg-gradient-to-b from-white via-slate-50 to-blue-50/30 border-b border-slate-200 py-12 md:py-20 overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            {/* Left Hero Column: Value Proposition & Direct Dispatch */}
+            <div className="lg:col-span-7 space-y-6">
               
-              {/* Header Status */}
-              <div className="flex items-center justify-between border-b border-zinc-800 pb-4 mb-5">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-3 w-3 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-xs font-mono font-bold tracking-wider text-emerald-400 uppercase">
-                    {lang === "es" ? "DESPACHO RÁPIDO ACTIVO 24/7" : "24/7 RAPID DISPATCH ACTIVE"}
-                  </span>
-                </div>
-                <span className="text-[11px] font-mono text-zinc-400 bg-zinc-950 px-2.5 py-1 rounded border border-zinc-800">
-                  Queens Base • Ozone Park
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-200 text-[#0B2545] text-xs font-bold">
+                <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>
+                  {lang === "es" 
+                    ? "Taller Industrial Especializado • Ozone Park, Queens NY" 
+                    : "Commercial Forklift & Industrial Hydraulic Specialists • Metro NYC"}
                 </span>
               </div>
 
-              {/* Title & Dispatch Card Content */}
-              <div className="space-y-4">
-                <div>
-                  <h3 className="text-xl font-bold text-zinc-100 flex items-center gap-2">
-                    <Truck className="h-5 w-5 text-emerald-400" />
-                    {lang === "es" ? "Taller Móvil Equipado en su Empresa" : "Fully Equipped On-Site Field Van"}
-                  </h3>
-                  <p className="text-xs text-zinc-400 mt-1">
-                    {lang === "es" 
-                      ? "Nuestras unidades móviles cuentan con prensadora hidráulica de alta presión y herramientas pesadas para solucionar su emergencia en el sitio sin remolques." 
-                      : "Our emergency field vans carry heavy spiral crimpers and diagnostic equipment to get your machinery operational immediately without towing."}
-                  </p>
-                </div>
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black text-[#0B2545] tracking-tight leading-[1.15]">
+                {lang === "es" ? (
+                  <>
+                    Servicio Mecánico de Montacargas, Mangueras Hidráulicas y Maquinaria Pesada en Nueva York
+                  </>
+                ) : (
+                  <>
+                    Commercial Forklift Repair, Mobile Hydraulic Hoses & Heavy Machinery in New York
+                  </>
+                )}
+              </h1>
 
-                {/* 4 Dispatch Highlights */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                  <div className="p-3 rounded-xl border border-zinc-800 bg-zinc-950/80">
-                    <div className="flex items-center gap-2 text-xs font-bold text-zinc-200">
-                      <Zap className="h-4 w-4 text-emerald-400 shrink-0" />
-                      <span>{lang === "es" ? "Llegada en <45 Minutos" : "<45 Min Queens ETA"}</span>
-                    </div>
-                    <p className="text-[11px] text-zinc-500 mt-1">
-                      {lang === "es" ? "Cobertura prioritaria en Ozone Park, LIC, Jamaica y Brooklyn." : "Priority dispatch across Queens, Brooklyn and NYC metro."}
-                    </p>
-                  </div>
-
-                  <div className="p-3 rounded-xl border border-zinc-800 bg-zinc-950/80">
-                    <div className="flex items-center gap-2 text-xs font-bold text-zinc-200">
-                      <Activity className="h-4 w-4 text-emerald-400 shrink-0" />
-                      <span>{lang === "es" ? "Prensado hasta 6,000 PSI" : "Spiral Hoses to 6,000 PSI"}</span>
-                    </div>
-                    <p className="text-[11px] text-zinc-500 mt-1">
-                      {lang === "es" ? "Mangueras de 2 y 4 mallas fabricadas en minutos en su patio." : "2 & 4-wire spiral hydraulic hoses crimped on-site."}
-                    </p>
-                  </div>
-
-                  <div className="p-3 rounded-xl border border-zinc-800 bg-zinc-950/80">
-                    <div className="flex items-center gap-2 text-xs font-bold text-zinc-200">
-                      <CircleDot className="h-4 w-4 text-amber-400 shrink-0" />
-                      <span>{lang === "es" ? "Prensa Móvil de Llantas" : "Mobile Tire Pressing"}</span>
-                    </div>
-                    <p className="text-[11px] text-zinc-500 mt-1">
-                      {lang === "es" ? "Cambio de llantas sólidas y cushion directo en bodega." : "Solid pneumatic & cushion tires pressed at your depot."}
-                    </p>
-                  </div>
-
-                  <div className="p-3 rounded-xl border border-zinc-800 bg-zinc-950/80">
-                    <div className="flex items-center gap-2 text-xs font-bold text-zinc-200">
-                      <ShieldCheck className="h-4 w-4 text-emerald-400 shrink-0" />
-                      <span>{lang === "es" ? "Certificación OSHA" : "OSHA Audit Ready"}</span>
-                    </div>
-                    <p className="text-[11px] text-zinc-500 mt-1">
-                      {lang === "es" ? "Inspecciones reglamentarias de mástil, frenos y seguridad." : "Compliant inspections for brakes, hydraulics and masts."}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Direct Emergency Dispatch Button */}
-                <div className="pt-3 border-t border-zinc-800/80 flex flex-col sm:flex-row gap-2">
-                  <a 
-                    href="tel:+17184042038" 
-                    className="flex-1 inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-emerald-500 text-xs font-bold text-black hover:bg-emerald-400 transition-colors shadow-lg cursor-pointer"
-                  >
-                    <Phone className="h-4 w-4" />
-                    <span>{lang === "es" ? "Despachar Mecánico Móvil Ahora" : "Dispatch Mobile Mechanic Now"}</span>
-                  </a>
-                  <a 
-                    href="https://wa.me/17184042038?text=Hola,%20tengo%20una%20maquinaria%20detenida%20y%20necesito%20el%20taller%20m%C3%B3vil%20urgente" 
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex h-11 items-center justify-center gap-1.5 px-4 rounded-lg border border-emerald-500/40 bg-zinc-950 text-xs font-bold text-emerald-400 hover:bg-emerald-500/10 transition-colors"
-                  >
-                    <MessageCircle className="h-4 w-4" /> WhatsApp
-                  </a>
-                </div>
-
-              </div>
-
-            </div>
-          </motion.div>
-
-        </div>
-      </section>
-
-      {/* Google Business Profile Showcase & Local Trust */}
-      <section className="py-12 border-b border-zinc-900 bg-zinc-900/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            
-            {/* Left: Google Card Replica with Verified Badge */}
-            <div className="lg:col-span-5 bg-zinc-950 border border-zinc-800 rounded-2xl p-6 shadow-2xl space-y-4">
-              <div className="flex items-center justify-between border-b border-zinc-900 pb-3">
-                <div className="flex items-center gap-2">
-                  <span className="flex h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-xs font-bold uppercase tracking-wider text-emerald-400">Google Business Verified</span>
-                </div>
-                <span className="text-[11px] text-zinc-500 font-mono">Queens, NY</span>
-              </div>
-
-              <div>
-                <h3 className="text-2xl font-bold text-zinc-100">Willy Fast Solutions Corp</h3>
-                <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                  <span className="font-bold text-lg text-zinc-100">5.0</span>
-                  <div className="flex text-amber-400">
-                    <Star className="h-4 w-4 fill-amber-400" />
-                    <Star className="h-4 w-4 fill-amber-400" />
-                    <Star className="h-4 w-4 fill-amber-400" />
-                    <Star className="h-4 w-4 fill-amber-400" />
-                    <Star className="h-4 w-4 fill-amber-400" />
-                  </div>
-                  <span className="text-xs text-zinc-400">({reviewSummary.total_reviews} opiniones verificadas)</span>
-                </div>
-                <p className="text-xs text-zinc-400 mt-1">
-                  {lang === "es" 
-                    ? "Taller de reparación, prensado de mangueras hidráulicas y venta de montacargas en Nueva York" 
-                    : "Forklift repair, mobile hydraulic hoses & heavy machinery services in New York"}
-                </p>
-              </div>
-
-              {/* Action Buttons styled like Google Profile */}
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2">
-                <a 
-                  href="tel:+17184042038" 
-                  className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 transition-colors text-center group cursor-pointer"
-                >
-                  <Phone className="h-4 w-4 text-emerald-400 group-hover:scale-110 transition-transform" />
-                  <span className="text-[11px] font-semibold text-zinc-200 mt-1">{lang === "es" ? "Llamar" : "Call"}</span>
-                </a>
-                <a 
-                  href="https://maps.google.com/?q=Willy+Fast+Solutions+Corp+97-20+102nd+St+Ozone+Park+NY+11416" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 transition-colors text-center group cursor-pointer"
-                >
-                  <MapPin className="h-4 w-4 text-rose-400 group-hover:scale-110 transition-transform" />
-                  <span className="text-[11px] font-semibold text-zinc-200 mt-1">{lang === "es" ? "Cómo llegar" : "Directions"}</span>
-                </a>
-                <button 
-                  type="button"
-                  onClick={() => setShowReviewModal(true)} 
-                  className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-zinc-800 bg-zinc-900 hover:bg-zinc-800 transition-colors text-center group cursor-pointer"
-                >
-                  <Star className="h-4 w-4 text-amber-400 group-hover:scale-110 transition-transform" />
-                  <span className="text-[11px] font-semibold text-zinc-200 mt-1">{lang === "es" ? "Opinar" : "Review"}</span>
-                </button>
-                <a 
-                  href="https://wa.me/17184042038?text=Hola%20Willy%20Fast%20Solutions,%20vi%20su%20perfil%20en%20Google%20y%20necesito%20servicio" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="flex flex-col items-center justify-center p-2.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 transition-colors text-center group cursor-pointer"
-                >
-                  <MessageCircle className="h-4 w-4 text-emerald-400 group-hover:scale-110 transition-transform" />
-                  <span className="text-[11px] font-semibold text-emerald-400 mt-1">WhatsApp</span>
-                </a>
-              </div>
-
-              <div className="pt-3 border-t border-zinc-900 text-xs text-zinc-400 space-y-1.5">
-                <div className="flex items-start gap-2">
-                  <MapPin className="h-4 w-4 text-zinc-500 shrink-0 mt-0.5" />
-                  <span><strong>{lang === "es" ? "Dirección:" : "Address:"}</strong> 97-20 102nd St, Ozone Park, NY 11416, Queens</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="h-4 w-4 text-zinc-500 shrink-0" />
-                  <span><strong>{lang === "es" ? "Teléfono:" : "Phone:"}</strong> +1 (718) 404-2038</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Clock className="h-4 w-4 text-zinc-500 shrink-0" />
-                  <span><strong>{lang === "es" ? "Horario:" : "Hours:"}</strong> Lun-Sáb 7:00 AM - 7:00 PM • Emergencias 24/7</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right: Why Local SEO & Trust Matters */}
-            <div className="lg:col-span-7 space-y-5">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-zinc-800 bg-zinc-950 text-xs text-emerald-400 font-semibold">
-                <Sparkles className="h-3.5 w-3.5" /> {lang === "es" ? "Líderes Locales en Queens y Nueva York" : "Local Leaders in Queens & NYC Metro"}
-              </div>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-zinc-100">
-                {lang === "es" 
-                  ? "Taller y Servicio Técnico Móvil en Ozone Park, Queens" 
-                  : "Field Service & Machinery Repair Base in Ozone Park, Queens"}
-              </h2>
-              <p className="text-sm sm:text-base text-zinc-400 leading-relaxed">
-                {lang === "es"
-                  ? "Atendemos almacenes logísticos, plantas de reciclaje, depósitos, constructoras y talleres en Ozone Park, South Ozone Park, Queens, Brooklyn, Bronx, Manhattan y Long Island. Si su montacargas, pallet jack o excavadora se detiene, enviamos mecánicos especializados y nuestro taller móvil con prensadora de mangueras hidráulicas directamente a su faena."
-                  : "We support logistics warehouses, distribution centers, scrap yards, and construction sites in Ozone Park, South Ozone Park, Queens, Brooklyn, and NYC metro. When your forklift, pallet jack, or excavator is down, our mobile field mechanics dispatch directly to your jobsite with full tooling and hydraulic hose crimping equipment."}
+              <p className="text-base sm:text-lg text-slate-600 leading-relaxed max-w-2xl font-normal">
+                {lang === "es" ? (
+                  <>
+                    Servicio móvil en sitio las 24 horas. Prensado de mangueras hidráulicas de alta presión hasta 6,000 PSI, reparación y venta de pallet jacks manuales y eléctricos, prensa móvil para llantas sólidas y mantenimiento de retroexcavadoras. Llegamos a su bodega u obra en menos de 45 minutos.
+                  </>
+                ) : (
+                  <>
+                    Rapid-response on-site field service 24/7. Mobile hydraulic hose replacement crimped up to 6,000 PSI, manual & electric pallet jack repair and sales, on-site solid tire pressing, and heavy excavator maintenance. Dispatched directly from Ozone Park, Queens across all 5 boroughs.
+                  </>
+                )}
               </p>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-                <div className="p-4 rounded-xl border border-zinc-850 bg-zinc-950/60">
-                  <div className="text-emerald-400 font-bold text-lg">&lt;45 Min</div>
-                  <div className="text-xs text-zinc-400 font-medium mt-0.5">
-                    {lang === "es" ? "Respuesta en Queens" : "Queens Response Time"}
+              {/* Direct Action Buttons */}
+              <div className="flex flex-wrap items-center gap-4 pt-2">
+                <a 
+                  href="tel:+17184042038"
+                  className="inline-flex items-center justify-center h-12 px-6 rounded-lg bg-amber-500 text-slate-950 font-black text-sm hover:bg-amber-400 transition-all shadow-md hover:shadow-lg gap-2"
+                >
+                  <Phone className="h-4 w-4" />
+                  <span>{lang === "es" ? "Llamar Despacho 24/7: (718) 404-2038" : "24/7 Rapid Dispatch: (718) 404-2038"}</span>
+                </a>
+
+                <a 
+                  href="#contact"
+                  className="inline-flex items-center justify-center h-12 px-6 rounded-lg bg-[#0B2545] text-white font-bold text-sm hover:bg-[#133b68] transition-all shadow-sm gap-2"
+                >
+                  <Wrench className="h-4 w-4 text-amber-400" />
+                  <span>{lang === "es" ? "Solicitar Cotización de Servicio" : "Request Rapid Service Quote"}</span>
+                </a>
+
+                <a 
+                  href="https://wa.me/17184042038?text=Hello%20Willy%20Fast%20Solutions,%20I%20need%20forklift/hydraulic%20service"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center h-12 px-4 rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 font-bold text-sm hover:bg-emerald-100 transition-all gap-2"
+                >
+                  <MessageCircle className="h-4 w-4 text-emerald-600" />
+                  <span>WhatsApp</span>
+                </a>
+              </div>
+
+              {/* Trust Metrics Bar */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-6 border-t border-slate-200">
+                <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-xs">
+                  <div className="text-2xl font-black text-[#0B2545]">&lt; 45 Min</div>
+                  <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                    {lang === "es" ? "Llegada a Queens" : "Queens Arrival"}
                   </div>
                 </div>
-                <div className="p-4 rounded-xl border border-zinc-850 bg-zinc-950/60">
-                  <div className="text-amber-400 font-bold text-lg">5.0 ★★★★★</div>
-                  <div className="text-xs text-zinc-400 font-medium mt-0.5">
-                    {lang === "es" ? "Calificación en Google" : "Google Business Rating"}
+
+                <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-xs">
+                  <div className="text-2xl font-black text-[#0B2545]">6,000 PSI</div>
+                  <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                    {lang === "es" ? "Prensado Móvil" : "Mobile Hose Press"}
                   </div>
                 </div>
-                <div className="p-4 rounded-xl border border-zinc-850 bg-zinc-950/60">
-                  <div className="text-emerald-400 font-bold text-lg">100% On-Site</div>
-                  <div className="text-xs text-zinc-400 font-medium mt-0.5">
-                    {lang === "es" ? "Prensado Móvil Mangueras" : "Mobile Hose Crimping"}
+
+                <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-xs">
+                  <div className="text-2xl font-black text-[#0B2545]">15+ Años</div>
+                  <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                    {lang === "es" ? "Experiencia Mecánica" : "Heavy Mechanical Exp"}
+                  </div>
+                </div>
+
+                <div className="bg-white p-3 rounded-lg border border-slate-200 shadow-xs">
+                  <div className="text-2xl font-black text-amber-600 flex items-center gap-1">
+                    <span>5.0</span>
+                    <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+                  </div>
+                  <div className="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+                    {lang === "es" ? "48 Reseñas Google" : "48 Google Reviews"}
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+            {/* Right Hero Column: Corporate Equipment Showcase Card */}
+            <div className="lg:col-span-5">
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-xl overflow-hidden">
+                <div className="bg-[#0B2545] text-white p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Truck className="h-5 w-5 text-amber-400" />
+                    <span className="font-bold text-sm tracking-wide">
+                      {lang === "es" ? "Unidad Móvil de Despacho Rápido" : "Mobile Heavy Service Dispatch"}
+                    </span>
+                  </div>
+                  <span className="text-[10px] font-bold bg-amber-500 text-slate-950 px-2 py-0.5 rounded uppercase">
+                    Ready 24/7
+                  </span>
+                </div>
+
+                <div className="p-6 space-y-4">
+                  <div className="relative rounded-xl overflow-hidden bg-slate-100 border border-slate-200 aspect-video flex items-center justify-center">
+                    <img 
+                      src="images/forklift.webp" 
+                      alt="Commercial Forklift Repair Toyota Queens NY" 
+                      className="w-full h-full object-contain p-2"
+                    />
+                    <div className="absolute bottom-2 left-2 bg-slate-900/80 backdrop-blur-sm text-white text-[11px] font-bold px-2.5 py-1 rounded border border-white/20">
+                      Toyota 8FGU25 • On-Site Hydraulic Service
+                    </div>
+                  </div>
+
+                  <div className="space-y-2.5 text-xs text-slate-600">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+                      <span><strong>{lang === "es" ? "Camión Taller:" : "Mobile Workshop:"}</strong> {lang === "es" ? "Prensa hidráulica y stock de conexiones en sitio." : "Hydraulic crimper & high-pressure fitting inventory on board."}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+                      <span><strong>{lang === "es" ? "Marcas que reparamos:" : "Brands Serviced:"}</strong> Toyota, Crown, Hyster, Yale, Caterpillar, Clark, Raymond, Bobcat.</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600 flex-shrink-0" />
+                      <span><strong>{lang === "es" ? "Ubicación taller:" : "Physical Facility:"}</strong> 97-20 102nd St, Ozone Park, Queens NY 11416.</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                    <span className="font-semibold text-slate-700">
+                      {lang === "es" ? "¿Emergencia mecánica hoy?" : "Machinery down right now?"}
+                    </span>
+                    <a 
+                      href="tel:+17184042038"
+                      className="font-black text-[#0B2545] hover:text-blue-700 transition-colors flex items-center gap-1"
+                    >
+                      Call Direct →
+                    </a>
                   </div>
                 </div>
               </div>
@@ -805,322 +642,813 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CORE COMMERCIAL SERVICES: The 4 CLT-Modeled Pillars */}
-      <section id="services" className="py-20 md:py-28 border-b border-zinc-900 bg-zinc-950">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      {/* 4. THE 4 COMMERCIAL SERVICE PILLARS (Modeled after CLT Lift Trucks) */}
+      <section id="services" className="py-16 md:py-24 bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-3">
-            <span className="text-xs font-bold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
-              {lang === "es" ? "Servicios Principales en Queens & NY" : "Primary Commercial Services in Queens & NY"}
-            </span>
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-zinc-100">
-              {lang === "es" ? "Nuestros 4 Pilares de Servicio Industrial" : "Our 4 Core Industrial Service Pillars"}
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <div className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+              <Award className="h-3.5 w-3.5" />
+              <span>{lang === "es" ? "Especialistas Mecánicos en Nueva York" : "Core Commercial Capabilities"}</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#0B2545] tracking-tight">
+              {lang === "es" 
+                ? "Nuestros 4 Pilares de Servicio Técnico y Taller Físico" 
+                : "4 Core Heavy Machinery & Forklift Service Pillars"}
             </h2>
-            <p className="text-sm sm:text-base text-zinc-400">
+            <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
               {lang === "es"
-                ? "Organización clara y directa: reparaciones mecánicas en sitio, mangueras hidráulicas de emergencia, llantas para montacargas y venta de equipos certificados."
-                : "Modular, high-performance machinery solutions: on-site field repairs, emergency hydraulic hoses, forklift solid tires & certified equipment sales."}
+                ? "Desde reparaciones de emergencia en menos de 45 minutos hasta contratos de mantenimiento preventivo y venta de equipos certificados con garantía."
+                : "From emergency on-site field repairs in under 45 minutes to mobile hose crimping and certified equipment sales backed by full warranties."}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             
-            {/* PILLAR 1: FIELD REPAIRS & 24/7 MOBILE SERVICE */}
-            <div id="field-service" className="border border-zinc-850 bg-zinc-900/30 rounded-2xl p-7 flex flex-col justify-between hover:border-zinc-700 transition-all group relative overflow-hidden">
-              <div className="space-y-5">
-                <div className="flex items-center justify-between">
-                  <div className="inline-flex p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-emerald-400 group-hover:scale-105 transition-transform">
-                    <Wrench className="h-6 w-6" />
-                  </div>
-                  <span className="text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400">
-                    Pillar 1 • Field Service
-                  </span>
+            {/* PILLAR 1: Field Service 24/7 */}
+            <div id="field-service" className="bg-slate-50 rounded-2xl border border-slate-200 hover:border-blue-400 p-6 flex flex-col justify-between shadow-xs hover:shadow-md transition-all group">
+              <div className="space-y-4">
+                <div className="h-12 w-12 rounded-xl bg-[#0B2545] text-amber-400 flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform shadow-sm">
+                  <Wrench className="h-6 w-6" />
                 </div>
-
-                <div>
-                  <h3 className="text-xl font-bold text-zinc-100">
-                    {lang === "es" ? "1. Servicio Mecánico Móvil en Sitio (24/7)" : "1. On-Site Mechanical Field Service (24/7)"}
-                  </h3>
-                  <p className="text-xs text-emerald-400 font-medium mt-1">
-                    {lang === "es" ? "Montacargas • Retroexcavadoras • Pallet Jacks" : "Forklifts • Backhoes & Excavators • Pallet Jacks"}
-                  </p>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">
+                  {lang === "es" ? "Pilar 1 • Mecánica Móvil 24/7" : "Pillar 1 • 24/7 Field Service"}
                 </div>
-
-                <p className="text-xs text-zinc-400 leading-relaxed">
+                <h3 className="text-xl font-bold text-[#0B2545] leading-tight">
+                  {lang === "es" ? "Reparación Mecánica en Sitio" : "Emergency On-Site Field Repairs"}
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
                   {lang === "es"
-                    ? "Taller móvil con mecánicos certificados para reparación urgente y mantenimiento preventivo en Queens, Brooklyn y toda el área metropolitana de NY. Atendemos montacargas (Toyota, Crown, Hyster, Yale, Cat, Clark), retroexcavadoras (Caterpillar, Case, JCB) y pallet jacks manuales/eléctricos."
-                    : "On-site field mechanics dispatched directly to your warehouse, yard, or jobsite across Queens, Brooklyn, and NYC. Full diagnostic repair for forklifts (Toyota, Crown, Hyster, Cat), backhoes & excavators (Caterpillar, Case, JCB), and pallet trucks."}
+                    ? "Diagnóstico y reparación completa de mástiles, cilindros, frenos, transmisiones, motores a gas/diésel y sistemas eléctricos para Toyota, Crown, Hyster, Yale y Cat."
+                    : "Full mast overhaul, hydraulic cylinder repacking, brakes, starters, engines, and electrical diagnostics on Toyota, Crown, Hyster, Yale, and Cat lift trucks."}
                 </p>
-
-                <div className="space-y-2 pt-2 border-t border-zinc-900">
-                  <div className="flex items-start gap-2 text-xs text-zinc-300">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>{lang === "es" ? "Montacargas (Forklifts):" : "Forklifts:"}</strong> Mástiles, cilindros de elevación, frenos, baterías, starter y afinación.</span>
-                  </div>
-                  <div className="flex items-start gap-2 text-xs text-zinc-300">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>{lang === "es" ? "Retroexcavadoras (Backhoes):" : "Backhoes:"}</strong> Cilindros hidráulicos de pluma y balde, fugas de alta presión y motor diesel.</span>
-                  </div>
-                  <div className="flex items-start gap-2 text-xs text-zinc-300">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>{lang === "es" ? "Pallet Jacks:" : "Pallet Jacks:"}</strong> Empacaduras de pistón hidráulico, cambio de ruedas y transpaletas eléctricas.</span>
-                  </div>
-                </div>
+                <ul className="text-xs text-slate-600 space-y-1.5 pt-2 border-t border-slate-200">
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
+                    <span>{lang === "es" ? "Despacho a bodega < 45 min" : "< 45 min warehouse arrival"}</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
+                    <span>{lang === "es" ? "Calibración de válvulas y mástil" : "Mast & valve recalibration"}</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
+                    <span>{lang === "es" ? "Mecánicos certificados en NYC" : "Fully certified NY mechanics"}</span>
+                  </li>
+                </ul>
               </div>
-
-              <div className="mt-8 pt-4 border-t border-zinc-900 flex flex-col sm:flex-row gap-2">
+              <div className="pt-6">
                 <a 
-                  href="tel:+17184042038" 
-                  className="flex-1 inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-zinc-100 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-colors cursor-pointer"
+                  href="tel:+17184042038"
+                  className="w-full inline-flex items-center justify-center py-2.5 rounded-lg bg-[#0B2545] text-white font-bold text-xs hover:bg-[#133b68] transition-colors gap-1.5"
                 >
-                  <Phone className="h-3.5 w-3.5" /> {lang === "es" ? "Pedir Mecánico en Sitio" : "Request Field Mechanic"}
+                  <Phone className="h-3.5 w-3.5 text-amber-400" />
+                  <span>{lang === "es" ? "Solicitar Mecánico" : "Dispatch Mechanic"}</span>
                 </a>
-                <button 
-                  onClick={() => handleSelectService("Servicio Mecánico Móvil en Sitio (Forklift / Backhoe / Pallet Jack)")}
-                  className="flex-1 inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950 text-xs font-semibold text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100 transition-colors cursor-pointer"
-                >
-                  {lang === "es" ? "Cotizar Reparación" : "Quote Field Service"}
-                </button>
               </div>
             </div>
 
-            {/* PILLAR 2: CUSTOM HYDRAULIC HOSES & FITTINGS (EMERGENCY SPIRAL) */}
-            <div id="hydraulic-hoses" className="border-2 border-emerald-500/40 bg-zinc-900/40 rounded-2xl p-7 flex flex-col justify-between shadow-xl relative overflow-hidden group">
-              <div className="absolute top-0 right-0 bg-emerald-500 text-zinc-950 text-[9px] font-extrabold px-3 py-1 rounded-bl-lg uppercase tracking-wider">
-                {lang === "es" ? "Emergencias <45 Min" : "Emergency <45 Min"}
-              </div>
-
-              <div className="space-y-5">
-                <div className="flex items-center justify-between">
-                  <div className="inline-flex p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 group-hover:scale-105 transition-transform">
-                    <Zap className="h-6 w-6" />
-                  </div>
-                  <span className="text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400">
-                    Pillar 2 • Hydraulic Hoses
-                  </span>
+            {/* PILLAR 2: Hydraulic Hoses 6,000 PSI */}
+            <div id="hydraulic-hoses" className="bg-slate-50 rounded-2xl border border-slate-200 hover:border-amber-400 p-6 flex flex-col justify-between shadow-xs hover:shadow-md transition-all group">
+              <div className="space-y-4">
+                <div className="h-12 w-12 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform shadow-sm">
+                  <Flame className="h-6 w-6" />
                 </div>
-
-                <div>
-                  <h3 className="text-xl font-bold text-zinc-100">
-                    {lang === "es" ? "2. Mangueras Hidráulicas hasta 6,000 PSI" : "2. Custom Hydraulic Hoses up to 6,000 PSI"}
-                  </h3>
-                  <p className="text-xs text-emerald-400 font-medium mt-1">
-                    {lang === "es" ? "Prensado Móvil en Obra • 2 y 4 Mallas Espirales" : "Mobile Crimping Van On-Site • 2 & 4-Wire Spiral"}
-                  </p>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">
+                  {lang === "es" ? "Pilar 2 • Prensado en Sitio" : "Pillar 2 • Mobile Crimping"}
                 </div>
-
-                <p className="text-xs text-zinc-300 leading-relaxed">
+                <h3 className="text-xl font-bold text-[#0B2545] leading-tight">
+                  {lang === "es" ? "Mangueras Hidráulicas 6,000 PSI" : "High-Pressure Hydraulic Hoses"}
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
                   {lang === "es"
-                    ? "Fabricación y prensado móvil directo en su empresa o sitio de construcción. Solucionamos mangueras reventadas en retroexcavadoras, grúas, montacargas y maquinaria pesada con conexiones JIC, NPT, ORFS, bridas partidas Code 61 y Code 62, métricas y DIN."
-                    : "On-site custom hydraulic hose manufacturing and high-pressure crimping up to 6,000 PSI. We arrive at your site with mobile spiral crimpers and complete fitting inventory (JIC, NPT, ORFS, Code 61/62 split flange fittings) to eliminate expensive downtime."}
+                    ? "Fabricación y prensado móvil directo en su bodega u obra. Mangueras de 2, 4 y 6 espirales hasta 6,000 PSI con acoples JIC, ORFS, DIN, BSP y bridas split Code 61/62."
+                    : "Custom on-site hydraulic hose fabrication. 2-wire, 4-spiral & 6-spiral hoses up to 6,000 PSI with JIC, ORFS, DIN, BSP fittings and split flange connections."}
+                </p>
+                <ul className="text-xs text-slate-600 space-y-1.5 pt-2 border-t border-slate-200">
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
+                    <span>{lang === "es" ? "Prensa móvil en camión taller" : "On-board van hydraulic press"}</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
+                    <span>{lang === "es" ? "Solución a fugas en tiempo récord" : "Instant fluid leak elimination"}</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
+                    <span>{lang === "es" ? "Para montacargas y retroexcavadoras" : "For forklifts & excavators"}</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="pt-6">
+                <a 
+                  href="tel:+17184042038"
+                  className="w-full inline-flex items-center justify-center py-2.5 rounded-lg bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400 transition-colors gap-1.5 shadow-xs"
+                >
+                  <Phone className="h-3.5 w-3.5" />
+                  <span>{lang === "es" ? "Prensado Urgente" : "Call Hose Press"}</span>
+                </a>
+              </div>
+            </div>
+
+            {/* PILLAR 3: Pallet Jacks (Sales & Repairs) */}
+            <div id="pallet-jacks" className="bg-slate-50 rounded-2xl border border-slate-200 hover:border-blue-400 p-6 flex flex-col justify-between shadow-xs hover:shadow-md transition-all group">
+              <div className="space-y-4">
+                <div className="h-12 w-12 rounded-xl bg-[#0B2545] text-amber-400 flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform shadow-sm">
+                  <Package className="h-6 w-6" />
+                </div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">
+                  {lang === "es" ? "Pilar 3 • Venta & Reparación" : "Pillar 3 • Sales & Service"}
+                </div>
+                <h3 className="text-xl font-bold text-[#0B2545] leading-tight">
+                  {lang === "es" ? "Pallet Jacks Manuales & Eléctricos" : "Pallet Jack Sales & Pump Rebuilds"}
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  {lang === "es"
+                    ? "Venta y reparación de transpaletas manuales de 5,500 lbs y eléctricas tipo walkie. Reconstrucción de bombas hidráulicas, cambio de ruedas de poliuretano y garantía."
+                    : "Manual hand pallet jacks (5,500 lbs) and electric walkies. Hydraulic pump overhauls, polyurethane floor-protective wheel replacements, and warranty units."}
+                </p>
+                <ul className="text-xs text-slate-600 space-y-1.5 pt-2 border-t border-slate-200">
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
+                    <span>{lang === "es" ? "Equipos nuevos y reacondicionados" : "New & certified rebuilt units"}</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
+                    <span>{lang === "es" ? "Ruedas de uretano y nylon" : "Polyurethane & nylon rollers"}</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
+                    <span>{lang === "es" ? "Empaques y retenedores de bomba" : "Pump seal kit repacking"}</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="pt-6">
+                <a 
+                  href="#contact"
+                  className="w-full inline-flex items-center justify-center py-2.5 rounded-lg bg-[#0B2545] text-white font-bold text-xs hover:bg-[#133b68] transition-colors gap-1.5"
+                >
+                  <Package className="h-3.5 w-3.5 text-amber-400" />
+                  <span>{lang === "es" ? "Cotizar Pallet Jack" : "Quote Pallet Jack"}</span>
+                </a>
+              </div>
+            </div>
+
+            {/* PILLAR 4: Forklift Tires & Mobile Pressing */}
+            <div id="tires-pressing" className="bg-slate-50 rounded-2xl border border-slate-200 hover:border-blue-400 p-6 flex flex-col justify-between shadow-xs hover:shadow-md transition-all group">
+              <div className="space-y-4">
+                <div className="h-12 w-12 rounded-xl bg-[#0B2545] text-amber-400 flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform shadow-sm">
+                  <RotateCw className="h-6 w-6" />
+                </div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">
+                  {lang === "es" ? "Pilar 4 • Prensa Móvil" : "Pillar 4 • Mobile Tire Pressing"}
+                </div>
+                <h3 className="text-xl font-bold text-[#0B2545] leading-tight">
+                  {lang === "es" ? "Llantas Sólidas & Prensa Móvil" : "Forklift Tires & Mobile Pressing"}
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  {lang === "es"
+                    ? "Llantas sólidas cushion y neumáticas prensadas directamente en su almacén con nuestro camión prensa móvil. Compuestos non-marking que no rayan el piso."
+                    : "Smooth cushion, traction, and solid pneumatic forklift tires pressed on-site with our mobile hydraulic tire press truck. Non-marking compounds available."}
+                </p>
+                <ul className="text-xs text-slate-600 space-y-1.5 pt-2 border-t border-slate-200">
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
+                    <span>{lang === "es" ? "Prensado in-situ sin retirar ruedas" : "On-site pressing at your dock"}</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
+                    <span>{lang === "es" ? "Llantas que no marcan el suelo" : "Non-marking clean compounds"}</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
+                    <span>{lang === "es" ? "Elimina tiempo muerto de envío" : "Zero off-site freight downtime"}</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="pt-6">
+                <a 
+                  href="tel:+17184042038"
+                  className="w-full inline-flex items-center justify-center py-2.5 rounded-lg bg-[#0B2545] text-white font-bold text-xs hover:bg-[#133b68] transition-colors gap-1.5"
+                >
+                  <Phone className="h-3.5 w-3.5 text-amber-400" />
+                  <span>{lang === "es" ? "Pedir Cambio Llantas" : "Schedule Tire Press"}</span>
+                </a>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* 5. HEAVY MACHINERY & EXCAVATOR DIVISION (Bobcat, Cat, Case) */}
+      <section className="py-16 bg-slate-100 border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="bg-white rounded-2xl border border-slate-200 p-8 sm:p-12 shadow-sm">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              
+              <div className="lg:col-span-7 space-y-4">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold uppercase tracking-wider">
+                  <Truck className="h-3.5 w-3.5" />
+                  <span>{lang === "es" ? "División de Maquinaria Pesada & Construcción" : "Heavy Machinery & Construction Division"}</span>
+                </div>
+                
+                <h3 className="text-2xl sm:text-3xl font-black text-[#0B2545]">
+                  {lang === "es" 
+                    ? "Servicio Técnico de Retroexcavadoras y Skid Steers en Obra" 
+                    : "Backhoe, Skid Steer & Excavator Field Maintenance"}
+                </h3>
+                
+                <p className="text-sm text-slate-600 leading-relaxed">
+                  {lang === "es"
+                    ? "Contamos con mecánicos diésel de servicio pesado equipados para atender minicargadores Bobcat, retroexcavadoras Caterpillar, Case y John Deere. Reparación de orugas, pistones de pala, bombas hidráulicas y mantenimiento periódico directamente en su obra o depósito en Nueva York."
+                    : "Our heavy diesel mobile service vans are equipped to handle Bobcat skid steers, Caterpillar, Case, and John Deere excavators and backhoes on-site. Track maintenance, bucket hydraulic cylinder repairs, and scheduled PM at your jobsite across Metro NY."}
                 </p>
 
-                <div className="space-y-2 pt-2 border-t border-zinc-800">
-                  <div className="flex items-start gap-2 text-xs text-zinc-300">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>{lang === "es" ? "Taller Móvil Rodante:" : "Mobile Workshop:"}</strong> Llega a su instalación en menos de 45 minutos en Queens.</span>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs font-semibold text-slate-700">
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                    <span>Bobcat S76 / T76 Skid Steer Specialists</span>
                   </div>
-                  <div className="flex items-start gap-2 text-xs text-zinc-300">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>{lang === "es" ? "Extrema Presión:" : "Extreme Pressure:"}</strong> Mangueras 2-wire y 4-wire spiral diseñadas para trabajo continuo severo.</span>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                    <span>Caterpillar & Case Backhoe Hydraulics</span>
                   </div>
-                  <div className="flex items-start gap-2 text-xs text-zinc-300">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>{lang === "es" ? "Sin Remolques:" : "Zero Towing:"}</strong> Fabricamos e instalamos la manguera directamente frente a su equipo.</span>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                    <span>{lang === "es" ? "Reparación de cilindros y fugas" : "Cylinder repacking & leak repairs"}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                    <span>{lang === "es" ? "Servicio a domicilio en NYC Tri-State" : "On-site dispatch across NY Tri-State"}</span>
                   </div>
                 </div>
               </div>
 
-              <div className="mt-8 pt-4 border-t border-zinc-800 flex flex-col sm:flex-row gap-2">
-                <a 
-                  href="tel:+17184042038" 
-                  className="flex-1 inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-emerald-500 text-xs font-bold text-black hover:bg-emerald-400 transition-colors shadow-md cursor-pointer"
+              <div className="lg:col-span-5 grid grid-cols-2 gap-4">
+                <div className="bg-slate-50 rounded-xl p-3 border border-slate-200 text-center">
+                  <img 
+                    src="images/skid_steer.webp" 
+                    alt="Bobcat Skid Steer Repair Queens NY" 
+                    className="h-28 w-auto mx-auto object-contain mb-2"
+                  />
+                  <span className="text-xs font-bold text-[#0B2545]">Bobcat Skid Steers</span>
+                </div>
+                <div className="bg-slate-50 rounded-xl p-3 border border-slate-200 text-center">
+                  <img 
+                    src="images/excavator.webp" 
+                    alt="Caterpillar Excavator Hydraulic Service NY" 
+                    className="h-28 w-auto mx-auto object-contain mb-2"
+                  />
+                  <span className="text-xs font-bold text-[#0B2545]">Cat & Case Excavators</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. CERTIFIED EQUIPMENT SALES SHOWCASE */}
+      <section id="equipment-sales" className="py-16 md:py-24 bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 pb-6">
+            <div>
+              <div className="text-xs font-bold text-amber-600 uppercase tracking-wider">
+                {lang === "es" ? "Inventario Listo Para Trabajar" : "Inspected & Certified Inventory"}
+              </div>
+              <h2 className="text-3xl font-black text-[#0B2545] tracking-tight mt-1">
+                {lang === "es" ? "Venta de Montacargas Certificados" : "Certified Pre-Owned Forklifts for Sale"}
+              </h2>
+            </div>
+            <a 
+              href="#contact" 
+              className="text-xs font-bold text-[#0B2545] hover:text-blue-700 flex items-center gap-1"
+            >
+              <span>{lang === "es" ? "Consultar Inventario Completo" : "Inquire Available Inventory"}</span>
+              <ArrowRight className="h-3.5 w-3.5" />
+            </a>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            
+            {/* Equipment Card 1 */}
+            <div className="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition-shadow">
+              <div className="bg-white p-6 border-b border-slate-200 flex items-center justify-center h-48">
+                <img 
+                  src="images/forklift.webp" 
+                  alt="Toyota 8FGU25 Forklift For Sale" 
+                  className="max-h-full object-contain"
+                />
+              </div>
+              <div className="p-6 space-y-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-bold text-lg text-[#0B2545]">Toyota 8FGU25</h3>
+                    <p className="text-xs text-slate-500">5,000 lbs • LP Gas • Triple Mast 189"</p>
+                  </div>
+                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                    Ready
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600">
+                  {lang === "es" 
+                    ? "Inspeccionado al 100%, cilindros hidráulicos repacados, llantas sólidas nuevas y garantía de tren motriz." 
+                    : "100% inspection verified, repacked hydraulic cylinders, new solid cushion tires, powertrain warranty."}
+                </p>
+                <div className="pt-3 border-t border-slate-200 flex justify-between items-center">
+                  <span className="text-xs font-bold text-slate-700">WFS Certified</span>
+                  <a 
+                    href="#contact" 
+                    className="text-xs font-bold text-[#0B2545] hover:underline"
+                  >
+                    {lang === "es" ? "Pedir Cotización →" : "Request Pricing →"}
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Equipment Card 2 */}
+            <div className="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition-shadow">
+              <div className="bg-white p-6 border-b border-slate-200 flex items-center justify-center h-48">
+                <img 
+                  src="images/forklift.webp" 
+                  alt="Crown Electric Forklift For Sale" 
+                  className="max-h-full object-contain grayscale-30"
+                />
+              </div>
+              <div className="p-6 space-y-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-bold text-lg text-[#0B2545]">Crown SC 5200 Electric</h3>
+                    <p className="text-xs text-slate-500">4,000 lbs • 36V Electric • Non-Marking Tires</p>
+                  </div>
+                  <span className="bg-blue-100 text-blue-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                    Certified
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600">
+                  {lang === "es" 
+                    ? "Ideal para almacenes cerrados, cargador incluido, batería regenerada con prueba de descarga certificada." 
+                    : "Zero emissions for food & pharmaceutical depots. Includes industrial charger and load-tested battery."}
+                </p>
+                <div className="pt-3 border-t border-slate-200 flex justify-between items-center">
+                  <span className="text-xs font-bold text-slate-700">WFS Certified</span>
+                  <a 
+                    href="#contact" 
+                    className="text-xs font-bold text-[#0B2545] hover:underline"
+                  >
+                    {lang === "es" ? "Pedir Cotización →" : "Request Pricing →"}
+                  </a>
+                </div>
+              </div>
+            </div>
+
+            {/* Equipment Card 3 */}
+            <div className="bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden shadow-xs hover:shadow-md transition-shadow">
+              <div className="bg-white p-6 border-b border-slate-200 flex items-center justify-center h-48">
+                <img 
+                  src="images/forklift.webp" 
+                  alt="Hyster Pneumatic Forklift Queens" 
+                  className="max-h-full object-contain hue-rotate-15"
+                />
+              </div>
+              <div className="p-6 space-y-3">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <h3 className="font-bold text-lg text-[#0B2545]">Hyster H50FT Heavy Duty</h3>
+                    <p className="text-xs text-slate-500">5,000 lbs • Dual Fuel • Solid Pneumatic</p>
+                  </div>
+                  <span className="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded uppercase">
+                    Ready
+                  </span>
+                </div>
+                <p className="text-xs text-slate-600">
+                  {lang === "es" 
+                    ? "Diseñado para patios exteriores y aserraderos. Llantas sólidas para grava, frenos de disco en aceite." 
+                    : "Built for rugged lumber & masonry yards. Solid pneumatic tires, wet disc brakes, heavy-duty mast."}
+                </p>
+                <div className="pt-3 border-t border-slate-200 flex justify-between items-center">
+                  <span className="text-xs font-bold text-slate-700">WFS Certified</span>
+                  <a 
+                    href="#contact" 
+                    className="text-xs font-bold text-[#0B2545] hover:underline"
+                  >
+                    {lang === "es" ? "Pedir Cotización →" : "Request Pricing →"}
+                  </a>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      {/* 7. DISTINCT CORPORATE CALLOUT: SEPARATE FLEET SOFTWARE DIVISION */}
+      <section className="py-12 bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="rounded-2xl border-2 border-blue-200 bg-gradient-to-r from-blue-50/70 via-slate-50 to-indigo-50/50 p-8 sm:p-10 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="space-y-2 max-w-3xl">
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0B2545] bg-blue-100/80 px-2.5 py-1 rounded">
+                <Cpu className="h-3.5 w-3.5 text-blue-700" />
+                <span>{lang === "es" ? "División Digital Independiente" : "Dedicated Digital Fleet Division"}</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black text-[#0B2545]">
+                {lang === "es" 
+                  ? "¿Administra una flota corporativa y necesita software de telemetría?" 
+                  : "Managing a corporate warehouse fleet & need telemetry software?"}
+              </h3>
+              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                {lang === "es"
+                  ? "Willy Fast Solutions también cuenta con una plataforma SaaS dedicada para monitoreo autónomo de horómetros, alertas predictivas de mantenimiento, cálculo de ROI de tiempo muerto y listas digitales de inspección diaria OSHA."
+                  : "Willy Fast Solutions operates an isolated SaaS telemetry suite for autonomous horometer tracking, daemon predictive maintenance alerts, fleet downtime ROI calculation, and digital OSHA pre-shift inspection checklists."}
+              </p>
+            </div>
+
+            <a 
+              href="software/"
+              onClick={(e) => {
+                if (typeof window !== "undefined" && window.location.protocol === "file:") {
+                  e.preventDefault();
+                  window.location.href = "software/index.html";
+                }
+              }}
+              className="inline-flex items-center justify-center whitespace-nowrap h-12 px-6 rounded-lg bg-[#0B2545] text-white font-bold text-xs hover:bg-[#133b68] transition-colors shadow-sm gap-2"
+            >
+              <span>{lang === "es" ? "Explorar División Software →" : "Visit Fleet Software Portal →"}</span>
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
+          </div>
+        </div>
+      </section>
+
+      {/* 8. COMMERCIAL INTERACTIVE QUOTE & SERVICE DISPATCH FORM */}
+      <section id="contact" className="py-16 md:py-24 bg-slate-50 border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-3xl mx-auto bg-white rounded-2xl border border-slate-200 p-8 sm:p-12 shadow-md space-y-8">
+            
+            <div className="text-center space-y-2">
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 uppercase tracking-wider bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+                <Clock className="h-3.5 w-3.5" />
+                <span>{lang === "es" ? "Respuesta Inmediata" : "Rapid Turnaround"}</span>
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-black text-[#0B2545]">
+                {lang === "es" ? "Solicitud de Servicio o Cotización Comercial" : "Commercial Service Request & Quote"}
+              </h2>
+              <p className="text-xs sm:text-sm text-slate-600">
+                {lang === "es" 
+                  ? "Complete el formulario para despacho rápido de mecánicos o cotización formal de equipos." 
+                  : "Submit below for rapid mechanic dispatch or official quotation. For immediate breakdown, call (718) 404-2038."}
+              </p>
+            </div>
+
+            {quoteSuccess && (
+              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold text-center flex items-center justify-center gap-2">
+                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                <span>
+                  {lang === "es" 
+                    ? "¡Solicitud recibida! Nuestro despachador le contactará en menos de 15 minutos." 
+                    : "Service request received! Our dispatch team will contact you within 15 minutes."}
+                </span>
+              </div>
+            )}
+
+            {quoteError && (
+              <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm font-semibold text-center">
+                {quoteError}
+              </div>
+            )}
+
+            <form onSubmit={handleQuoteSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700">
+                    {lang === "es" ? "Nombre de la Empresa / Almacén" : "Company / Warehouse Name"}
+                  </label>
+                  <input 
+                    type="text" 
+                    required
+                    value={quoteCompany}
+                    onChange={(e) => setQuoteCompany(e.target.value)}
+                    placeholder="e.g. Metro Freight Corp"
+                    className="w-full h-11 px-3.5 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545] focus:ring-1 focus:ring-[#0B2545]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700">
+                    {lang === "es" ? "Nombre del Contacto" : "Contact Name"}
+                  </label>
+                  <input 
+                    type="text" 
+                    required
+                    value={quoteName}
+                    onChange={(e) => setQuoteName(e.target.value)}
+                    placeholder="e.g. John Doe / Carlos M."
+                    className="w-full h-11 px-3.5 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545] focus:ring-1 focus:ring-[#0B2545]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700">
+                    {lang === "es" ? "Teléfono de Contacto (Directo)" : "Direct Phone Number"}
+                  </label>
+                  <input 
+                    type="tel" 
+                    required
+                    value={quotePhone}
+                    onChange={(e) => setQuotePhone(e.target.value)}
+                    placeholder="+1 (718) 000-0000"
+                    className="w-full h-11 px-3.5 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545] focus:ring-1 focus:ring-[#0B2545]"
+                  />
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700">
+                    {lang === "es" ? "Correo Electrónico Corporativo" : "Corporate Email"}
+                  </label>
+                  <input 
+                    type="email" 
+                    required
+                    value={quoteEmail}
+                    onChange={(e) => setQuoteEmail(e.target.value)}
+                    placeholder="operations@company.com"
+                    className="w-full h-11 px-3.5 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545] focus:ring-1 focus:ring-[#0B2545]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700">
+                    {lang === "es" ? "Tipo de Servicio Requerido" : "Service Category"}
+                  </label>
+                  <select 
+                    value={quoteServiceType}
+                    onChange={(e) => setQuoteServiceType(e.target.value)}
+                    className="w-full h-11 px-3 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545]"
+                  >
+                    <option value="Forklift Repair">Forklift Repair (Mechanical/Electrical)</option>
+                    <option value="Hydraulic Hoses">Mobile Hydraulic Hose Replacement (6,000 PSI)</option>
+                    <option value="Pallet Jack Service">Pallet Jack Repair / Purchase</option>
+                    <option value="Forklift Tires">Forklift Tires & Mobile Pressing</option>
+                    <option value="Heavy Equipment">Heavy Machinery / Backhoe Service</option>
+                    <option value="Equipment Purchase">Certified Equipment Purchase Inquiry</option>
+                  </select>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700">
+                    {lang === "es" ? "Nivel de Urgencia" : "Urgency Level"}
+                  </label>
+                  <select 
+                    value={quoteUrgency}
+                    onChange={(e) => setQuoteUrgency(e.target.value)}
+                    className="w-full h-11 px-3 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545]"
+                  >
+                    <option value="Immediate Dispatch (Emergency)">🚨 Emergency - Machine Down (Immediate Dispatch)</option>
+                    <option value="Same Day Service">Same Day Service</option>
+                    <option value="Next 24-48 Hours">Next 24-48 Hours</option>
+                    <option value="Quote / Scheduled PM">Quote / Routine Maintenance</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-bold text-slate-700">
+                  {lang === "es" ? "Detalles de la Máquina o Síntomas" : "Equipment Details / Symptoms"}
+                </label>
+                <textarea 
+                  rows={3}
+                  value={quoteMessage}
+                  onChange={(e) => setQuoteMessage(e.target.value)}
+                  placeholder={lang === "es" 
+                    ? "Indique marca, modelo y falla (ej: Toyota 8FGU25 con fuga de aceite hidráulico en el mástil)..." 
+                    : "Specify machine brand, model and issue (e.g. Toyota 8FGU25 leaking hydraulic fluid at mast)..."}
+                  className="w-full p-3 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545] focus:ring-1 focus:ring-[#0B2545] resize-none"
+                />
+              </div>
+
+              <div className="pt-2 flex flex-col sm:flex-row gap-3">
+                <button
+                  type="submit"
+                  disabled={isSubmittingQuote}
+                  className="flex-1 h-12 inline-flex items-center justify-center rounded-lg bg-[#0B2545] text-white font-bold text-sm hover:bg-[#133b68] disabled:opacity-50 transition-colors shadow-sm gap-2 cursor-pointer"
                 >
-                  <Phone className="h-3.5 w-3.5" /> {lang === "es" ? "Pedir Manguera Urgente" : "Call Rush Hose Dispatch"}
-                </a>
+                  {isSubmittingQuote ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span>{lang === "es" ? "Enviando Solicitud..." : "Submitting Dispatch Request..."}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Send className="h-4 w-4 text-amber-400" />
+                      <span>{lang === "es" ? "Enviar Solicitud de Servicio" : "Submit Service Request"}</span>
+                    </>
+                  )}
+                </button>
+
                 <a 
-                  href="https://wa.me/17184042038?text=Hola,%20se%20me%20revent%C3%B3%20una%20manguera%20hidr%C3%A1ulica%20y%20necesito%20una%20nueva%20en%20Queens" 
+                  href={`https://wa.me/17184042038?text=Hello%20WillyFastSolutions,%20I%20need%20${encodeURIComponent(quoteServiceType)}%20for%20company%20${encodeURIComponent(quoteCompany || "Client")}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex-1 inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-emerald-500/40 bg-zinc-950 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/10 transition-colors cursor-pointer"
+                  className="h-12 px-5 inline-flex items-center justify-center rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 font-bold text-sm hover:bg-emerald-100 transition-colors gap-2"
                 >
-                  <MessageCircle className="h-3.5 w-3.5" /> {lang === "es" ? "Enviar Foto por WhatsApp" : "Send Photo via WhatsApp"}
+                  <MessageCircle className="h-4 w-4 text-emerald-600" />
+                  <span>{lang === "es" ? "WhatsApp Directo" : "Direct WhatsApp"}</span>
                 </a>
               </div>
+
+            </form>
+          </div>
+        </div>
+      </section>
+
+      {/* 9. VERIFIED GOOGLE COMMERCIAL REVIEWS (48 Reviews • 5.0 Stars) */}
+      <section id="reviews" className="py-16 md:py-24 bg-white border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          
+          <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-slate-200 pb-6">
+            <div>
+              <div className="flex items-center gap-1.5 text-amber-500 mb-1">
+                <Star className="h-4 w-4 fill-amber-500" />
+                <Star className="h-4 w-4 fill-amber-500" />
+                <Star className="h-4 w-4 fill-amber-500" />
+                <Star className="h-4 w-4 fill-amber-500" />
+                <Star className="h-4 w-4 fill-amber-500" />
+                <span className="text-xs font-bold text-slate-700 ml-1">5.0 Star Rated on Google (48 Reviews)</span>
+              </div>
+              <h2 className="text-3xl font-black text-[#0B2545] tracking-tight">
+                {lang === "es" ? "Opiniones de Clientes Comerciales" : "Verified Customer Testimonials"}
+              </h2>
             </div>
+            
+            <button
+              onClick={() => setReviewModalOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-[#0B2545] text-[#0B2545] hover:bg-blue-50 font-bold text-xs transition-colors cursor-pointer"
+            >
+              <span>{lang === "es" ? "Dejar Reseña Verificada" : "Write a Verified Review"}</span>
+              <ArrowUpRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
 
-            {/* PILLAR 3: FORKLIFT TIRES & MOBILE PRESSING */}
-            <div id="forklift-tires" className="border border-zinc-850 bg-zinc-900/30 rounded-2xl p-7 flex flex-col justify-between hover:border-zinc-700 transition-all group relative overflow-hidden">
-              <div className="space-y-5">
-                <div className="flex items-center justify-between">
-                  <div className="inline-flex p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-amber-400 group-hover:scale-105 transition-transform">
-                    <CircleDot className="h-6 w-6" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {reviews.map((rev, idx) => (
+              <div 
+                key={rev.id || idx}
+                className="bg-slate-50 rounded-2xl border border-slate-200 p-6 flex flex-col justify-between space-y-4 shadow-xs"
+              >
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex text-amber-500">
+                      {[...Array(rev.rating || 5)].map((_, i) => (
+                        <Star key={i} className="h-4 w-4 fill-amber-500" />
+                      ))}
+                    </div>
+                    <span className="text-[10px] font-bold text-slate-600 bg-slate-200 px-2 py-0.5 rounded">
+                      Google Verified
+                    </span>
                   </div>
-                  <span className="text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400">
-                    Pillar 3 • Tires & Pressing
-                  </span>
-                </div>
-
-                <div>
-                  <h3 className="text-xl font-bold text-zinc-100">
-                    {lang === "es" ? "3. Llantas para Montacargas & Prensa Móvil" : "3. Forklift Tires & On-Site Mobile Pressing"}
-                  </h3>
-                  <p className="text-xs text-amber-400 font-medium mt-1">
-                    {lang === "es" ? "Rudomáticas Sólidas • Cushion • Non-Marking" : "Solid Pneumatics • Cushion • Non-Marking"}
+                  <p className="text-xs text-slate-700 leading-relaxed italic">
+                    "{rev.comment}"
                   </p>
                 </div>
 
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  {lang === "es"
-                    ? "Venta, prensado e instalación de llantas industriales directamente en su almacén. Despachamos nuestra prensa hidráulica móvil a su empresa en Queens, Brooklyn y NY, desmontamos la llanta desgastada y prensamos la nueva sin necesidad de trasladar su montacargas."
-                    : "Complete commercial forklift tire replacement service with industrial mobile press delivered directly to your facility. We dismount, press new solid pneumatic, cushion, or non-marking tires, and reinstall on-site to keep your warehouse operating."}
-                </p>
-
-                <div className="space-y-2 pt-2 border-t border-zinc-900">
-                  <div className="flex items-start gap-2 text-xs text-zinc-300">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>{lang === "es" ? "Llantas Sólidas Rudomáticas:" : "Solid Pneumatics:"}</strong> Resistencia total a pinchazos en patios, reciclaje y asfalto.</span>
-                  </div>
-                  <div className="flex items-start gap-2 text-xs text-zinc-300">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>{lang === "es" ? "Cushion & Non-Marking:" : "Cushion & Non-Marking:"}</strong> Ideales para almacenes de alimentos, farmacéutica y bodegas interiores.</span>
-                  </div>
-                  <div className="flex items-start gap-2 text-xs text-zinc-300">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>{lang === "es" ? "Prensa Móvil en Sitio:" : "Mobile Press On-Site:"}</strong> Sin días de espera ni grúas para mover el montacargas.</span>
+                <div className="pt-3 border-t border-slate-200">
+                  <div className="font-bold text-xs text-[#0B2545]">{rev.author_name}</div>
+                  {rev.company_name && (
+                    <div className="text-[11px] text-slate-500 font-medium">{rev.company_name}</div>
+                  )}
+                  <div className="text-[10px] text-amber-700 font-semibold mt-1">
+                    {rev.service_type} • {rev.location || "Queens, NY"}
                   </div>
                 </div>
               </div>
-
-              <div className="mt-8 pt-4 border-t border-zinc-900 flex flex-col sm:flex-row gap-2">
-                <a 
-                  href="tel:+17184042038" 
-                  className="flex-1 inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-zinc-100 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-colors cursor-pointer"
-                >
-                  <Phone className="h-3.5 w-3.5" /> {lang === "es" ? "Cotizar Medidas de Llantas" : "Quote Tire Sizes"}
-                </a>
-                <button 
-                  onClick={() => handleSelectService("Llantas para Montacargas y Prensa Móvil (Solid / Cushion / Non-Marking)")}
-                  className="flex-1 inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950 text-xs font-semibold text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100 transition-colors cursor-pointer"
-                >
-                  {lang === "es" ? "Pedir Cotización Prensa" : "Request Press Quote"}
-                </button>
-              </div>
-            </div>
-
-            {/* PILLAR 4: CERTIFIED EQUIPMENT SALES (FORKLIFTS & PALLET JACKS) */}
-            <div id="machinery-sales" className="border border-zinc-850 bg-zinc-900/30 rounded-2xl p-7 flex flex-col justify-between hover:border-zinc-700 transition-all group relative overflow-hidden">
-              <div className="space-y-5">
-                <div className="flex items-center justify-between">
-                  <div className="inline-flex p-3 rounded-xl bg-zinc-900 border border-zinc-800 text-emerald-400 group-hover:scale-105 transition-transform">
-                    <ShoppingCart className="h-6 w-6" />
-                  </div>
-                  <span className="text-[10px] font-mono uppercase tracking-wider px-2.5 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-zinc-400">
-                    Pillar 4 • Equipment Sales
-                  </span>
-                </div>
-
-                <div>
-                  <h3 className="text-xl font-bold text-zinc-100">
-                    {lang === "es" ? "4. Venta de Equipos & Pallet Jacks Certificados" : "4. Certified Equipment & Pallet Jack Sales"}
-                  </h3>
-                  <p className="text-xs text-emerald-400 font-medium mt-1">
-                    {lang === "es" ? "Montacargas Nuevos & Usados • Pallet Jacks en Stock" : "New & Pre-Owned Forklifts • Pallet Jacks in Stock"}
-                  </p>
-                </div>
-
-                <p className="text-xs text-zinc-400 leading-relaxed">
-                  {lang === "es"
-                    ? "Venta de montacargas certificados con garantía mecánica rigurosa en Queens y el área Tri-Estatal (Toyota, Crown, Caterpillar, Hyster a gas propano LPG, eléctricos y diesel). Además, disponemos de stock permanente de pallet jacks manuales y eléctricos listos para entrega inmediata."
-                    : "Certified pre-owned and new forklifts (Toyota, Crown, Cat, Hyster) with comprehensive mechanical warranty. Electric, LPG propane, and diesel warehouse machinery, plus a permanent warehouse inventory of heavy-duty manual and electric pallet jacks in NYC."}
-                </p>
-
-                <div className="space-y-2 pt-2 border-t border-zinc-900">
-                  <div className="flex items-start gap-2 text-xs text-zinc-300">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>{lang === "es" ? "Equipos Certificados:" : "Certified Machines:"}</strong> Inspección técnica de 50 puntos antes de la entrega.</span>
-                  </div>
-                  <div className="flex items-start gap-2 text-xs text-zinc-300">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>{lang === "es" ? "Pallet Jacks Listos:" : "Pallet Jacks In Stock:"}</strong> Transpaletas manuales de 5,500 lbs y eléctricas listas para despacho.</span>
-                  </div>
-                  <div className="flex items-start gap-2 text-xs text-zinc-300">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0 mt-0.5" />
-                    <span><strong>{lang === "es" ? "Asesoría Honesta:" : "Expert Guidance:"}</strong> Recomendaciones directas de mecánicos experimentados, no de intermediarios.</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-8 pt-4 border-t border-zinc-900 flex flex-col sm:flex-row gap-2">
-                <button 
-                  onClick={() => handleSelectService("Venta de Montacargas (Nuevos / Usados Certificados)")}
-                  className="flex-1 inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-zinc-100 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-colors cursor-pointer"
-                >
-                  <ShoppingCart className="h-3.5 w-3.5" /> {lang === "es" ? "Consultar Forklifts" : "Inquire Forklifts"}
-                </button>
-                <button 
-                  onClick={() => handleSelectService("Compra de Pallet Jacks (Manuales o Eléctricos en Stock)")}
-                  className="flex-1 inline-flex h-10 items-center justify-center gap-1.5 rounded-lg border border-zinc-800 bg-zinc-950 text-xs font-semibold text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100 transition-colors cursor-pointer"
-                >
-                  <Package className="h-3.5 w-3.5" /> {lang === "es" ? "Comprar Pallet Jacks" : "Buy Pallet Jacks"}
-                </button>
-              </div>
-            </div>
-
+            ))}
           </div>
 
         </div>
       </section>
 
-      {/* DEDICATED SAAS & FLEET SOFTWARE CALLOUT BANNER (Clean, Noise-Free) */}
-      <section className="py-16 border-b border-zinc-900 bg-zinc-950 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-emerald-950/20 via-zinc-950 to-zinc-950 pointer-events-none" />
-        
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="border border-emerald-500/30 bg-gradient-to-br from-zinc-900/90 via-zinc-950 to-zinc-900/90 rounded-3xl p-8 sm:p-12 shadow-2xl backdrop-blur-md">
+      {/* 10. SERVICE COVERAGE RADIUS (Metro NY & Tri-State Area) */}
+      <section className="py-16 bg-slate-50 border-b border-slate-200">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+          <div className="text-center max-w-2xl mx-auto space-y-2">
+            <h2 className="text-2xl sm:text-3xl font-black text-[#0B2545]">
+              {lang === "es" ? "Zonas de Cobertura y Despacho Rápido" : "Rapid Mobile Dispatch Coverage Zones"}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600">
+              {lang === "es"
+                ? "Con base en Ozone Park, Queens, nuestros camiones taller cubren los 5 condados de Nueva York y Long Island."
+                : "Stationed at our Ozone Park facility in Queens, our mobile service trucks cover all 5 boroughs & Long Island daily."}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 text-center">
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+              <div className="font-bold text-sm text-[#0B2545]">Queens</div>
+              <div className="text-[10px] text-slate-500 mt-1">Ozone Park, Jamaica, LIC, Maspeth, JFK Cargo</div>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+              <div className="font-bold text-sm text-[#0B2545]">Brooklyn</div>
+              <div className="text-[10px] text-slate-500 mt-1">Greenpoint, Bushwick, Navy Yard, Sunset Park</div>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+              <div className="font-bold text-sm text-[#0B2545]">Long Island</div>
+              <div className="text-[10px] text-slate-500 mt-1">Nassau County, Suffolk, Hicksville, Elmont</div>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+              <div className="font-bold text-sm text-[#0B2545]">Manhattan</div>
+              <div className="text-[10px] text-slate-500 mt-1">Midtown, Downtown, Industrial Docks</div>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+              <div className="font-bold text-sm text-[#0B2545]">The Bronx</div>
+              <div className="text-[10px] text-slate-500 mt-1">Hunts Point Food Market, Port Morris</div>
+            </div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-xs">
+              <div className="font-bold text-sm text-[#0B2545]">Staten Island</div>
+              <div className="text-[10px] text-slate-500 mt-1">Teleport, Howland Hook Marine Terminal</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 11. CORPORATE FOOTER */}
+      <footer className="bg-[#0B2545] text-white pt-16 pb-12 border-t border-blue-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              
-              <div className="lg:col-span-8 space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 text-xs font-semibold text-emerald-400">
-                  <Cpu className="h-3.5 w-3.5" />
-                  <span>{lang === "es" ? "PLATAFORMA B2B DE MANTENIMIENTO PREVENTIVO" : "B2B PREVENTIVE FLEET TELEMETRY PLATFORM"}</span>
-                </div>
-
-                <h3 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-zinc-100 tracking-tight leading-tight">
-                  {lang === "es" 
-                    ? "¿Administras una flota de montacargas o maquinaria pesada?" 
-                    : "Managing a Fleet of Forklifts or Heavy Machinery?"}
-                </h3>
-
-                <p className="text-sm sm:text-base text-zinc-400 leading-relaxed max-w-2xl">
-                  {lang === "es"
-                    ? "Diseñamos un software dedicado para empresas con múltiples activos. Control de horas de motor (horómetro), checklists digitales de inspección OSHA, simulador en vivo, cálculo de ROI y daemon auditor que envía reportes ejecutivos en PDF automáticamente."
-                    : "We built a dedicated SaaS platform for companies operating equipment fleets. Monitor hour meters, run digital OSHA compliance checklists, calculate fleet downtime ROI, and let our 24/7 background audit daemon email executive PDF reports automatically."}
-                </p>
-
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
-                  <div className="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800">
-                    <div className="text-xs font-bold text-zinc-200">{lang === "es" ? "⏱️ Horómetro" : "⏱️ Hour Meter"}</div>
-                    <div className="text-[11px] text-zinc-500 mt-0.5">{lang === "es" ? "Telemetría en vivo" : "Live telemetry"}</div>
-                  </div>
-                  <div className="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800">
-                    <div className="text-xs font-bold text-zinc-200">{lang === "es" ? "📋 Checklists" : "📋 Checklists"}</div>
-                    <div className="text-[11px] text-zinc-500 mt-0.5">{lang === "es" ? "Auditoría OSHA" : "OSHA compliant"}</div>
-                  </div>
-                  <div className="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800">
-                    <div className="text-xs font-bold text-zinc-200">{lang === "es" ? "🤖 Daemon 24/7" : "🤖 24/7 Daemon"}</div>
-                    <div className="text-[11px] text-zinc-500 mt-0.5">{lang === "es" ? "Alertas por email" : "Email PDF alerts"}</div>
-                  </div>
-                  <div className="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800">
-                    <div className="text-xs font-bold text-zinc-200">{lang === "es" ? "📊 ROI Flota" : "📊 Fleet ROI"}</div>
-                    <div className="text-[11px] text-zinc-500 mt-0.5">{lang === "es" ? "Ahorro calculado" : "Downtime savings"}</div>
-                  </div>
-                </div>
+            {/* Column 1: Company Profile */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <img 
+                  src="logo/logo.png" 
+                  alt="Willy Fast Solutions Logo" 
+                  className="h-10 w-auto object-contain brightness-110"
+                />
+                <span className="font-black text-lg tracking-tight text-white leading-tight">
+                  WILLY FAST SOLUTIONS CORP
+                </span>
               </div>
+              <p className="text-xs text-slate-300 leading-relaxed">
+                {lang === "es"
+                  ? "Taller mecánico comercial y servicio móvil especializado en montacargas, mangueras hidráulicas de 6,000 PSI, transpaletas y retroexcavadoras en Nueva York."
+                  : "Commercial forklift repair, mobile hydraulic hose manufacturing up to 6,000 PSI, pallet jacks, and heavy machinery services across Metro New York."}
+              </p>
+              <div className="text-xs text-amber-400 font-bold">
+                Licensed & Insured Commercial Contractor
+              </div>
+            </div>
 
-              {/* Action Side */}
-              <div className="lg:col-span-4 flex flex-col gap-3 justify-center">
+            {/* Column 2: Commercial Services */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400">
+                {lang === "es" ? "Servicios Comerciales" : "Commercial Services"}
+              </h4>
+              <ul className="text-xs text-slate-300 space-y-2">
+                <li><a href="#services" className="hover:text-white transition-colors">24/7 Mobile Forklift Repair</a></li>
+                <li><a href="#hydraulic-hoses" className="hover:text-white transition-colors">Hydraulic Hoses up to 6,000 PSI</a></li>
+                <li><a href="#pallet-jacks" className="hover:text-white transition-colors">Pallet Jack Sales & Pump Rebuilds</a></li>
+                <li><a href="#tires-pressing" className="hover:text-white transition-colors">Forklift Tires & Mobile Pressing</a></li>
+                <li><a href="#equipment-sales" className="hover:text-white transition-colors">Certified Equipment Sales</a></li>
+              </ul>
+            </div>
+
+            {/* Column 3: Facility & Contacts */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400">
+                {lang === "es" ? "Taller & Contacto" : "Depot & Contact"}
+              </h4>
+              <ul className="text-xs text-slate-300 space-y-2.5">
+                <li className="flex items-start gap-2">
+                  <MapPin className="h-4 w-4 text-amber-400 flex-shrink-0 mt-0.5" />
+                  <span>97-20 102nd St, Ozone Park, Queens NY 11416</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Phone className="h-4 w-4 text-amber-400 flex-shrink-0" />
+                  <a href="tel:+17184042038" className="hover:text-white transition-colors font-bold">+1 (718) 404-2038</a>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Mail className="h-4 w-4 text-amber-400 flex-shrink-0" />
+                  <a href="mailto:info@willyfastsolutions.com" className="hover:text-white transition-colors">info@willyfastsolutions.com</a>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-amber-400 flex-shrink-0" />
+                  <span>24/7 Field Service • Shop: Mon–Sat 7am–6pm</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Column 4: Dedicated Portals */}
+            <div className="space-y-3">
+              <h4 className="text-xs font-bold uppercase tracking-wider text-amber-400">
+                {lang === "es" ? "Portales Corporativos" : "Corporate Portals"}
+              </h4>
+              <div className="space-y-2">
                 <a 
                   href="software/"
                   onClick={(e) => {
@@ -1129,10 +1457,13 @@ export default function Home() {
                       window.location.href = "software/index.html";
                     }
                   }}
-                  className="inline-flex h-12 items-center justify-center gap-2 rounded-xl bg-emerald-500 px-6 text-sm font-bold text-black hover:bg-emerald-400 transition-all shadow-[0_0_25px_rgba(16,185,129,0.25)] hover:scale-102 active:scale-95 cursor-pointer"
+                  className="block p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
                 >
-                  <span>{lang === "es" ? "Explorar Software de Flotas (SaaS)" : "Explore Fleet Software (SaaS)"}</span>
-                  <ArrowRight className="h-4 w-4" />
+                  <div className="text-xs font-bold text-white flex items-center justify-between">
+                    <span>Fleet Software Division</span>
+                    <Cpu className="h-3.5 w-3.5 text-blue-300" />
+                  </div>
+                  <div className="text-[10px] text-slate-400 mt-1">Autonomous telemetry & OSHA checklists</div>
                 </a>
 
                 <a 
@@ -1143,584 +1474,163 @@ export default function Home() {
                       window.location.href = "login/index.html";
                     }
                   }}
-                  className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-zinc-800 bg-zinc-950 px-6 text-xs font-semibold text-zinc-300 hover:text-zinc-100 hover:bg-zinc-900 transition-all cursor-pointer"
+                  className="block p-3 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
                 >
-                  <UserCheck className="h-3.5 w-3.5 text-emerald-400" />
-                  <span>{lang === "es" ? "Acceso Clientes Registrados" : "Sign In to Client Portal"}</span>
+                  <div className="text-xs font-bold text-white flex items-center justify-between">
+                    <span>Client Maintenance Portal</span>
+                    <Wrench className="h-3.5 w-3.5 text-amber-400" />
+                  </div>
+                  <div className="text-[10px] text-slate-400 mt-1">Company dashboard & repair histories</div>
                 </a>
               </div>
-
             </div>
 
           </div>
-        </div>
-      </section>
 
-      {/* Customer Reviews & Google Ratings Section */}
-      <section id="reviews" className="py-20 md:py-28 border-b border-zinc-900 bg-zinc-900/10">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          
-          {/* Header */}
-          <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+          <div className="pt-8 border-t border-blue-900/60 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-400">
             <div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full border border-amber-500/20 bg-amber-500/10 text-xs font-semibold text-amber-400 mb-3">
-                <Star className="h-3.5 w-3.5 fill-amber-400" /> {lang === "es" ? "Opiniones Verificadas en Google" : "Verified Customer Feedback"}
-              </div>
-              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-zinc-100">
-                {lang === "es" ? "Lo Que Dicen Nuestros Clientes" : "What Our Clients Say in New York"}
-              </h2>
-              <p className="mt-2 text-sm sm:text-base text-zinc-400 max-w-xl">
-                {lang === "es" 
-                  ? "Calificación 5.0 en Google. Empresas de logística, almacenes, constructoras y depósitos confían en Willy Fast Solutions en Queens y Nueva York." 
-                  : "Rated 5.0 Stars on Google Maps by logistics hubs, warehouses, and heavy equipment operators across NYC."}
-              </p>
+              © 2026 Willy Fast Solutions Corp. All rights reserved. Ozone Park, Queens, NY.
             </div>
-
-            <div className="flex items-center gap-3 flex-wrap">
-              <button 
-                type="button"
-                onClick={() => setShowReviewModal(true)} 
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-zinc-100 px-5 text-xs font-bold text-zinc-950 hover:bg-zinc-200 transition-colors shadow-md cursor-pointer"
-              >
-                <Star className="h-3.5 w-3.5" /> {lang === "es" ? "Dejar una Opinión" : "Leave a Review"}
-              </button>
-              <a 
-                href="https://maps.google.com/?q=Willy+Fast+Solutions+Corp+97-20+102nd+St+Ozone+Park+NY+11416" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-zinc-800 bg-zinc-950 px-4 text-xs font-medium text-zinc-300 hover:bg-zinc-900 hover:text-zinc-100 transition-colors"
-              >
-                <ExternalLink className="h-3.5 w-3.5" /> {lang === "es" ? "Ver en Google Maps" : "View on Google Maps"}
+            <div className="flex items-center gap-4">
+              <span>English & Spanish Customer Service</span>
+              <span>•</span>
+              <a href="tel:+17184042038" className="text-amber-400 font-bold hover:underline">
+                (718) 404-2038
               </a>
             </div>
           </div>
 
-          {/* Reviews Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {reviews.map((rev, index) => (
-              <motion.div 
-                key={rev.id || index}
-                initial={{ opacity: 0, y: 15 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.4, delay: index * 0.05 }}
-                className="p-6 rounded-2xl border border-zinc-900 bg-zinc-950 flex flex-col justify-between space-y-4 hover:border-zinc-800 transition-colors"
-              >
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex text-amber-400">
-                      {[...Array(rev.rating || 5)].map((_, i) => (
-                        <Star key={i} className="h-4 w-4 fill-amber-400" />
-                      ))}
-                    </div>
-                    <span className="text-[10px] text-zinc-500 font-mono">
-                      {rev.location || "Queens, NY"}
-                    </span>
-                  </div>
-
-                  <p className="text-xs sm:text-sm text-zinc-300 leading-relaxed italic">
-                    &ldquo;{rev.comment}&rdquo;
-                  </p>
-                </div>
-
-                <div className="pt-3 border-t border-zinc-900/80 flex items-center justify-between">
-                  <div>
-                    <h4 className="text-xs font-bold text-zinc-200">{rev.author_name}</h4>
-                    {rev.company_name && (
-                      <p className="text-[11px] text-zinc-500">{rev.company_name}</p>
-                    )}
-                  </div>
-                  <span className="text-[9px] uppercase tracking-wider px-2 py-0.5 rounded bg-zinc-900 border border-zinc-800 text-zinc-400">
-                    {rev.service_type}
-                  </span>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-
-        </div>
-      </section>
-
-      {/* Who We Are (About Us) Section */}
-      <section id="about" className="py-20 md:py-28 border-b border-zinc-900 bg-zinc-950">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-8">
-          <div className="inline-flex p-3 rounded-2xl bg-zinc-900 border border-zinc-800 text-zinc-300 mx-auto">
-            <UserCheck className="h-6 w-6" />
-          </div>
-          <div className="max-w-2xl mx-auto space-y-4">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl text-zinc-100">
-              {lang === "es" ? "Quiénes Somos" : "Who We Are"}
-            </h2>
-            <p className="text-base sm:text-lg text-zinc-400 leading-relaxed">
-              {lang === "es"
-                ? "Willy Fast Solutions es su aliado técnico independiente en maquinaria pesada y mangueras hidráulicas. Con base central en Ozone Park, Queens, combinamos experiencia mecánica práctica en el terreno con respuesta inmediata."
-                : "Willy Fast Solutions is an independent heavy machinery and mobile hydraulic partner. Based in Ozone Park, Queens, we combine hands-on mechanical experience with immediate 24/7 on-site response."}
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 text-left">
-            <div className="p-6 rounded-xl border border-zinc-900 bg-zinc-900/40 space-y-2">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-300">
-                {lang === "es" ? "Nuestra Misión" : "Our Mission"}
-              </h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                {lang === "es"
-                  ? "Garantizar cero tiempo muerto en almacenes, logística y construcción, manteniendo su maquinaria operativa con diagnósticos precisos y cumplimiento OSHA."
-                  : "Eliminate costly machinery downtime for warehousing, distribution, and construction operators across NYC with honest diagnostics and OSHA compliance."}
-              </p>
-            </div>
-            <div className="p-6 rounded-xl border border-zinc-900 bg-zinc-900/40 space-y-2">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-300">
-                {lang === "es" ? "Mecánica Móvil en el Sitio" : "Direct Field Service"}
-              </h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                {lang === "es"
-                  ? "Hacemos el trabajo duro donde esté su máquina. Desde cambio de mangueras hidráulicas hasta prensado de llantas y reparación de mástiles directamente en su empresa."
-                  : "We handle the work where your machine sits. From spiral hydraulic hoses to mobile solid tire pressing and mast repairs directly at your site."}
-              </p>
-            </div>
-            <div className="p-6 rounded-xl border border-zinc-900 bg-zinc-900/40 space-y-2">
-              <h3 className="text-sm font-bold uppercase tracking-wider text-zinc-300">
-                {lang === "es" ? "Transparencia Radical" : "Radical Transparency"}
-              </h3>
-              <p className="text-xs text-zinc-400 leading-relaxed">
-                {lang === "es"
-                  ? "Presupuestos claros, sin costos ocultos de remolque innecesarios y repuestos de alta calidad con garantía mecánica comprobada."
-                  : "Direct pricing, no unnecessary tow truck charges, and commercial grade parts installed with rigorous mechanical warranty."}
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Contact Section */}
-      <section id="contact" className="py-20 md:py-28 bg-zinc-950 border-b border-zinc-900">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="border border-zinc-900 bg-zinc-900/20 rounded-2xl p-6 sm:p-10 backdrop-blur-sm space-y-8">
-            <div className="text-center max-w-lg mx-auto space-y-3">
-              <div className="inline-flex bg-zinc-900 p-2.5 rounded-lg border border-zinc-800 text-zinc-400">
-                <Mail className="h-5 w-5" />
-              </div>
-              <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-100">
-                {lang === "es" ? "Solicitar Cotización de Servicio" : "Request a Service Quotation"}
-              </h2>
-              <p className="text-xs sm:text-sm text-zinc-400">
-                {lang === "es"
-                  ? "¿Necesita reparación de montacargas, mangueras hidráulicas, llantas o pallet jacks? Complete el formulario y responderemos a la brevedad."
-                  : "Need forklift repair, on-site hydraulic hoses, tires, or pallet jacks? Complete the form below for immediate assistance."}
-              </p>
-            </div>
-
-            {formSubmitted ? (
-              <motion.div 
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="p-6 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-center text-emerald-400 text-sm"
-              >
-                {lang === "es" 
-                  ? "¡Muchas gracias! Su solicitud ha sido recibida. Nos comunicaremos con usted a la brevedad." 
-                  : "Thank you! Your quote request has been received. Our team will review your machinery details and contact you shortly."}
-              </motion.div>
-            ) : (
-              <div className="space-y-4">
-                {formError && (
-                  <motion.div 
-                    initial={{ opacity: 0, y: -5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-3.5 rounded-xl border border-rose-500/20 bg-rose-500/10 text-center text-rose-400 text-xs font-semibold"
-                  >
-                    {formError}
-                  </motion.div>
-                )}
-                <form onSubmit={handleContactSubmit} className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-1.5">
-                      <label htmlFor="contact-name" className="text-xs font-medium text-zinc-400">
-                        {lang === "es" ? "Nombre Completo *" : "Full Name *"}
-                      </label>
-                      <input 
-                        type="text" 
-                        id="contact-name" 
-                        name="name" 
-                        placeholder="John Doe"
-                        required
-                        className="w-full h-10 px-3 rounded-lg border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 transition-colors"
-                      />
-                    </div>
-                    <div className="space-y-1.5">
-                      <label htmlFor="contact-email" className="text-xs font-medium text-zinc-400">
-                        {lang === "es" ? "Correo Electrónico *" : "Email Address *"}
-                      </label>
-                      <input 
-                        type="email" 
-                        id="contact-email" 
-                        name="email" 
-                        placeholder="john@company.com"
-                        required
-                        className="w-full h-10 px-3 rounded-lg border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 transition-colors"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label htmlFor="contact-company" className="text-xs font-medium text-zinc-400">
-                      {lang === "es" ? "Nombre de la Empresa" : "Company Name"}
-                    </label>
-                    <input 
-                      type="text" 
-                      id="contact-company" 
-                      name="company" 
-                      placeholder="Apex Logistics Ltd"
-                      className="w-full h-10 px-3 rounded-lg border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 transition-colors"
-                    />
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <label htmlFor="contact-message" className="text-xs font-medium text-zinc-400">
-                      {lang === "es" ? "Detalles del Servicio o Maquinaria *" : "Message / Machinery Details *"}
-                    </label>
-                    <textarea 
-                      id="contact-message" 
-                      name="message" 
-                      rows={4}
-                      placeholder={lang === "es" ? "Indique qué tipo de maquinaria tiene, ubicación en NY y qué servicio necesita..." : "Tell us about your machine type, location in NYC, and service needed..."}
-                      required
-                      className="w-full p-3 rounded-lg border border-zinc-800 bg-zinc-950 text-sm text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 transition-colors resize-none"
-                    />
-                  </div>
-
-                  <button 
-                    type="submit" 
-                    id="btn-contact-submit"
-                    disabled={isSubmitting}
-                    className="w-full inline-flex h-11 items-center justify-center rounded-lg bg-zinc-100 text-sm font-medium text-zinc-950 hover:bg-zinc-200 disabled:opacity-50 disabled:hover:bg-zinc-100 transition-all shadow-md active:scale-95 cursor-pointer"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        {lang === "es" ? "Enviando..." : "Sending..."}
-                      </>
-                    ) : (
-                      lang === "es" ? "Enviar Solicitud de Cotización" : "Send Quotation Request"
-                    )}
-                  </button>
-                </form>
-              </div>
-            )}
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-zinc-950 text-zinc-500 py-12 border-t border-zinc-900 text-center">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
-          <div className="flex justify-center items-center gap-2">
-            <div className="w-6 h-6 rounded-md overflow-hidden flex items-center justify-center bg-zinc-900 border border-zinc-800">
-              <img src="logo/logo.png" alt="WillyFastSolutions Logo" className="w-full h-full object-cover filter brightness-110" />
-            </div>
-            <span className="font-semibold text-sm text-zinc-400">Willy Fast Solutions Corp</span>
-          </div>
-          
-          <p className="text-xs leading-relaxed max-w-md mx-auto">
-            {lang === "es"
-              ? "Servicio técnico móvil 24/7, prensado de mangueras hidráulicas, llantas sólidas y venta de montacargas en Ozone Park, Queens y toda el área metropolitana de Nueva York."
-              : "24/7 mobile field repair, custom hydraulic hose crimping, solid tires and certified equipment sales in Ozone Park, Queens and NYC metro area."}
-          </p>
-
-          <div className="flex justify-center items-center gap-6 pt-2">
-            <a href="https://facebook.com/willyfastsolutions" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-zinc-300 transition-colors" aria-label="Facebook">
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path fillRule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clipRule="evenodd" />
-              </svg>
-            </a>
-            <a href="https://instagram.com/willyfastsolutions" target="_blank" rel="noopener noreferrer" className="text-zinc-500 hover:text-zinc-300 transition-colors" aria-label="Instagram">
-              <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path fillRule="evenodd" d="M12.315 2c2.43 0 2.784.008 3.752.052 2.73.124 4.093 1.503 4.218 4.218.044.968.052 1.322.052 3.752c0 2.43-.008 2.784-.052 3.752-.124 2.73-1.503 4.093-4.218 4.218-.968.044-1.322.052-3.752.052-2.43 0-2.784-.008-3.752-.052-2.73-.124-4.093-1.503-4.218-4.218-.044-.968-.052-1.322-.052-3.752 0-2.43.008-2.784.052-3.752.124-2.73 1.503-4.093 4.218-4.218.968-.044 1.322-.052 3.752-.052zm.126 1.8c-2.408 0-2.71.01-3.66.054-2.188.1-3.136 1.054-3.238 3.238-.044.95-.054 1.252-.054 3.66s.01 2.71.054 3.66c.1 2.184 1.05 3.134 3.238 3.238.95.044 1.252.054 3.66.054s2.71-.01 3.66-.054c2.184-.1 3.134-1.05 3.238-3.238.044-.95.054-1.252.054-3.66s-.01-2.71-.054-3.66c-.1-2.188-1.054-3.136-3.238-3.238-.95-.044-1.252-.054-3.66-.054h-.13zm-5.44 8.2a5.5 5.5 0 1111 0 5.5 5.5 0 01-11 0zm2 0a3.5 3.5 0 107 0 3.5 3.5 0 00-7 0zm6.3-3.75a1.25 1.25 0 112.5 0 1.25 1.25 0 01-2.5 0z" clipRule="evenodd" />
-              </svg>
-            </a>
-          </div>
-
-          <div className="text-[10px] text-zinc-600 pt-4 border-t border-zinc-900/60 max-w-xs mx-auto">
-            &copy; {new Date().getFullYear()} Willy Fast Solutions Corp. All rights reserved.
-          </div>
         </div>
       </footer>
 
-      {/* Review Submission Modal Popup */}
+      {/* 12. WRITE REVIEW MODAL */}
       <AnimatePresence>
-        {showReviewModal && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-zinc-950/80 backdrop-blur-md overflow-y-auto"
-          >
-            <motion.div 
-              initial={{ scale: 0.95, y: 20 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.95, y: 20 }}
-              className="bg-zinc-950 border border-zinc-800 w-full max-w-lg rounded-2xl shadow-2xl p-6 sm:p-8 space-y-6 my-8"
+        {reviewModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 max-w-lg w-full shadow-2xl space-y-4"
             >
-              <div className="flex justify-between items-start border-b border-zinc-900 pb-4">
-                <div>
-                  <div className="flex items-center gap-1.5 text-xs text-amber-400 font-bold uppercase tracking-wider mb-1">
-                    <Star className="h-3.5 w-3.5 fill-amber-400" /> Willy Fast Solutions Corp
-                  </div>
-                  <h3 className="text-xl font-bold text-zinc-100">
-                    {lang === "es" ? "Calificar Nuestro Servicio" : "Leave a Customer Review"}
-                  </h3>
-                  <p className="text-xs text-zinc-400 mt-0.5">
-                    {lang === "es" 
-                      ? "Tu opinión ayuda a otros negocios de maquinaria en Queens y New York a conocernos." 
-                      : "Your feedback helps other warehouse and fleet operators in NY make informed decisions."}
-                  </p>
-                </div>
-                <button 
-                  onClick={() => setShowReviewModal(false)} 
-                  className="text-zinc-500 hover:text-zinc-300 text-xl font-bold cursor-pointer"
+              <div className="flex justify-between items-center border-b border-slate-200 pb-3">
+                <h3 className="text-lg font-black text-[#0B2545]">
+                  {lang === "es" ? "Dejar Reseña Verificada de Servicio" : "Submit Verified Service Review"}
+                </h3>
+                <button
+                  onClick={() => setReviewModalOpen(false)}
+                  className="text-slate-400 hover:text-slate-700 text-sm font-bold cursor-pointer"
                 >
-                  &times;
+                  ✕
                 </button>
               </div>
 
-              {reviewSuccess ? (
-                <div className="p-6 rounded-xl border border-emerald-500/20 bg-emerald-500/10 text-center text-emerald-400 text-sm space-y-2">
-                  <CheckCircle2 className="h-8 w-8 text-emerald-400 mx-auto" />
-                  <p className="font-bold">
-                    {lang === "es" ? "¡Muchas gracias por tu reseña!" : "Thank you for your review!"}
-                  </p>
-                  <p className="text-xs text-zinc-400">
-                    {lang === "es" ? "Tu calificación ha sido publicada con éxito." : "Your review has been successfully published."}
-                  </p>
+              {reviewSuccessMessage ? (
+                <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold text-center">
+                  {reviewSuccessMessage}
                 </div>
               ) : (
-                <form onSubmit={handleSubmitReview} className="space-y-4">
-                  {/* Star Rating Picker */}
-                  <div className="space-y-1.5 text-center py-2 bg-zinc-900/40 rounded-xl border border-zinc-900">
-                    <label className="text-xs font-semibold text-zinc-400 block">
-                      {lang === "es" ? "Tu Calificación (1 a 5 Estrellas)" : "Your Rating (1 to 5 Stars)"}
-                    </label>
-                    <div className="flex justify-center gap-2 pt-1">
-                      {[1, 2, 3, 4, 5].map((star) => (
-                        <button
-                          key={star}
-                          type="button"
-                          onClick={() => setReviewRating(star)}
-                          className="p-1 cursor-pointer transition-transform hover:scale-110"
-                        >
-                          <Star 
-                            className={`h-7 w-7 ${
-                              star <= reviewRating 
-                                ? "text-amber-400 fill-amber-400" 
-                                : "text-zinc-700"
-                            }`} 
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-medium text-zinc-400">
-                        {lang === "es" ? "Tu Nombre *" : "Full Name *"}
-                      </label>
-                      <input 
-                        type="text" 
-                        required
-                        value={reviewAuthor}
-                        onChange={(e) => setReviewAuthor(e.target.value)}
-                        placeholder="John Doe"
-                        className="w-full h-9 px-3 rounded-lg border border-zinc-800 bg-zinc-900/50 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700"
-                      />
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-medium text-zinc-400">
-                        {lang === "es" ? "Empresa (Opcional)" : "Company Name"}
-                      </label>
-                      <input 
-                        type="text" 
-                        value={reviewCompany}
-                        onChange={(e) => setReviewCompany(e.target.value)}
-                        placeholder="Apex Logistics Ltd"
-                        className="w-full h-9 px-3 rounded-lg border border-zinc-800 bg-zinc-900/50 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div className="space-y-1 relative">
-                      <label className="text-[11px] font-medium text-zinc-400">
-                        {lang === "es" ? "Servicio Recibido" : "Service Received"}
-                      </label>
-                      <button
-                        type="button"
-                        onClick={() => setIsReviewDropdownOpen(!isReviewDropdownOpen)}
-                        className="w-full h-9 px-3 rounded-lg border border-zinc-800 bg-zinc-900/70 text-xs text-zinc-200 flex items-center justify-between hover:border-zinc-700 transition-colors cursor-pointer"
-                      >
-                        <span className="truncate">
-                          {reviewService === "Forklift Maintenance" && (lang === "es" ? "Mantenimiento Montacargas" : "Forklift Maintenance")}
-                          {reviewService === "Pallet Jack Sales & Repair" && (lang === "es" ? "Venta & Reparación Pallet Jack" : "Pallet Jack Sales & Repair")}
-                          {reviewService === "Backhoe & Hydraulic Excavator Repair" && (lang === "es" ? "Servicio de Retroexcavadoras" : "Backhoe & Excavator Service")}
-                          {reviewService === "Forklift Equipment Sales" && (lang === "es" ? "Venta de Montacargas / Forklifts" : "Forklift Equipment Sales")}
-                          {reviewService === "Forklift Tires & Mobile Pressing" && (lang === "es" ? "Llantas & Prensado Móvil" : "Tires & Mobile Pressing")}
-                          {reviewService === "Hydraulic Hoses & Fittings" && (lang === "es" ? "Mangueras Hidráulicas" : "Hydraulic Hoses")}
-                          {reviewService === "Emergency Mobile Repair" && (lang === "es" ? "Servicio Mecánico Móvil" : "Emergency Field Repair")}
-                        </span>
-                        <ChevronDown className={`h-3.5 w-3.5 text-zinc-400 transition-transform ${isReviewDropdownOpen ? "rotate-180" : ""}`} />
-                      </button>
-
-                      <AnimatePresence>
-                        {isReviewDropdownOpen && (
-                          <motion.div
-                            initial={{ opacity: 0, y: -5 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -5 }}
-                            transition={{ duration: 0.15 }}
-                            className="absolute left-0 right-0 top-full mt-1 z-30 rounded-lg border border-zinc-800 bg-zinc-950 p-1 shadow-2xl space-y-0.5"
-                          >
-                            {[
-                              { value: "Forklift Maintenance", labelEs: "Mantenimiento Montacargas", labelEn: "Forklift Maintenance" },
-                              { value: "Pallet Jack Sales & Repair", labelEs: "Venta & Reparación Pallet Jack", labelEn: "Pallet Jack Sales & Repair" },
-                              { value: "Backhoe & Hydraulic Excavator Repair", labelEs: "Servicio de Retroexcavadoras", labelEn: "Backhoe & Excavator Service" },
-                              { value: "Forklift Equipment Sales", labelEs: "Venta de Forklifts", labelEn: "Forklift Equipment Sales" },
-                              { value: "Forklift Tires & Mobile Pressing", labelEs: "Llantas & Prensado Móvil", labelEn: "Tires & Mobile Pressing" },
-                              { value: "Hydraulic Hoses & Fittings", labelEs: "Mangueras Hidráulicas", labelEn: "Hydraulic Hoses & Fittings" },
-                              { value: "Emergency Mobile Repair", labelEs: "Servicio Mecánico Móvil", labelEn: "Emergency Field Repair" },
-                            ].map((opt) => (
-                              <button
-                                key={opt.value}
-                                type="button"
-                                onClick={() => {
-                                  setReviewService(opt.value);
-                                  setIsReviewDropdownOpen(false);
-                                }}
-                                className={`w-full text-left px-2.5 py-1.5 rounded text-xs transition-colors cursor-pointer flex items-center justify-between ${
-                                  reviewService === opt.value
-                                    ? "bg-zinc-800 text-zinc-100 font-semibold"
-                                    : "text-zinc-400 hover:bg-zinc-900 hover:text-zinc-200"
-                                }`}
-                              >
-                                <span>{lang === "es" ? opt.labelEs : opt.labelEn}</span>
-                                {reviewService === opt.value && <CheckCircle2 className="h-3 w-3 text-emerald-400" />}
-                              </button>
-                            ))}
-                          </motion.div>
-                        )}
-                      </AnimatePresence>
-                    </div>
-                    <div className="space-y-1">
-                      <label className="text-[11px] font-medium text-zinc-400">
-                        {lang === "es" ? "Ciudad / Ubicación" : "Location / Borough"}
-                      </label>
-                      <input 
-                        type="text" 
-                        value={reviewLocation}
-                        onChange={(e) => setReviewLocation(e.target.value)}
-                        placeholder="Ozone Park, Queens, NY"
-                        className="w-full h-9 px-3 rounded-lg border border-zinc-800 bg-zinc-900/50 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-1">
-                    <label className="text-[11px] font-medium text-zinc-400">
-                      {lang === "es" ? "Tu Comentario / Experiencia *" : "Your Review Comment *"}
-                    </label>
-                    <textarea 
+                <form onSubmit={handleReviewSubmit} className="space-y-3">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700">{lang === "es" ? "Su Nombre" : "Your Name"}</label>
+                    <input 
+                      type="text" 
                       required
-                      rows={3}
-                      value={reviewComment}
-                      onChange={(e) => setReviewComment(e.target.value)}
-                      placeholder={lang === "es" ? "Escribe aquí cómo te atendieron, rapidez, calidad mecánica..." : "Share how the team handled your equipment, turnaround time, quality..."}
-                      className="w-full p-2.5 rounded-lg border border-zinc-800 bg-zinc-900/50 text-xs text-zinc-200 placeholder-zinc-600 focus:outline-none focus:border-zinc-700 resize-none"
+                      value={newAuthor}
+                      onChange={(e) => setNewAuthor(e.target.value)}
+                      placeholder="e.g. John Doe"
+                      className="w-full h-10 px-3 rounded-lg border border-slate-300 text-sm focus:outline-none focus:border-[#0B2545]"
                     />
                   </div>
 
-                  <div className="flex gap-2 pt-2">
+                  <div>
+                    <label className="text-xs font-bold text-slate-700">{lang === "es" ? "Empresa (Opcional)" : "Company (Optional)"}</label>
+                    <input 
+                      type="text" 
+                      value={newCompany}
+                      onChange={(e) => setNewCompany(e.target.value)}
+                      placeholder="e.g. Queens Freight LLC"
+                      className="w-full h-10 px-3 rounded-lg border border-slate-300 text-sm focus:outline-none focus:border-[#0B2545]"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="text-xs font-bold text-slate-700">{lang === "es" ? "Calificación" : "Rating"}</label>
+                      <select 
+                        value={newRating}
+                        onChange={(e) => setNewRating(Number(e.target.value))}
+                        className="w-full h-10 px-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:border-[#0B2545]"
+                      >
+                        <option value={5}>★★★★★ (5 Estrellas)</option>
+                        <option value={4}>★★★★☆ (4 Estrellas)</option>
+                        <option value={3}>★★★☆☆ (3 Estrellas)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="text-xs font-bold text-slate-700">{lang === "es" ? "Ubicación" : "Location"}</label>
+                      <input 
+                        type="text" 
+                        value={newLocation}
+                        onChange={(e) => setNewLocation(e.target.value)}
+                        placeholder="Queens, NY"
+                        className="w-full h-10 px-3 rounded-lg border border-slate-300 text-sm focus:outline-none focus:border-[#0B2545]"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-slate-700">{lang === "es" ? "Tipo de Servicio Recibido" : "Service Received"}</label>
+                    <select 
+                      value={newService}
+                      onChange={(e) => setNewService(e.target.value)}
+                      className="w-full h-10 px-2 rounded-lg border border-slate-300 text-sm focus:outline-none focus:border-[#0B2545]"
+                    >
+                      <option value="Forklift Repair">Forklift Repair & Diagnostics</option>
+                      <option value="Hydraulic Hoses">Hydraulic Hoses (6,000 PSI)</option>
+                      <option value="Pallet Jack Service">Pallet Jack Repair / Sales</option>
+                      <option value="Forklift Tires">Forklift Tires & Mobile Pressing</option>
+                      <option value="Preventive Maintenance">Preventive Maintenance (PM)</option>
+                      <option value="Equipment Sales">Machinery Sales</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-slate-700">{lang === "es" ? "Comentario / Experiencia" : "Review Details"}</label>
+                    <textarea 
+                      rows={3} 
+                      required
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      placeholder="Share your experience with our response time, mechanics, and pricing..."
+                      className="w-full p-2.5 rounded-lg border border-slate-300 text-sm focus:outline-none focus:border-[#0B2545] resize-none"
+                    />
+                  </div>
+
+                  <div className="pt-2 flex justify-end gap-2">
                     <button
                       type="button"
-                      onClick={() => setShowReviewModal(false)}
-                      className="w-1/3 inline-flex h-10 items-center justify-center rounded-lg border border-zinc-800 bg-zinc-900 text-xs font-semibold text-zinc-400 hover:text-zinc-200 transition-colors cursor-pointer"
+                      onClick={() => setReviewModalOpen(false)}
+                      className="px-4 py-2 rounded-lg border border-slate-300 text-slate-700 text-xs font-bold hover:bg-slate-100"
                     >
                       {lang === "es" ? "Cancelar" : "Cancel"}
                     </button>
-                    <button 
-                      type="submit" 
-                      disabled={isReviewSubmitting}
-                      className="w-2/3 inline-flex h-10 items-center justify-center gap-1.5 rounded-lg bg-zinc-100 text-xs font-bold text-zinc-950 hover:bg-zinc-200 disabled:opacity-50 transition-colors shadow-md cursor-pointer"
+                    <button
+                      type="submit"
+                      disabled={isSubmittingReview}
+                      className="px-5 py-2 rounded-lg bg-[#0B2545] text-white text-xs font-bold hover:bg-[#133b68]"
                     >
-                      {isReviewSubmitting ? <Loader2 className="h-4 w-4 animate-spin" /> : <Star className="h-3.5 w-3.5" />}
-                      {lang === "es" ? "Publicar Opinión" : "Publish Review"}
+                      {isSubmittingReview ? "Submitting..." : (lang === "es" ? "Publicar Reseña" : "Submit Review")}
                     </button>
                   </div>
                 </form>
               )}
 
-              {/* Direct Google Review Link Prompt */}
-              <div className="pt-4 border-t border-zinc-900 text-center">
-                <a 
-                  href="https://maps.google.com/?q=Willy+Fast+Solutions+Corp+97-20+102nd+St+Ozone+Park+NY+11416" 
-                  target="_blank" 
-                  rel="noopener noreferrer" 
-                  className="inline-flex items-center gap-1 text-[11px] text-zinc-400 hover:text-emerald-400 transition-colors"
-                >
-                  <ExternalLink className="h-3 w-3" />
-                  {lang === "es" ? "También puedes opinar en nuestra ficha oficial de Google Maps" : "Or leave your review directly on our Google Maps profile"}
-                </a>
-              </div>
-
             </motion.div>
-          </motion.div>
+          </div>
         )}
       </AnimatePresence>
-
-      {/* Floating Mobile Bottom Action Bar (High Conversion) */}
-      <div className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-zinc-950/95 border-t border-zinc-800/90 p-2.5 flex items-center justify-around backdrop-blur-md shadow-2xl">
-        <a 
-          href="tel:+17184042038" 
-          className="flex flex-col items-center gap-1 text-emerald-400 font-bold"
-        >
-          <div className="p-2 rounded-full bg-emerald-500/20 border border-emerald-500/40">
-            <Phone className="h-4 w-4" />
-          </div>
-          <span className="text-[10px]">{lang === "es" ? "Llamar" : "Call"}</span>
-        </a>
-
-        <a 
-          href="https://wa.me/17184042038?text=Hola%20Willy%20Fast%20Solutions,%20necesito%20servicio%20urgente%20de%20montacargas%20o%20mangueras" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="flex flex-col items-center gap-1 text-emerald-400 font-bold"
-        >
-          <div className="p-2 rounded-full bg-emerald-500/20 border border-emerald-500/40">
-            <MessageCircle className="h-4 w-4" />
-          </div>
-          <span className="text-[10px]">WhatsApp</span>
-        </a>
-
-        <a 
-          href="https://maps.google.com/?q=Willy+Fast+Solutions+Corp+97-20+102nd+St+Ozone+Park+NY+11416" 
-          target="_blank" 
-          rel="noopener noreferrer" 
-          className="flex flex-col items-center gap-1 text-rose-400 font-bold"
-        >
-          <div className="p-2 rounded-full bg-rose-500/20 border border-rose-500/40">
-            <MapPin className="h-4 w-4" />
-          </div>
-          <span className="text-[10px]">Queens NY</span>
-        </a>
-
-        <button 
-          onClick={() => setShowReviewModal(true)} 
-          className="flex flex-col items-center gap-1 text-amber-400 font-bold cursor-pointer"
-        >
-          <div className="p-2 rounded-full bg-amber-500/20 border border-amber-500/40">
-            <Star className="h-4 w-4" />
-          </div>
-          <span className="text-[10px]">{lang === "es" ? "Opinar" : "Review"}</span>
-        </button>
-      </div>
 
     </div>
   );
