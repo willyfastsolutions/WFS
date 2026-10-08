@@ -1,6 +1,5 @@
 User-agent: *
-Allow: /$
-Allow: /login/$
+Allow: /
 Disallow: /dashboard/
 Disallow: /_next/
 Disallow: /api/

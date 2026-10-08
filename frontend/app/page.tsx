@@ -992,186 +992,294 @@ export default function CorporateHomePage() {
         </div>
       </section>
 
-      {/* 6. COMMERCIAL INTERACTIVE QUOTE & SERVICE DISPATCH FORM */}
+      {/* 6. FACILITY MAP, OPERATING HOURS & RAPID SERVICE DISPATCH */}
       <section id="contact" className="py-16 md:py-24 bg-slate-50 border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="max-w-3xl mx-auto bg-white rounded-2xl border border-slate-200 p-8 sm:p-12 shadow-md space-y-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
+          
+          <div className="text-center max-w-3xl mx-auto space-y-3">
+            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 uppercase tracking-wider bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
+              <Clock className="h-3.5 w-3.5" />
+              <span>{lang === "es" ? "Taller Físico & Despacho Rápido" : "Physical Facility & Rapid Field Dispatch"}</span>
+            </div>
+            <h2 className="text-3xl sm:text-4xl font-black text-[#0B2545]">
+              {lang === "es" ? "Ubicación del Taller, Horarios & Cotización" : "Depot Map, Operating Hours & Service Dispatch"}
+            </h2>
+            <p className="text-xs sm:text-sm text-slate-600">
+              {lang === "es" 
+                ? "Visite nuestras instalaciones principales en Ozone Park, Queens o solicite un mecánico móvil con llegada en menos de 45 minutos." 
+                : "Visit our Ozone Park physical equipment shop or request on-site mobile field service dispatched in under 45 minutes."}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
-            <div className="text-center space-y-2">
-              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-600 uppercase tracking-wider bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
-                <Clock className="h-3.5 w-3.5" />
-                <span>{lang === "es" ? "Respuesta Inmediata" : "Rapid Turnaround"}</span>
+            {/* Left Column (5 cols): Depot Information, Map & Hours */}
+            <div className="lg:col-span-5 space-y-6">
+              
+              <div className="bg-white rounded-2xl border border-slate-200 p-6 sm:p-8 shadow-sm space-y-6">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-xl bg-[#0B2545] text-amber-400 flex items-center justify-center font-bold">
+                    <Building2 className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-bold text-[#0B2545]">
+                      {lang === "es" ? "Taller Principal en Queens" : "Queens Heavy Equipment Depot"}
+                    </h3>
+                    <p className="text-xs text-slate-500">Willy Fast Solutions Corp Facility</p>
+                  </div>
+                </div>
+
+                <div className="space-y-4 text-xs text-slate-700">
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <MapPin className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <div className="font-bold text-[#0B2545]">
+                        {lang === "es" ? "Dirección del Taller:" : "Depot Address:"}
+                      </div>
+                      <div>97-20 102nd St, Ozone Park, Queens NY 11416</div>
+                      <div className="text-[11px] text-slate-500 mt-1">
+                        {lang === "es" ? "Acceso directo a Belt Pkwy, Van Wyck Expy & JFK Cargo" : "Minutes from Belt Pkwy, Van Wyck Expy & JFK Cargo"}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <Clock className="h-4 w-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                    <div className="space-y-1 w-full">
+                      <div className="font-bold text-[#0B2545]">
+                        {lang === "es" ? "Horarios de Taller & Atención:" : "Shop Hours & Counter:"}
+                      </div>
+                      <div className="flex justify-between">
+                        <span>{lang === "es" ? "Lunes – Viernes:" : "Monday – Friday:"}</span>
+                        <span className="font-semibold text-slate-900">7:00 AM – 6:00 PM</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>{lang === "es" ? "Sábados:" : "Saturday:"}</span>
+                        <span className="font-semibold text-slate-900">7:00 AM – 4:00 PM</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>{lang === "es" ? "Domingos:" : "Sunday:"}</span>
+                        <span className="font-bold text-amber-700">{lang === "es" ? "Guardia Móvil 24/7" : "Emergency Mobile 24/7"}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3 p-3 rounded-xl bg-slate-50 border border-slate-100">
+                    <Truck className="h-4 w-4 text-emerald-600 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <div className="font-bold text-[#0B2545]">
+                        {lang === "es" ? "Despacho Móvil In-Situ:" : "On-Site Field Dispatch:"}
+                      </div>
+                      <div className="text-emerald-700 font-semibold">
+                        {lang === "es" ? "Disponible 24 Horas / 7 Días" : "24/7 Rapid Emergency Response"}
+                      </div>
+                      <div className="text-[11px] text-slate-500 mt-0.5">
+                        {lang === "es" ? "< 45 min a bodegas en Queens, Brooklyn, Bronx y Long Island" : "< 45 min warehouse arrival across NYC Tri-State"}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2 flex flex-col gap-2.5">
+                  <a 
+                    href="https://maps.google.com/?q=Willy+Fast+Solutions+Corp+97-20+102nd+St+Ozone+Park+NY+11416"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full inline-flex items-center justify-center py-2.5 rounded-lg bg-[#0B2545] text-white font-bold text-xs hover:bg-[#133b68] gap-2 shadow-xs transition-colors"
+                  >
+                    <MapPin className="h-3.5 w-3.5 text-amber-400" />
+                    <span>{lang === "es" ? "Ver en Google Maps" : "Open in Google Maps"}</span>
+                    <ExternalLink className="h-3.5 w-3.5 ml-1 text-slate-300" />
+                  </a>
+
+                  <a 
+                    href="tel:+17184042038"
+                    className="w-full inline-flex items-center justify-center py-2.5 rounded-lg bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400 gap-2 shadow-xs transition-colors"
+                  >
+                    <Phone className="h-3.5 w-3.5" />
+                    <span>{lang === "es" ? "Llamar Despacho: (718) 404-2038" : "Call Dispatch: (718) 404-2038"}</span>
+                  </a>
+                </div>
               </div>
-              <h2 className="text-2xl sm:text-3xl font-black text-[#0B2545]">
-                {lang === "es" ? "Solicitud de Servicio o Cotización Comercial" : "Commercial Service Request & Quote"}
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600">
-                {lang === "es" 
-                  ? "Complete el formulario para despacho rápido de mecánicos o cotización formal de equipos." 
-                  : "Submit below for rapid mechanic dispatch or official quotation. For immediate breakdown, call (718) 404-2038."}
-              </p>
+
             </div>
 
-            {quoteSuccess && (
-              <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold text-center flex items-center justify-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                <span>
-                  {lang === "es" 
-                    ? "¡Solicitud recibida! Nuestro despachador le contactará en menos de 15 minutos." 
-                    : "Service request received! Our dispatch team will contact you within 15 minutes."}
-                </span>
-              </div>
-            )}
-
-            {quoteError && (
-              <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm font-semibold text-center">
-                {quoteError}
-              </div>
-            )}
-
-            <form onSubmit={handleQuoteSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">
-                    {lang === "es" ? "Nombre de la Empresa / Almacén" : "Company / Warehouse Name"}
-                  </label>
-                  <input 
-                    type="text" 
-                    required
-                    value={quoteCompany}
-                    onChange={(e) => setQuoteCompany(e.target.value)}
-                    placeholder="e.g. Metro Freight Corp"
-                    className="w-full h-11 px-3.5 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545] focus:ring-1 focus:ring-[#0B2545]"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">
-                    {lang === "es" ? "Nombre del Contacto" : "Contact Name"}
-                  </label>
-                  <input 
-                    type="text" 
-                    required
-                    value={quoteName}
-                    onChange={(e) => setQuoteName(e.target.value)}
-                    placeholder="e.g. John Doe / Carlos M."
-                    className="w-full h-11 px-3.5 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545] focus:ring-1 focus:ring-[#0B2545]"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">
-                    {lang === "es" ? "Teléfono de Contacto (Directo)" : "Direct Phone Number"}
-                  </label>
-                  <input 
-                    type="tel" 
-                    required
-                    value={quotePhone}
-                    onChange={(e) => setQuotePhone(e.target.value)}
-                    placeholder="+1 (718) 000-0000"
-                    className="w-full h-11 px-3.5 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545] focus:ring-1 focus:ring-[#0B2545]"
-                  />
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">
-                    {lang === "es" ? "Correo Electrónico Corporativo" : "Corporate Email"}
-                  </label>
-                  <input 
-                    type="email" 
-                    required
-                    value={quoteEmail}
-                    onChange={(e) => setQuoteEmail(e.target.value)}
-                    placeholder="operations@company.com"
-                    className="w-full h-11 px-3.5 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545] focus:ring-1 focus:ring-[#0B2545]"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">
-                    {lang === "es" ? "Tipo de Servicio Requerido" : "Service Category"}
-                  </label>
-                  <select 
-                    value={quoteServiceType}
-                    onChange={(e) => setQuoteServiceType(e.target.value)}
-                    className="w-full h-11 px-3 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545]"
-                  >
-                    <option value="Forklift Repair">Forklift Repair (Mechanical/Electrical)</option>
-                    <option value="Hydraulic Hoses">Mobile Hydraulic Hose Replacement (6,000 PSI)</option>
-                    <option value="Pallet Jack Service">Pallet Jack Repair / Purchase</option>
-                    <option value="Forklift Tires">Forklift Tires & Mobile Pressing</option>
-                    <option value="Heavy Equipment">Heavy Machinery / Backhoe Service</option>
-                    <option value="Equipment Purchase">Certified Equipment Purchase Inquiry</option>
-                  </select>
-                </div>
-
-                <div className="space-y-1">
-                  <label className="text-xs font-bold text-slate-700">
-                    {lang === "es" ? "Nivel de Urgencia" : "Urgency Level"}
-                  </label>
-                  <select 
-                    value={quoteUrgency}
-                    onChange={(e) => setQuoteUrgency(e.target.value)}
-                    className="w-full h-11 px-3 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545]"
-                  >
-                    <option value="Immediate Dispatch (Emergency)">🚨 Emergency - Machine Down (Immediate Dispatch)</option>
-                    <option value="Same Day Service">Same Day Service</option>
-                    <option value="Next 24-48 Hours">Next 24-48 Hours</option>
-                    <option value="Quote / Scheduled PM">Quote / Routine Maintenance</option>
-                  </select>
-                </div>
-              </div>
-
+            {/* Right Column (7 cols): Service Request & Quote Form */}
+            <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 p-8 sm:p-10 shadow-md space-y-6">
+              
               <div className="space-y-1">
-                <label className="text-xs font-bold text-slate-700">
-                  {lang === "es" ? "Detalles de la Máquina o Síntomas" : "Equipment Details / Symptoms"}
-                </label>
-                <textarea 
-                  rows={3}
-                  value={quoteMessage}
-                  onChange={(e) => setQuoteMessage(e.target.value)}
-                  placeholder={lang === "es" 
-                    ? "Indique marca, modelo y falla (ej: Toyota 8FGU25 con fuga de aceite hidráulico en el mástil)..." 
-                    : "Specify machine brand, model and issue (e.g. Toyota 8FGU25 leaking hydraulic fluid at mast)..."}
-                  className="w-full p-3 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545] focus:ring-1 focus:ring-[#0B2545] resize-none"
-                />
+                <h3 className="text-xl font-bold text-[#0B2545]">
+                  {lang === "es" ? "Ticket de Asistencia Técnica o Cotización" : "Request Dispatch or Commercial Quote"}
+                </h3>
+                <p className="text-xs text-slate-600">
+                  {lang === "es" 
+                    ? "Complete los datos y nuestro despachador se comunicará en menos de 15 minutos." 
+                    : "Fill in the details below. Our field coordination team will call you within 15 minutes."}
+                </p>
               </div>
 
-              <div className="pt-2 flex flex-col sm:flex-row gap-3">
-                <button
-                  type="submit"
-                  disabled={isSubmittingQuote}
-                  className="flex-1 h-12 inline-flex items-center justify-center rounded-lg bg-[#0B2545] text-white font-bold text-sm hover:bg-[#133b68] disabled:opacity-50 transition-colors shadow-sm gap-2 cursor-pointer"
-                >
-                  {isSubmittingQuote ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      <span>{lang === "es" ? "Enviando Solicitud..." : "Submitting Dispatch Request..."}</span>
-                    </>
-                  ) : (
-                    <>
-                      <Send className="h-4 w-4 text-amber-400" />
-                      <span>{lang === "es" ? "Enviar Solicitud de Servicio" : "Submit Service Request"}</span>
-                    </>
-                  )}
-                </button>
+              {quoteSuccess && (
+                <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-semibold flex items-center gap-2">
+                  <CheckCircle2 className="h-5 w-5 text-emerald-600" />
+                  <span>
+                    {lang === "es" 
+                      ? "¡Solicitud recibida! Nuestro despachador le contactará en menos de 15 minutos." 
+                      : "Service request received! Our dispatch team will contact you within 15 minutes."}
+                  </span>
+                </div>
+              )}
 
-                <a 
-                  href={`https://wa.me/17184042038?text=Hello%20WillyFastSolutions,%20I%20need%20${encodeURIComponent(quoteServiceType)}%20for%20company%20${encodeURIComponent(quoteCompany || "Client")}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="h-12 px-5 inline-flex items-center justify-center rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 font-bold text-sm hover:bg-emerald-100 transition-colors gap-2"
-                >
-                  <MessageCircle className="h-4 w-4 text-emerald-600" />
-                  <span>{lang === "es" ? "WhatsApp Directo" : "Direct WhatsApp"}</span>
-                </a>
-              </div>
+              {quoteError && (
+                <div className="p-4 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-sm font-semibold">
+                  {quoteError}
+                </div>
+              )}
 
-            </form>
+              <form onSubmit={handleQuoteSubmit} className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700">
+                      {lang === "es" ? "Nombre de la Empresa / Almacén" : "Company / Warehouse Name"}
+                    </label>
+                    <input 
+                      type="text" 
+                      required
+                      value={quoteCompany}
+                      onChange={(e) => setQuoteCompany(e.target.value)}
+                      placeholder="e.g. Metro Freight Corp"
+                      className="w-full h-11 px-3.5 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545] focus:ring-1 focus:ring-[#0B2545]"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700">
+                      {lang === "es" ? "Nombre del Contacto" : "Contact Name"}
+                    </label>
+                    <input 
+                      type="text" 
+                      required
+                      value={quoteName}
+                      onChange={(e) => setQuoteName(e.target.value)}
+                      placeholder="e.g. John Doe / Carlos M."
+                      className="w-full h-11 px-3.5 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545] focus:ring-1 focus:ring-[#0B2545]"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700">
+                      {lang === "es" ? "Teléfono de Contacto (Directo)" : "Direct Phone Number"}
+                    </label>
+                    <input 
+                      type="tel" 
+                      required
+                      value={quotePhone}
+                      onChange={(e) => setQuotePhone(e.target.value)}
+                      placeholder="+1 (718) 000-0000"
+                      className="w-full h-11 px-3.5 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545] focus:ring-1 focus:ring-[#0B2545]"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700">
+                      {lang === "es" ? "Correo Electrónico Corporativo" : "Corporate Email"}
+                    </label>
+                    <input 
+                      type="email" 
+                      required
+                      value={quoteEmail}
+                      onChange={(e) => setQuoteEmail(e.target.value)}
+                      placeholder="operations@company.com"
+                      className="w-full h-11 px-3.5 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545] focus:ring-1 focus:ring-[#0B2545]"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700">
+                      {lang === "es" ? "Tipo de Servicio Requerido" : "Service Category"}
+                    </label>
+                    <select 
+                      value={quoteServiceType}
+                      onChange={(e) => setQuoteServiceType(e.target.value)}
+                      className="w-full h-11 px-3 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545]"
+                    >
+                      <option value="Forklift Repair">Forklift Repair (Mechanical/Electrical)</option>
+                      <option value="Hydraulic Hoses">Mobile Hydraulic Hose Replacement (6,000 PSI)</option>
+                      <option value="Pallet Jack Service">Pallet Jack Repair / Purchase / Rental</option>
+                      <option value="Forklift Tires">Forklift Tires & Mobile Pressing</option>
+                      <option value="Heavy Equipment">Heavy Machinery / Backhoe Service</option>
+                      <option value="Equipment Purchase">Certified Equipment Purchase Inquiry</option>
+                    </select>
+                  </div>
+
+                  <div className="space-y-1">
+                    <label className="text-xs font-bold text-slate-700">
+                      {lang === "es" ? "Nivel de Urgencia" : "Urgency Level"}
+                    </label>
+                    <select 
+                      value={quoteUrgency}
+                      onChange={(e) => setQuoteUrgency(e.target.value)}
+                      className="w-full h-11 px-3 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545]"
+                    >
+                      <option value="Immediate Dispatch (Emergency)">🚨 Emergency - Machine Down (Immediate Dispatch)</option>
+                      <option value="Same Day Service">Same Day Service</option>
+                      <option value="Next 24-48 Hours">Next 24-48 Hours</option>
+                      <option value="Quote / Scheduled PM">Quote / Routine Maintenance</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <label className="text-xs font-bold text-slate-700">
+                    {lang === "es" ? "Detalles de la Máquina o Síntomas" : "Equipment Details / Symptoms"}
+                  </label>
+                  <textarea 
+                    rows={3}
+                    value={quoteMessage}
+                    onChange={(e) => setQuoteMessage(e.target.value)}
+                    placeholder={lang === "es" 
+                      ? "Indique marca, modelo y falla (ej: Toyota 8FGU25 con fuga de aceite hidráulico en el mástil)..." 
+                      : "Specify machine brand, model and issue (e.g. Toyota 8FGU25 leaking hydraulic fluid at mast)..."}
+                    className="w-full p-3 rounded-lg border border-slate-300 bg-white text-sm text-slate-900 focus:outline-none focus:border-[#0B2545] focus:ring-1 focus:ring-[#0B2545] resize-none"
+                  />
+                </div>
+
+                <div className="pt-2 flex flex-col sm:flex-row gap-3">
+                  <button
+                    type="submit"
+                    disabled={isSubmittingQuote}
+                    className="flex-1 h-12 inline-flex items-center justify-center rounded-lg bg-[#0B2545] text-white font-bold text-sm hover:bg-[#133b68] disabled:opacity-50 transition-colors shadow-sm gap-2 cursor-pointer"
+                  >
+                    {isSubmittingQuote ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span>{lang === "es" ? "Enviando Solicitud..." : "Submitting Dispatch Request..."}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-4 w-4 text-amber-400" />
+                        <span>{lang === "es" ? "Enviar Solicitud de Servicio" : "Submit Service Request"}</span>
+                      </>
+                    )}
+                  </button>
+
+                  <a 
+                    href={`https://wa.me/17184042038?text=Hello%20WillyFastSolutions,%20I%20need%20${encodeURIComponent(quoteServiceType)}%20for%20company%20${encodeURIComponent(quoteCompany || "Client")}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="h-12 px-5 inline-flex items-center justify-center rounded-lg border border-emerald-300 bg-emerald-50 text-emerald-800 font-bold text-sm hover:bg-emerald-100 transition-colors gap-2"
+                  >
+                    <MessageCircle className="h-4 w-4 text-emerald-600" />
+                    <span>{lang === "es" ? "WhatsApp Directo" : "Direct WhatsApp"}</span>
+                  </a>
+                </div>
+
+              </form>
+            </div>
+
           </div>
         </div>
       </section>

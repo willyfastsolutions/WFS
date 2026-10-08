@@ -2,7 +2,7 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://willyfastsolutions.com/</loc>
-    <lastmod>2026-09-22</lastmod>
+    <lastmod>2026-10-08</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
     <xhtml:link rel="alternate" hreflang="en-US" href="https://willyfastsolutions.com/" />
@@ -10,9 +10,45 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://willyfastsolutions.com/" />
   </url>
   <url>
-    <loc>https://willyfastsolutions.com/login/</loc>
-    <lastmod>2026-09-22</lastmod>
+    <loc>https://willyfastsolutions.com/services/</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://willyfastsolutions.com/services/" />
+    <xhtml:link rel="alternate" hreflang="es-US" href="https://willyfastsolutions.com/services/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://willyfastsolutions.com/services/" />
+  </url>
+  <url>
+    <loc>https://willyfastsolutions.com/equipment-sales/</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.9</priority>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://willyfastsolutions.com/equipment-sales/" />
+    <xhtml:link rel="alternate" hreflang="es-US" href="https://willyfastsolutions.com/equipment-sales/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://willyfastsolutions.com/equipment-sales/" />
+  </url>
+  <url>
+    <loc>https://willyfastsolutions.com/contact/</loc>
+    <lastmod>2026-10-08</lastmod>
     <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://willyfastsolutions.com/contact/" />
+    <xhtml:link rel="alternate" hreflang="es-US" href="https://willyfastsolutions.com/contact/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://willyfastsolutions.com/contact/" />
+  </url>
+  <url>
+    <loc>https://willyfastsolutions.com/software/</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.8</priority>
+    <xhtml:link rel="alternate" hreflang="en-US" href="https://willyfastsolutions.com/software/" />
+    <xhtml:link rel="alternate" hreflang="es-US" href="https://willyfastsolutions.com/software/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://willyfastsolutions.com/software/" />
+  </url>
+  <url>
+    <loc>https://willyfastsolutions.com/login/</loc>
+    <lastmod>2026-10-08</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.4</priority>
   </url>
 </urlset>

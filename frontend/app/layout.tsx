@@ -271,6 +271,64 @@ export default function RootLayout({
     ]
   };
 
+  const websiteAndSitelinksSchema = {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://willyfastsolutions.com/#website",
+        "url": "https://willyfastsolutions.com/",
+        "name": "Willy Fast Solutions Corp",
+        "description": "Commercial Forklift Repair, Mobile Hydraulic Hoses & Heavy Machinery in New York",
+        "publisher": {
+          "@id": "https://willyfastsolutions.com/#localbusiness"
+        }
+      },
+      {
+        "@type": "ItemList",
+        "@id": "https://willyfastsolutions.com/#sitelinks",
+        "name": "Willy Fast Solutions - Primary Sitelinks",
+        "itemListElement": [
+          {
+            "@type": "SiteNavigationElement",
+            "position": 1,
+            "name": "Commercial Services",
+            "description": "Emergency on-site forklift repair, mobile hydraulic hose crimping up to 6,000 PSI, and pallet jack rebuilds across Queens and NYC.",
+            "url": "https://willyfastsolutions.com/services/"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 2,
+            "name": "Equipment Sales",
+            "description": "Certified pre-owned Toyota, Crown, and Hyster forklifts for sale with multi-point inspection and mechanical warranty.",
+            "url": "https://willyfastsolutions.com/equipment-sales/"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 3,
+            "name": "Map & Hours",
+            "description": "Visit our physical facility at 97-20 102nd St, Ozone Park, Queens NY 11416. Shop hours: Mon-Sat 7am-6pm. 24/7 mobile field service.",
+            "url": "https://willyfastsolutions.com/contact/"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 4,
+            "name": "Fleet Software",
+            "description": "Dedicated cloud platform for fleet telemetry, autonomous horometer tracking, and digital OSHA daily pre-shift inspection checklists.",
+            "url": "https://willyfastsolutions.com/software/"
+          },
+          {
+            "@type": "SiteNavigationElement",
+            "position": 5,
+            "name": "Customer Reviews",
+            "description": "Verified Google customer reviews and 5.0 star testimonials from Queens, Brooklyn, and Long Island warehouse and logistics managers.",
+            "url": "https://willyfastsolutions.com/#reviews"
+          }
+        ]
+      }
+    ]
+  };
+
   return (
     <html
       lang="en"
@@ -282,6 +340,12 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{
             __html: JSON.stringify(localBusinessSchema)
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(websiteAndSitelinksSchema)
           }}
         />
       </head>
