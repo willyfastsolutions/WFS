@@ -309,22 +309,10 @@ export default function CorporateHomePage() {
             </div>
           </Link>
 
-          {/* Desktop Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-6 text-sm font-semibold text-slate-700">
+          {/* Desktop Navigation Links (Clean & Direct) */}
+          <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-700">
             <a href="#services" className="hover:text-[#0B2545] transition-colors">
               {lang === "es" ? "Servicios" : "Services"}
-            </a>
-            <a href="#hydraulic-hoses" className="hover:text-[#0B2545] transition-colors">
-              {lang === "es" ? "Mangueras 6,000 PSI" : "Hydraulic Hoses"}
-            </a>
-            <a href="#pallet-jacks" className="hover:text-[#0B2545] transition-colors">
-              {lang === "es" ? "Pallet Jacks" : "Pallet Jacks"}
-            </a>
-            <a href="#tires-pressing" className="hover:text-[#0B2545] transition-colors">
-              {lang === "es" ? "Llantas & Prensa" : "Tires & Pressing"}
-            </a>
-            <a href="#equipment-sales" className="hover:text-[#0B2545] transition-colors">
-              {lang === "es" ? "Venta de Equipos" : "Equipment Sales"}
             </a>
             <a href="#reviews" className="hover:text-[#0B2545] transition-colors flex items-center gap-1">
               <span>{lang === "es" ? "Reseñas" : "Reviews"}</span>
@@ -335,60 +323,30 @@ export default function CorporateHomePage() {
             </a>
           </nav>
 
-          {/* Right Header CTAs & Software Portal Button */}
+          {/* Right Header CTAs: Language Switcher & Direct Quote Action */}
           <div className="hidden sm:flex items-center gap-3">
-            {/* Dedicated SaaS software division link (Clearly separated) */}
-            <a 
-              href="software/"
-              onClick={(e) => {
-                if (typeof window !== "undefined" && window.location.protocol === "file:") {
-                  e.preventDefault();
-                  window.location.href = "software/index.html";
-                }
-              }}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-blue-200 bg-blue-50/70 text-[#0B2545] text-xs font-bold hover:bg-blue-100 hover:border-blue-300 transition-all shadow-sm"
-              title="Looking for our Fleet Telemetry and OSHA Software Division?"
-            >
-              <Cpu className="h-3.5 w-3.5 text-blue-700" />
-              <span>{lang === "es" ? "Software Telemetría" : "Fleet Software"}</span>
-            </a>
-
             {/* Language Switcher */}
             <button
               onClick={() => setLang(lang === "en" ? "es" : "en")}
-              className="inline-flex items-center px-2.5 py-1 rounded border border-slate-300 bg-slate-100 text-xs font-bold text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
+              className="inline-flex items-center px-3 py-1.5 rounded-lg border border-slate-300 bg-slate-100 text-xs font-bold text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
             >
               {lang === "en" ? "🇺🇸 EN" : "🇪🇸 ES"}
             </button>
 
-            {/* Direct Call Button (Safety Amber) */}
+            {/* Quick Action: Request Quote */}
             <a 
-              href="tel:+17184042038"
-              className="inline-flex items-center justify-center h-10 px-4 rounded-lg bg-amber-500 text-slate-950 font-bold text-xs hover:bg-amber-400 transition-all shadow-sm gap-2"
+              href="#contact"
+              className="inline-flex items-center justify-center h-10 px-4 rounded-lg bg-[#0B2545] text-white font-bold text-xs hover:bg-[#133b68] transition-all shadow-sm gap-1.5"
             >
-              <Phone className="h-3.5 w-3.5" />
-              <span>(718) 404-2038</span>
-            </a>
-
-            {/* Client Portal Login */}
-            <a 
-              href="login/"
-              onClick={(e) => {
-                if (typeof window !== "undefined" && window.location.protocol === "file:") {
-                  e.preventDefault();
-                  window.location.href = "login/index.html";
-                }
-              }}
-              className="inline-flex items-center justify-center h-10 px-3 rounded-lg border border-slate-300 text-slate-700 font-semibold text-xs hover:bg-slate-100 transition-colors"
-            >
-              {lang === "es" ? "Acceso Clientes" : "Client Login"}
+              <FileText className="h-3.5 w-3.5 text-amber-400" />
+              <span>{lang === "es" ? "Solicitar Cotización" : "Request Quote"}</span>
             </a>
           </div>
 
           {/* Mobile Menu Hamburger */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100"
+            className="md:hidden p-2 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-100"
             aria-label="Toggle mobile menu"
           >
             <Layers className="h-5 w-5" />
@@ -397,41 +355,13 @@ export default function CorporateHomePage() {
 
         {/* Mobile Dropdown Menu */}
         {mobileMenuOpen && (
-          <div className="lg:hidden bg-white border-b border-slate-200 px-4 py-4 space-y-3 text-sm font-semibold">
+          <div className="md:hidden bg-white border-b border-slate-200 px-4 py-4 space-y-3 text-sm font-semibold shadow-lg">
             <a 
               href="#services" 
               onClick={() => setMobileMenuOpen(false)}
               className="block py-2 text-slate-700 hover:text-[#0B2545]"
             >
-              {lang === "es" ? "Servicios Principales" : "Commercial Services"}
-            </a>
-            <a 
-              href="#hydraulic-hoses" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-slate-700 hover:text-[#0B2545]"
-            >
-              {lang === "es" ? "Mangueras Hidráulicas 6,000 PSI" : "Hydraulic Hoses (6,000 PSI)"}
-            </a>
-            <a 
-              href="#pallet-jacks" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-slate-700 hover:text-[#0B2545]"
-            >
-              {lang === "es" ? "Pallet Jacks (Venta & Taller)" : "Pallet Jacks (Sales & Service)"}
-            </a>
-            <a 
-              href="#tires-pressing" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-slate-700 hover:text-[#0B2545]"
-            >
-              {lang === "es" ? "Llantas & Prensa Móvil" : "Forklift Tires & Mobile Pressing"}
-            </a>
-            <a 
-              href="#equipment-sales" 
-              onClick={() => setMobileMenuOpen(false)}
-              className="block py-2 text-slate-700 hover:text-[#0B2545]"
-            >
-              {lang === "es" ? "Venta de Montacargas" : "Equipment Sales"}
+              {lang === "es" ? "Servicios Comerciales" : "Commercial Services"}
             </a>
             <a 
               href="#reviews" 
@@ -440,36 +370,28 @@ export default function CorporateHomePage() {
             >
               {lang === "es" ? "Reseñas Verificadas (★ 5.0)" : "Verified Reviews (★ 5.0)"}
             </a>
+            <a 
+              href="#contact" 
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-2 text-slate-700 hover:text-[#0B2545]"
+            >
+              {lang === "es" ? "Solicitar Cotización" : "Request Quote"}
+            </a>
             
-            <div className="pt-2 border-t border-slate-200 flex flex-col gap-2">
-              <a 
-                href="software/"
-                className="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-blue-50 text-[#0B2545] font-bold border border-blue-200"
+            <div className="pt-2 border-t border-slate-200 flex items-center justify-between">
+              <button
+                onClick={() => setLang(lang === "en" ? "es" : "en")}
+                className="px-3 py-1.5 rounded border border-slate-300 bg-slate-100 font-bold text-xs text-slate-700"
               >
-                <Cpu className="h-4 w-4 text-blue-700" />
-                <span>{lang === "es" ? "División Software Telemetría" : "Fleet Telemetry Software Division"}</span>
-              </a>
+                {lang === "en" ? "Cambiar a Español" : "Switch to English"}
+              </button>
               <a 
-                href="tel:+17184042038"
-                className="flex items-center justify-center gap-2 py-2.5 rounded-lg bg-amber-500 text-slate-950 font-bold"
+                href="#contact"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-xs font-bold text-[#0B2545] underline"
               >
-                <Phone className="h-4 w-4" />
-                <span>{lang === "es" ? "Llamar Taller: (718) 404-2038" : "Call Dispatch: (718) 404-2038"}</span>
+                {lang === "es" ? "Contacto Directo" : "Contact Us"}
               </a>
-              <div className="flex justify-between items-center pt-2">
-                <button
-                  onClick={() => setLang(lang === "en" ? "es" : "en")}
-                  className="px-3 py-1.5 rounded border border-slate-300 bg-slate-100 font-bold text-xs text-slate-700"
-                >
-                  {lang === "en" ? "Cambiar a Español" : "Switch to English"}
-                </button>
-                <a 
-                  href="login/"
-                  className="text-xs text-slate-600 font-semibold underline"
-                >
-                  {lang === "es" ? "Portal Clientes" : "Client Portal"}
-                </a>
-              </div>
             </div>
           </div>
         )}
@@ -642,37 +564,37 @@ export default function CorporateHomePage() {
         </div>
       </section>
 
-      {/* 4. THE 4 COMMERCIAL SERVICE PILLARS (Modeled after CLT Lift Trucks) */}
+      {/* 4. COMMERCIAL SERVICES CATALOG (6 Core Commercial Capabilities) */}
       <section id="services" className="py-16 md:py-24 bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           
           <div className="text-center max-w-3xl mx-auto space-y-3">
             <div className="inline-flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-amber-600 bg-amber-50 px-3 py-1 rounded-full border border-amber-200">
               <Award className="h-3.5 w-3.5" />
-              <span>{lang === "es" ? "Especialistas Mecánicos en Nueva York" : "Core Commercial Capabilities"}</span>
+              <span>{lang === "es" ? "Especialistas Mecánicos e Industriales en NY" : "Core Commercial Capabilities"}</span>
             </div>
             <h2 className="text-3xl sm:text-4xl font-black text-[#0B2545] tracking-tight">
               {lang === "es" 
-                ? "Nuestros 4 Pilares de Servicio Técnico y Taller Físico" 
-                : "4 Core Heavy Machinery & Forklift Service Pillars"}
+                ? "Servicios Industriales & Soluciones de Flota WFS" 
+                : "Commercial Forklift Services & Fleet Solutions"}
             </h2>
             <p className="text-slate-600 text-sm sm:text-base leading-relaxed">
               {lang === "es"
-                ? "Desde reparaciones de emergencia en menos de 45 minutos hasta contratos de mantenimiento preventivo y venta de equipos certificados con garantía."
-                : "From emergency on-site field repairs in under 45 minutes to mobile hose crimping and certified equipment sales backed by full warranties."}
+                ? "Desde reparaciones mecánicas de emergencia en menos de 45 minutos hasta prensado móvil de mangueras, venta de equipos certificados y nuestra plataforma digital de telemetría."
+                : "From emergency on-site field repairs in under 45 minutes to mobile hose crimping, certified equipment sales, and our dedicated digital fleet platform."}
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             
-            {/* PILLAR 1: Field Service 24/7 */}
+            {/* CARD 1: Field Service 24/7 */}
             <div id="field-service" className="bg-slate-50 rounded-2xl border border-slate-200 hover:border-blue-400 p-6 flex flex-col justify-between shadow-xs hover:shadow-md transition-all group">
               <div className="space-y-4">
                 <div className="h-12 w-12 rounded-xl bg-[#0B2545] text-amber-400 flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform shadow-sm">
                   <Wrench className="h-6 w-6" />
                 </div>
                 <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">
-                  {lang === "es" ? "Pilar 1 • Mecánica Móvil 24/7" : "Pillar 1 • 24/7 Field Service"}
+                  {lang === "es" ? "Mecánica Móvil 24/7" : "24/7 Field Service"}
                 </div>
                 <h3 className="text-xl font-bold text-[#0B2545] leading-tight">
                   {lang === "es" ? "Reparación Mecánica en Sitio" : "Emergency On-Site Field Repairs"}
@@ -708,14 +630,14 @@ export default function CorporateHomePage() {
               </div>
             </div>
 
-            {/* PILLAR 2: Hydraulic Hoses 6,000 PSI */}
+            {/* CARD 2: Hydraulic Hoses 6,000 PSI */}
             <div id="hydraulic-hoses" className="bg-slate-50 rounded-2xl border border-slate-200 hover:border-amber-400 p-6 flex flex-col justify-between shadow-xs hover:shadow-md transition-all group">
               <div className="space-y-4">
                 <div className="h-12 w-12 rounded-xl bg-amber-500 text-slate-950 flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform shadow-sm">
                   <Flame className="h-6 w-6" />
                 </div>
                 <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">
-                  {lang === "es" ? "Pilar 2 • Prensado en Sitio" : "Pillar 2 • Mobile Crimping"}
+                  {lang === "es" ? "Prensado en Sitio" : "Mobile Crimping"}
                 </div>
                 <h3 className="text-xl font-bold text-[#0B2545] leading-tight">
                   {lang === "es" ? "Mangueras Hidráulicas 6,000 PSI" : "High-Pressure Hydraulic Hoses"}
@@ -751,14 +673,14 @@ export default function CorporateHomePage() {
               </div>
             </div>
 
-            {/* PILLAR 3: Pallet Jacks (Sales & Repairs) */}
+            {/* CARD 3: Pallet Jacks (Sales & Repairs) */}
             <div id="pallet-jacks" className="bg-slate-50 rounded-2xl border border-slate-200 hover:border-blue-400 p-6 flex flex-col justify-between shadow-xs hover:shadow-md transition-all group">
               <div className="space-y-4">
                 <div className="h-12 w-12 rounded-xl bg-[#0B2545] text-amber-400 flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform shadow-sm">
                   <Package className="h-6 w-6" />
                 </div>
                 <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">
-                  {lang === "es" ? "Pilar 3 • Venta & Reparación" : "Pillar 3 • Sales & Service"}
+                  {lang === "es" ? "Venta & Reparación" : "Sales & Service"}
                 </div>
                 <h3 className="text-xl font-bold text-[#0B2545] leading-tight">
                   {lang === "es" ? "Pallet Jacks Manuales & Eléctricos" : "Pallet Jack Sales & Pump Rebuilds"}
@@ -794,14 +716,14 @@ export default function CorporateHomePage() {
               </div>
             </div>
 
-            {/* PILLAR 4: Forklift Tires & Mobile Pressing */}
+            {/* CARD 4: Forklift Tires & Mobile Pressing */}
             <div id="tires-pressing" className="bg-slate-50 rounded-2xl border border-slate-200 hover:border-blue-400 p-6 flex flex-col justify-between shadow-xs hover:shadow-md transition-all group">
               <div className="space-y-4">
                 <div className="h-12 w-12 rounded-xl bg-[#0B2545] text-amber-400 flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform shadow-sm">
                   <RotateCw className="h-6 w-6" />
                 </div>
                 <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">
-                  {lang === "es" ? "Pilar 4 • Prensa Móvil" : "Pillar 4 • Mobile Tire Pressing"}
+                  {lang === "es" ? "Prensa Móvil" : "Mobile Tire Pressing"}
                 </div>
                 <h3 className="text-xl font-bold text-[#0B2545] leading-tight">
                   {lang === "es" ? "Llantas Sólidas & Prensa Móvil" : "Forklift Tires & Mobile Pressing"}
@@ -837,79 +759,104 @@ export default function CorporateHomePage() {
               </div>
             </div>
 
-          </div>
-        </div>
-      </section>
-
-      {/* 5. HEAVY MACHINERY & EXCAVATOR DIVISION (Bobcat, Cat, Case) */}
-      <section className="py-16 bg-slate-100 border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="bg-white rounded-2xl border border-slate-200 p-8 sm:p-12 shadow-sm">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-              
-              <div className="lg:col-span-7 space-y-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-amber-50 text-amber-700 border border-amber-200 text-xs font-bold uppercase tracking-wider">
-                  <Truck className="h-3.5 w-3.5" />
-                  <span>{lang === "es" ? "División de Maquinaria Pesada & Construcción" : "Heavy Machinery & Construction Division"}</span>
+            {/* CARD 5: Certified Forklift Sales */}
+            <div id="certified-sales" className="bg-slate-50 rounded-2xl border border-slate-200 hover:border-blue-400 p-6 flex flex-col justify-between shadow-xs hover:shadow-md transition-all group">
+              <div className="space-y-4">
+                <div className="h-12 w-12 rounded-xl bg-[#0B2545] text-amber-400 flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform shadow-sm">
+                  <Award className="h-6 w-6" />
                 </div>
-                
-                <h3 className="text-2xl sm:text-3xl font-black text-[#0B2545]">
-                  {lang === "es" 
-                    ? "Servicio Técnico de Retroexcavadoras y Skid Steers en Obra" 
-                    : "Backhoe, Skid Steer & Excavator Field Maintenance"}
+                <div className="text-[10px] font-bold uppercase tracking-wider text-amber-600">
+                  {lang === "es" ? "Equipos Certificados" : "Certified Machinery"}
+                </div>
+                <h3 className="text-xl font-bold text-[#0B2545] leading-tight">
+                  {lang === "es" ? "Venta de Montacargas Certificados" : "Certified Forklifts & Equipment"}
                 </h3>
-                
-                <p className="text-sm text-slate-600 leading-relaxed">
+                <p className="text-xs text-slate-600 leading-relaxed">
                   {lang === "es"
-                    ? "Contamos con mecánicos diésel de servicio pesado equipados para atender minicargadores Bobcat, retroexcavadoras Caterpillar, Case y John Deere. Reparación de orugas, pistones de pala, bombas hidráulicas y mantenimiento periódico directamente en su obra o depósito en Nueva York."
-                    : "Our heavy diesel mobile service vans are equipped to handle Bobcat skid steers, Caterpillar, Case, and John Deere excavators and backhoes on-site. Track maintenance, bucket hydraulic cylinder repairs, and scheduled PM at your jobsite across Metro NY."}
+                    ? "Montacargas Toyota, Crown, Hyster y Cat usados certificados con garantía. Cilindros repacados, llantas nuevas e inspección multipunto 100% verificada."
+                    : "Pre-owned Toyota, Crown, Hyster, and Cat lift trucks with warranty. Repacked cylinders, fresh tires, and full multi-point mechanical inspection."}
                 </p>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs font-semibold text-slate-700">
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                    <span>Bobcat S76 / T76 Skid Steer Specialists</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                    <span>Caterpillar & Case Backhoe Hydraulics</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                    <span>{lang === "es" ? "Reparación de cilindros y fugas" : "Cylinder repacking & leak repairs"}</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                    <span>{lang === "es" ? "Servicio a domicilio en NYC Tri-State" : "On-site dispatch across NY Tri-State"}</span>
-                  </div>
-                </div>
+                <ul className="text-xs text-slate-600 space-y-1.5 pt-2 border-t border-slate-200">
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
+                    <span>{lang === "es" ? "Equipos listos para entrega inmediata" : "Ready for immediate delivery"}</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
+                    <span>{lang === "es" ? "Opciones a gas LP, eléctricos y diésel" : "LP gas, electric & diesel models"}</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 flex-shrink-0" />
+                    <span>{lang === "es" ? "Garantía de tren motriz WFS" : "WFS powertrain warranty included"}</span>
+                  </li>
+                </ul>
               </div>
-
-              <div className="lg:col-span-5 grid grid-cols-2 gap-4">
-                <div className="bg-slate-50 rounded-xl p-3 border border-slate-200 text-center">
-                  <img 
-                    src="images/skid_steer.webp" 
-                    alt="Bobcat Skid Steer Repair Queens NY" 
-                    className="h-28 w-auto mx-auto object-contain mb-2"
-                  />
-                  <span className="text-xs font-bold text-[#0B2545]">Bobcat Skid Steers</span>
-                </div>
-                <div className="bg-slate-50 rounded-xl p-3 border border-slate-200 text-center">
-                  <img 
-                    src="images/excavator.webp" 
-                    alt="Caterpillar Excavator Hydraulic Service NY" 
-                    className="h-28 w-auto mx-auto object-contain mb-2"
-                  />
-                  <span className="text-xs font-bold text-[#0B2545]">Cat & Case Excavators</span>
-                </div>
+              <div className="pt-6">
+                <a 
+                  href="#equipment-sales"
+                  className="w-full inline-flex items-center justify-center py-2.5 rounded-lg bg-[#0B2545] text-white font-bold text-xs hover:bg-[#133b68] transition-colors gap-1.5"
+                >
+                  <Award className="h-3.5 w-3.5 text-amber-400" />
+                  <span>{lang === "es" ? "Ver Inventario de Equipos" : "View Forklift Inventory"}</span>
+                </a>
               </div>
-
             </div>
+
+            {/* CARD 6: WFS Fleet Software & Telemetry Platform */}
+            <div id="fleet-software-card" className="bg-gradient-to-b from-blue-50/70 to-slate-50 rounded-2xl border-2 border-blue-200 hover:border-blue-400 p-6 flex flex-col justify-between shadow-xs hover:shadow-md transition-all group">
+              <div className="space-y-4">
+                <div className="h-12 w-12 rounded-xl bg-[#0B2545] text-blue-300 flex items-center justify-center font-bold text-lg group-hover:scale-105 transition-transform shadow-sm">
+                  <Cpu className="h-6 w-6" />
+                </div>
+                <div className="text-[10px] font-bold uppercase tracking-wider text-blue-700 flex items-center gap-1.5">
+                  <span className="flex h-1.5 w-1.5 rounded-full bg-blue-600 animate-pulse" />
+                  <span>{lang === "es" ? "División Software Digital" : "Dedicated Digital Platform"}</span>
+                </div>
+                <h3 className="text-xl font-bold text-[#0B2545] leading-tight">
+                  {lang === "es" ? "Software de Flotas WFS" : "WFS Fleet Telemetry & Software"}
+                </h3>
+                <p className="text-xs text-slate-600 leading-relaxed">
+                  {lang === "es"
+                    ? "Plataforma SaaS en la nube para empresas: control autónomo de horómetros, alertas predictivas de mantenimiento, cálculo de ROI y checklists digitales diarios OSHA."
+                    : "Dedicated cloud SaaS suite for fleet managers: autonomous horometer tracking, predictive maintenance alerts, and digital OSHA daily pre-shift inspections."}
+                </p>
+                <ul className="text-xs text-slate-600 space-y-1.5 pt-2 border-t border-blue-200/60">
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-blue-600 flex-shrink-0" />
+                    <span>{lang === "es" ? "Horómetros y telemetría de uso" : "Autonomous horometers & telemetry"}</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-blue-600 flex-shrink-0" />
+                    <span>{lang === "es" ? "Alertas preventivas programadas" : "Scheduled maintenance alerts"}</span>
+                  </li>
+                  <li className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-blue-600 flex-shrink-0" />
+                    <span>{lang === "es" ? "Checklists digitales OSHA por QR" : "Digital OSHA pre-shift QR checklists"}</span>
+                  </li>
+                </ul>
+              </div>
+              <div className="pt-6">
+                <a 
+                  href="software/"
+                  onClick={(e) => {
+                    if (typeof window !== "undefined" && window.location.protocol === "file:") {
+                      e.preventDefault();
+                      window.location.href = "software/index.html";
+                    }
+                  }}
+                  className="w-full inline-flex items-center justify-center py-2.5 rounded-lg bg-[#0B2545] text-white font-bold text-xs hover:bg-[#133b68] transition-colors gap-2 shadow-sm"
+                >
+                  <Cpu className="h-3.5 w-3.5 text-amber-400" />
+                  <span>{lang === "es" ? "Acceder a División Software →" : "Launch Fleet Platform →"}</span>
+                </a>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* 6. CERTIFIED EQUIPMENT SALES SHOWCASE */}
+      {/* 5. CERTIFIED EQUIPMENT SALES SHOWCASE */}
       <section id="equipment-sales" className="py-16 md:py-24 bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           
@@ -1045,45 +992,7 @@ export default function CorporateHomePage() {
         </div>
       </section>
 
-      {/* 7. DISTINCT CORPORATE CALLOUT: SEPARATE FLEET SOFTWARE DIVISION */}
-      <section className="py-12 bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="rounded-2xl border-2 border-blue-200 bg-gradient-to-r from-blue-50/70 via-slate-50 to-indigo-50/50 p-8 sm:p-10 shadow-sm flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="space-y-2 max-w-3xl">
-              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#0B2545] bg-blue-100/80 px-2.5 py-1 rounded">
-                <Cpu className="h-3.5 w-3.5 text-blue-700" />
-                <span>{lang === "es" ? "División Digital Independiente" : "Dedicated Digital Fleet Division"}</span>
-              </div>
-              <h3 className="text-xl sm:text-2xl font-black text-[#0B2545]">
-                {lang === "es" 
-                  ? "¿Administra una flota corporativa y necesita software de telemetría?" 
-                  : "Managing a corporate warehouse fleet & need telemetry software?"}
-              </h3>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                {lang === "es"
-                  ? "Willy Fast Solutions también cuenta con una plataforma SaaS dedicada para monitoreo autónomo de horómetros, alertas predictivas de mantenimiento, cálculo de ROI de tiempo muerto y listas digitales de inspección diaria OSHA."
-                  : "Willy Fast Solutions operates an isolated SaaS telemetry suite for autonomous horometer tracking, daemon predictive maintenance alerts, fleet downtime ROI calculation, and digital OSHA pre-shift inspection checklists."}
-              </p>
-            </div>
-
-            <a 
-              href="software/"
-              onClick={(e) => {
-                if (typeof window !== "undefined" && window.location.protocol === "file:") {
-                  e.preventDefault();
-                  window.location.href = "software/index.html";
-                }
-              }}
-              className="inline-flex items-center justify-center whitespace-nowrap h-12 px-6 rounded-lg bg-[#0B2545] text-white font-bold text-xs hover:bg-[#133b68] transition-colors shadow-sm gap-2"
-            >
-              <span>{lang === "es" ? "Explorar División Software →" : "Visit Fleet Software Portal →"}</span>
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          </div>
-        </div>
-      </section>
-
-      {/* 8. COMMERCIAL INTERACTIVE QUOTE & SERVICE DISPATCH FORM */}
+      {/* 6. COMMERCIAL INTERACTIVE QUOTE & SERVICE DISPATCH FORM */}
       <section id="contact" className="py-16 md:py-24 bg-slate-50 border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="max-w-3xl mx-auto bg-white rounded-2xl border border-slate-200 p-8 sm:p-12 shadow-md space-y-8">
@@ -1267,7 +1176,7 @@ export default function CorporateHomePage() {
         </div>
       </section>
 
-      {/* 9. VERIFIED GOOGLE COMMERCIAL REVIEWS (48 Reviews • 5.0 Stars) */}
+      {/* 7. VERIFIED GOOGLE COMMERCIAL REVIEWS (48 Reviews • 5.0 Stars) */}
       <section id="reviews" className="py-16 md:py-24 bg-white border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           
@@ -1333,7 +1242,7 @@ export default function CorporateHomePage() {
         </div>
       </section>
 
-      {/* 10. SERVICE COVERAGE RADIUS (Metro NY & Tri-State Area) */}
+      {/* 8. SERVICE COVERAGE RADIUS (Metro NY & Tri-State Area) */}
       <section className="py-16 bg-slate-50 border-b border-slate-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
           <div className="text-center max-w-2xl mx-auto space-y-2">
@@ -1376,7 +1285,7 @@ export default function CorporateHomePage() {
         </div>
       </section>
 
-      {/* 11. CORPORATE FOOTER */}
+      {/* 9. CORPORATE FOOTER */}
       <footer className="bg-[#0B2545] text-white pt-16 pb-12 border-t border-blue-900">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
           
