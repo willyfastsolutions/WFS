@@ -128,7 +128,12 @@ export default function RootLayout({
       "latitude": 40.6865,
       "longitude": -73.8443
     },
-    "hasMap": "https://maps.google.com/?q=Willy+Fast+Solutions+Corp+97-20+102nd+St+Ozone+Park+NY+11416",
+    "sameAs": [
+      "https://www.facebook.com/profile.php?id=61595031945379",
+      "https://www.instagram.com/willyfastsolution/",
+      "https://www.tiktok.com/@willyfastsolution"
+    ],
+    "hasMap": "https://maps.google.com/?q=Willy+Fast+Solutions+Corp+97-20+102nd+St+Ozone Park+NY+11416",
     "areaServed": [
       { "@type": "City", "name": "Ozone Park" },
       { "@type": "City", "name": "South Ozone Park" },
